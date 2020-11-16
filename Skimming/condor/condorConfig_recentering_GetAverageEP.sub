@@ -1,0 +1,9 @@
+executable            = condorExec_recentering_GetAverageEP.sh
+arguments             = -1 20201109 
+output                = output/condor.$(ClusterId).$(ProcId).out
+error                 = error/condor.$(ClusterId).$(ProcId).err
+log                   = log/condor.$(ClusterId).log
+request_cpus          = 8
+request_memory        = 20
++JobFlavour           = "testmatch"
+queue

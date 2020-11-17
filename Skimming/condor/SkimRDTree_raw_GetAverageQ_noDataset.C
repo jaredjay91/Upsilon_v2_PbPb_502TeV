@@ -549,8 +549,16 @@ void SkimRDTree_raw_GetAverageQ_noDataset(int nevt=1000, int dateStr=20201112)
 
   avgFile->Close();
 
-  cout << "ptPASS = {" << ptPASS[0] << "," << ptPASS[1] << "," << ptPASS[2] << "}" << endl;
-  cout << "centPASS = {" << centPASS[0] << "," << centPASS[1] << "," << centPASS[2] << "," << centPASS[3] << "}" << endl;
+  cout << "ptPASS = {";
+  for (int i=0; i<numptbins; i++) {
+    cout << ptPASS[i] << ",";
+  }
+  cout << "}" << endl;
+  cout << "centPASS = {";
+  for (int i=0; i<numcbins; i++) {
+    cout << centPASS[i] << ",";
+  }
+  cout << "}" << endl;
 
   cout << endl;
   cout << "avgqx = " << avgqx << endl;

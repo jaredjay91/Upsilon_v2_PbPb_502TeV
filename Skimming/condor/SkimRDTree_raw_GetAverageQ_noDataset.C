@@ -38,11 +38,13 @@ void SkimRDTree_raw_GetAverageQ_noDataset(int nevt=1000, int dateStr=20201112)
   cout << " Index of "<< EPNames[HFp2] << " = " << HFp2 << endl;
   cout << " Index of "<< EPNames[trackmid2] << " = " << trackmid2 << endl;
 
-  Double_t ptbins[4] = {0,3,6,30};
-  const int numptbins = sizeof(ptbins)/sizeof(Double_t)-1;
+  float ptbins[5] = {0,3,6,10,50};
+  const int numptbins = sizeof(ptbins)/sizeof(float)-1;
+  Double_t cbins[4] = {10,30,50,90};
+  const int numcbins = sizeof(cbins)/sizeof(double)-1;
 
-  Double_t centbins[5] = {0,10,30,50,100};
-  const int numcentbins = sizeof(centbins)/sizeof(Double_t)-1;
+  TH1D* hpt = new TH1D("hpt","hist vs pt",numptbins,ptbins);
+  TH1D* hcent = new TH1D("hcent","hist vs cent",numcbins,cbins);
 
   //TH1D* hPseudoQx = new TH1D("hPseudoQx","cos(2*psi)",50,-1.2,1.2);
   //TH1D* hPseudoQy = new TH1D("hPseudoQy","sin(2*psi)",50,-1.2,1.2);
@@ -217,31 +219,31 @@ void SkimRDTree_raw_GetAverageQ_noDataset(int nevt=1000, int dateStr=20201112)
   Double_t avgqxtrackmid2 = 0;
   Double_t avgqytrackmid2 = 0;
 
-  Double_t avgqxpt[3] = {0};
-  Double_t avgqypt[3] = {0};
-  Double_t avgqxHFm2pt[3] = {0};
-  Double_t avgqyHFm2pt[3] = {0};
-  Double_t avgqxHFp2pt[3] = {0};
-  Double_t avgqyHFp2pt[3] = {0};
-  Double_t avgqxtrackmid2pt[3] = {0};
-  Double_t avgqytrackmid2pt[3] = {0};
+  Double_t avgqxpt[numptbins] = {0};
+  Double_t avgqypt[numptbins] = {0};
+  Double_t avgqxHFm2pt[numptbins] = {0};
+  Double_t avgqyHFm2pt[numptbins] = {0};
+  Double_t avgqxHFp2pt[numptbins] = {0};
+  Double_t avgqyHFp2pt[numptbins] = {0};
+  Double_t avgqxtrackmid2pt[numptbins] = {0};
+  Double_t avgqytrackmid2pt[numptbins] = {0};
 
-  Double_t avgqxcent[4] = {0};
-  Double_t avgqycent[4] = {0};
-  Double_t avgqxHFm2cent[4] = {0};
-  Double_t avgqyHFm2cent[4] = {0};
-  Double_t avgqxHFp2cent[4] = {0};
-  Double_t avgqyHFp2cent[4] = {0};
-  Double_t avgqxtrackmid2cent[4] = {0};
-  Double_t avgqytrackmid2cent[4] = {0};
+  Double_t avgqxcent[numcbins] = {0};
+  Double_t avgqycent[numcbins] = {0};
+  Double_t avgqxHFm2cent[numcbins] = {0};
+  Double_t avgqyHFm2cent[numcbins] = {0};
+  Double_t avgqxHFp2cent[numcbins] = {0};
+  Double_t avgqyHFp2cent[numcbins] = {0};
+  Double_t avgqxtrackmid2cent[numcbins] = {0};
+  Double_t avgqytrackmid2cent[numcbins] = {0};
 
 
   //errors on averages
   Double_t sumsqrsqx = 0;
   Double_t sumsqrsqy = 0;
 
-  int ptPASS[3] = {0};
-  int centPASS[4] = {0};
+  int ptPASS[numptbins] = {0};
+  int centPASS[numcbins] = {0};
 
   if(nevt == -1) nevt = mytree->GetEntries();
 
@@ -256,11 +258,12 @@ void SkimRDTree_raw_GetAverageQ_noDataset(int nevt=1000, int dateStr=20201112)
   
     if(!( (HLTriggers&((ULong64_t)pow(2, kTrigSel))) == ((ULong64_t)pow(2, kTrigSel)) ) ) continue;
 
+    if( Centrality<20 || Centrality>180 ) continue;
+
     for (Int_t irqq=0; irqq<Reco_QQ_size; ++irqq) 
     {
 
-      if ( Reco_QQ_VtxProb[irqq]  < 0.01 ) 
-        continue;
+      if ( Reco_QQ_VtxProb[irqq]  < 0.01 ) continue;
 
       if(!( (Reco_QQ_trig[irqq]&((ULong64_t)pow(2, kTrigSel))) == ((ULong64_t)pow(2, kTrigSel)) ) ) continue;
       
@@ -389,51 +392,34 @@ void SkimRDTree_raw_GetAverageQ_noDataset(int nevt=1000, int dateStr=20201112)
       sumsqrsqy += pow(qy[8],2);
 
       //binned averages:
-      int whichptbin = 0;
-      int whichcentbin = 0;
-      if (dm.pt<3) {
-        whichptbin = 0;
-      }
-      else if (dm.pt>=3 && dm.pt<6) {
-        whichptbin = 1;
-      }
-      else if (dm.pt>=6 && dm.pt<30) {
-        whichptbin = 2;
-      }
-      if (dm.cBin<20) {
-        whichcentbin = 0;
-      }
-      else if (dm.cBin>=20 && dm.cBin<60) {
-        whichcentbin = 1;
-      }
-      else if (dm.cBin>=60 && dm.cBin<100) {
-        whichcentbin = 2;
-      }
-      else if (dm.cBin>=100 && dm.cBin<200) {
-        whichcentbin = 3;
-      }
+      int whichptbin = hpt->FindBin(dm.pt)-1;
+      int whichcbin = hcent->FindBin(dm.cBin/2)-1;
+      //cout << "pt = " << dm.pt << endl;
+      //cout << "cent = " << dm.cBin/2 << endl;
+      //cout << "whichptbin = " << whichptbin << endl;
+      //cout << "whichcbin = " << whichcbin << endl;
 
       avgqxpt[whichptbin] += qx[8];
       avgqypt[whichptbin] += qy[8];
-      avgqxHFm2pt[whichcentbin] += qx[6];
-      avgqyHFm2pt[whichcentbin] += qy[6];
-      avgqxHFp2pt[whichcentbin] += qx[7];
-      avgqyHFp2pt[whichcentbin] += qy[7];
-      avgqxtrackmid2pt[whichcentbin] += qx[9];
-      avgqytrackmid2pt[whichcentbin] += qy[9];
+      avgqxHFm2pt[whichcbin] += qx[6];
+      avgqyHFm2pt[whichcbin] += qy[6];
+      avgqxHFp2pt[whichcbin] += qx[7];
+      avgqyHFp2pt[whichcbin] += qy[7];
+      avgqxtrackmid2pt[whichcbin] += qx[9];
+      avgqytrackmid2pt[whichcbin] += qy[9];
 
-      avgqxcent[whichcentbin] += qx[8];
-      avgqycent[whichcentbin] += qy[8];
-      avgqxHFm2cent[whichcentbin] += qx[6];
-      avgqyHFm2cent[whichcentbin] += qy[6];
-      avgqxHFp2cent[whichcentbin] += qx[7];
-      avgqyHFp2cent[whichcentbin] += qy[7];
-      avgqxtrackmid2cent[whichcentbin] += qx[9];
-      avgqytrackmid2cent[whichcentbin] += qy[9];
+      avgqxcent[whichcbin] += qx[8];
+      avgqycent[whichcbin] += qy[8];
+      avgqxHFm2cent[whichcbin] += qx[6];
+      avgqyHFm2cent[whichcbin] += qy[6];
+      avgqxHFp2cent[whichcbin] += qx[7];
+      avgqyHFp2cent[whichcbin] += qy[7];
+      avgqxtrackmid2cent[whichcbin] += qx[9];
+      avgqytrackmid2cent[whichcbin] += qy[9];
 
       ptPASS[whichptbin] += 1;
 
-      centPASS[whichcentbin] += 1;
+      centPASS[whichcbin] += 1;
 
       mmtree->Fill();
 
@@ -468,14 +454,14 @@ void SkimRDTree_raw_GetAverageQ_noDataset(int nevt=1000, int dateStr=20201112)
   TH1D* hqxtrackmid2pt = new TH1D("hqxtrackmid2pt","Average of qx",numptbins,ptbins);
   TH1D* hqytrackmid2pt = new TH1D("hqytrackmid2pt","Average of qy",numptbins,ptbins);
 
-  TH1D* hqxcent = new TH1D("hqxcent","Average of qx",numcentbins,centbins);
-  TH1D* hqycent = new TH1D("hqycent","Average of qy",numcentbins,centbins);
-  TH1D* hqxHFm2cent = new TH1D("hqxHFm2cent","Average of qx",numcentbins,centbins);
-  TH1D* hqyHFm2cent = new TH1D("hqyHFm2cent","Average of qy",numcentbins,centbins);
-  TH1D* hqxHFp2cent = new TH1D("hqxHFp2cent","Average of qx",numcentbins,centbins);
-  TH1D* hqyHFp2cent = new TH1D("hqyHFp2cent","Average of qy",numcentbins,centbins);
-  TH1D* hqxtrackmid2cent = new TH1D("hqxtrackmid2cent","Average of qx",numcentbins,centbins);
-  TH1D* hqytrackmid2cent = new TH1D("hqytrackmid2cent","Average of qy",numcentbins,centbins);
+  TH1D* hqxcent = new TH1D("hqxcent","Average of qx",numcbins,cbins);
+  TH1D* hqycent = new TH1D("hqycent","Average of qy",numcbins,cbins);
+  TH1D* hqxHFm2cent = new TH1D("hqxHFm2cent","Average of qx",numcbins,cbins);
+  TH1D* hqyHFm2cent = new TH1D("hqyHFm2cent","Average of qy",numcbins,cbins);
+  TH1D* hqxHFp2cent = new TH1D("hqxHFp2cent","Average of qx",numcbins,cbins);
+  TH1D* hqyHFp2cent = new TH1D("hqyHFp2cent","Average of qy",numcbins,cbins);
+  TH1D* hqxtrackmid2cent = new TH1D("hqxtrackmid2cent","Average of qx",numcbins,cbins);
+  TH1D* hqytrackmid2cent = new TH1D("hqytrackmid2cent","Average of qy",numcbins,cbins);
 
     cout << "sum(qx) = " << avgqx << endl;
     cout << "sum(qx) = " << avgqy << endl;
@@ -534,7 +520,7 @@ void SkimRDTree_raw_GetAverageQ_noDataset(int nevt=1000, int dateStr=20201112)
   hqxtrackmid2pt->Write();
   hqytrackmid2pt->Write();
 
-  for (int i=0; i<numcentbins; i++) {
+  for (int i=0; i<numcbins; i++) {
       avgqxcent[i] = avgqxcent[i]/centPASS[i];
       avgqycent[i] = avgqycent[i]/centPASS[i];
       avgqxHFm2cent[i] = avgqxHFm2cent[i]/centPASS[i];

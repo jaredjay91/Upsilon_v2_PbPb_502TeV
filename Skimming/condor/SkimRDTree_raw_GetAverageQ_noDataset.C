@@ -27,7 +27,7 @@ Double_t getDPHI_Jared( Double_t phi1, Double_t phi2) {
 
 static const long MAXTREESIZE = 1000000000000;
 
-void SkimRDTree_raw_GetAverageQ_noDataset(int nevt=1000, int dateStr=20201112) 
+void SkimRDTree_raw_GetAverageQ_noDataset(int nevt=100000, int dateStr=20201118) 
 {
 
   using namespace std;
@@ -49,7 +49,7 @@ void SkimRDTree_raw_GetAverageQ_noDataset(int nevt=1000, int dateStr=20201112)
   //TH1D* hPseudoQx = new TH1D("hPseudoQx","cos(2*psi)",50,-1.2,1.2);
   //TH1D* hPseudoQy = new TH1D("hPseudoQy","sin(2*psi)",50,-1.2,1.2);
 
-  /*TString inputRD1 = "/home/jared/Documents/Ubuntu_Overflow/DataTrees/2018PbPbRD/PromptAOD_v1_Oniatree_addvn_part1.root";
+  TString inputRD1 = "/home/jared/Documents/Ubuntu_Overflow/DataTrees/2018PbPbRD/PromptAOD_v1_Oniatree_addvn_part1.root";
   TString inputRD2 = "/home/jared/Documents/Ubuntu_Overflow/DataTrees/2018PbPbRD/PromptAOD_v1_Oniatree_addvn_part2.root";
   TChain* mytree = new TChain("myTree"); 
   mytree->Add(inputRD1.Data());
@@ -57,14 +57,14 @@ void SkimRDTree_raw_GetAverageQ_noDataset(int nevt=1000, int dateStr=20201112)
   TChain* tree = new TChain("tree"); 
   tree->Add(inputRD1.Data());
   tree->Add(inputRD2.Data());
-*/
 
-  TString inputRD = "/eos/cms/store/group/phys_heavyions/dileptons/Data2018/PbPb502TeV/TTrees/ReReco/AOD/DoubleMuon/ReReco_Oniatree_addvn_part*.root";
+
+ /* TString inputRD = "/eos/cms/store/group/phys_heavyions/dileptons/Data2018/PbPb502TeV/TTrees/ReReco/AOD/DoubleMuon/ReReco_Oniatree_addvn_part*.root";
   TChain* mytree = new TChain("myTree"); 
   mytree->Add(inputRD.Data());
   TChain* tree = new TChain("tree"); 
   tree->Add(inputRD.Data());
-
+*/
   mytree->AddFriend(tree);
 
   const int maxBranchSize = 1000;

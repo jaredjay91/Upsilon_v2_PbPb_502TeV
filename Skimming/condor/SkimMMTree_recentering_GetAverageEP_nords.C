@@ -27,7 +27,7 @@ Double_t getDPHI_Jared( Double_t phi1, Double_t phi2) {
 
 static const long MAXTREESIZE = 1000000000000;
 
-void SkimRDTree_recentering_GetAverageEP_nords(int nevt=100000, int dateStr=20201118) 
+void SkimMMTree_recentering_GetAverageEP_nords(int nevt=-1, int dateStr=20201118) 
 {
 
   using namespace std;
@@ -67,167 +67,24 @@ void SkimRDTree_recentering_GetAverageEP_nords(int nevt=100000, int dateStr=2020
   TH1D* heptrackmid2old = new TH1D("heptrackmid2old","heptrackmid2old",50,-2,2);
   TH1D* heptrackmid2new = new TH1D("heptrackmid2new","heptrackmid2new",50,-2,2);
 
-  TString inputRD1 = "/home/jared/Documents/Ubuntu_Overflow/DataTrees/2018PbPbRD/PromptAOD_v1_Oniatree_addvn_part1.root";
-  TString inputRD2 = "/home/jared/Documents/Ubuntu_Overflow/DataTrees/2018PbPbRD/PromptAOD_v1_Oniatree_addvn_part2.root";
-  TChain* mytree = new TChain("myTree"); 
-  mytree->Add(inputRD1.Data());
-  mytree->Add(inputRD2.Data());
-  TChain* tree = new TChain("tree"); 
-  tree->Add(inputRD1.Data());
-  tree->Add(inputRD2.Data());
+  //TFile* inFile = TFile::Open(Form("skims/newOniaTree_Skim_UpsTrig_RD_RAW_n%i_20201118.root",nevt),"READ");
+  TFile* inFile = TFile::Open("skims/newOniaTree_Skim_UpsTrig_RD_RAW_n-1_20201112.root","READ");
+  TTree* mytree = (TTree*)inFile->Get("mmep");
+  TBranch* mm = (TBranch*)mytree->GetBranch("mm");
 
-
- /* TString inputRD = "/eos/cms/store/group/phys_heavyions/dileptons/Data2018/PbPb502TeV/TTrees/ReReco/AOD/DoubleMuon/ReReco_Oniatree_addvn_part*.root";
-  TChain* mytree = new TChain("myTree"); 
-  mytree->Add(inputRD.Data());
-  TChain* tree = new TChain("tree"); 
-  tree->Add(inputRD.Data());
-*/
-
-  mytree->AddFriend(tree);
-
-  const int maxBranchSize = 1000;
-
-  UInt_t          runNb;
-  UInt_t          eventNb, LS;
-  float           zVtx;
-  Int_t           Centrality;
-  ULong64_t       HLTriggers;
-  Int_t           Reco_QQ_size;
-  Int_t           Reco_mu_size;
-//  Int_t           Reco_mu_whichGen[maxBranchSize];
-  TClonesArray    *Reco_QQ_4mom;
-  TClonesArray    *Reco_mu_4mom;
-  ULong64_t       Reco_QQ_trig[maxBranchSize];   //[Reco_QQ_size]
-  Float_t         Reco_QQ_VtxProb[maxBranchSize];   //[Reco_QQ_size]
-  TBranch        *b_runNb;   //!
-  TBranch        *b_eventNb;   //!
-  TBranch        *b_LS;
-  TBranch        *b_zVtx;   //!
-  TBranch        *b_Centrality;   //!
-  TBranch        *b_HLTriggers;   //!
-  TBranch        *b_Reco_QQ_size;   //!
-  TBranch        *b_Reco_mu_size;   //!
-//  TBranch        *b_Reco_mu_whichGen;   //!
-  TBranch        *b_Reco_QQ_4mom;   //!
-  TBranch        *b_Reco_mu_4mom;   //!
-  TBranch        *b_Reco_QQ_trig;   //!
-  TBranch        *b_Reco_QQ_VtxProb;   //!
-
-  Bool_t          Reco_mu_highPurity[maxBranchSize];   //[Reco_QQ_size]
-  TBranch        *b_Reco_mu_highPurity;   //!
-  mytree->SetBranchAddress("Reco_mu_highPurity", Reco_mu_highPurity, &b_Reco_mu_highPurity);
-
-  Reco_QQ_4mom = 0;
-  Reco_mu_4mom = 0;
-  mytree->SetBranchAddress("runNb", &runNb, &b_runNb);
-  mytree->SetBranchAddress("LS", &LS, &b_LS);
-  mytree->SetBranchAddress("eventNb", &eventNb, &b_eventNb);
-  mytree->SetBranchAddress("zVtx", &zVtx, &b_zVtx);
-  mytree->SetBranchAddress("Centrality", &Centrality, &b_Centrality);
-  mytree->SetBranchAddress("HLTriggers", &HLTriggers, &b_HLTriggers);
-  mytree->SetBranchAddress("Reco_QQ_size", &Reco_QQ_size, &b_Reco_QQ_size);
-  mytree->SetBranchAddress("Reco_mu_size", &Reco_mu_size, &b_Reco_mu_size);
-//  mytree->SetBranchAddress("Reco_mu_whichGen", Reco_mu_whichGen, &b_Reco_mu_whichGen);
-  mytree->SetBranchAddress("Reco_QQ_4mom", &Reco_QQ_4mom, &b_Reco_QQ_4mom);
-  mytree->SetBranchAddress("Reco_mu_4mom", &Reco_mu_4mom, &b_Reco_mu_4mom);
-  mytree->SetBranchAddress("Reco_QQ_trig", Reco_QQ_trig, &b_Reco_QQ_trig);
-  mytree->SetBranchAddress("Reco_QQ_VtxProb", Reco_QQ_VtxProb, &b_Reco_QQ_VtxProb);
-
-  //  muon id 
-  Int_t           Reco_QQ_mupl_idx[maxBranchSize];
-  Int_t           Reco_QQ_mumi_idx[maxBranchSize];
-  TBranch        *b_Reco_QQ_mupl_idx;
-  TBranch        *b_Reco_QQ_mumi_idx;
-  mytree->SetBranchAddress("Reco_QQ_mupl_idx",Reco_QQ_mupl_idx,&b_Reco_QQ_mupl_idx);
-  mytree->SetBranchAddress("Reco_QQ_mumi_idx",Reco_QQ_mumi_idx,&b_Reco_QQ_mumi_idx);
-
-  Int_t           Reco_mu_nTrkHits[maxBranchSize];   //[Reco_mu_size]
-  TBranch        *b_Reco_mu_nTrkHits;   //!
-  mytree->SetBranchAddress("Reco_mu_nTrkHits", Reco_mu_nTrkHits, &b_Reco_mu_nTrkHits);
-  Float_t         Reco_mu_normChi2_global[maxBranchSize];   //[Reco_mu_size]
-  TBranch        *b_Reco_mu_normChi2_global;   //!
-  mytree->SetBranchAddress("Reco_mu_normChi2_global", Reco_mu_normChi2_global, &b_Reco_mu_normChi2_global);
-  Int_t           Reco_mu_nMuValHits[maxBranchSize];   //[Reco_mu_size]
-  TBranch        *b_Reco_mu_nMuValHits;   //!
-  mytree->SetBranchAddress("Reco_mu_nMuValHits", Reco_mu_nMuValHits, &b_Reco_mu_nMuValHits);
-  Int_t           Reco_mu_StationsMatched[maxBranchSize];   //[Reco_mu_size]
-  TBranch        *b_Reco_mu_StationsMatched;   //!
-  mytree->SetBranchAddress("Reco_mu_StationsMatched", Reco_mu_StationsMatched, &b_Reco_mu_StationsMatched);
-  Float_t         Reco_mu_dxy[maxBranchSize];   //[Reco_mu_size]
-  Float_t         Reco_mu_dxyErr[maxBranchSize];   //[Reco_mu_size]
-  TBranch        *b_Reco_mu_dxy;   //!
-  TBranch        *b_Reco_mu_dxyErr;   //!
-  mytree->SetBranchAddress("Reco_mu_dxy", Reco_mu_dxy, &b_Reco_mu_dxy);
-  mytree->SetBranchAddress("Reco_mu_dxyErr", Reco_mu_dxyErr, &b_Reco_mu_dxyErr);
-  Float_t         Reco_mu_dz[maxBranchSize];   //[Reco_mu_size]
-  Float_t         Reco_mu_dzErr[maxBranchSize];   //[Reco_mu_size]
-  TBranch        *b_Reco_mu_dz;   //!
-  TBranch        *b_Reco_mu_dzErr;   //!
-  mytree->SetBranchAddress("Reco_mu_dz", Reco_mu_dz, &b_Reco_mu_dz);
-  mytree->SetBranchAddress("Reco_mu_dzErr", Reco_mu_dzErr, &b_Reco_mu_dzErr);
-  Int_t           Reco_mu_nTrkWMea[maxBranchSize];   //[Reco_mu_size]
-  TBranch        *b_Reco_mu_nTrkWMea;   //!
-  mytree->SetBranchAddress("Reco_mu_nTrkWMea", Reco_mu_nTrkWMea, &b_Reco_mu_nTrkWMea);
-  Bool_t          Reco_mu_TMOneStaTight[maxBranchSize];   //[Reco_mu_size]
-  TBranch        *b_Reco_mu_TMOneStaTight;   //!
-
-  mytree->SetBranchAddress("Reco_mu_TMOneStaTight", Reco_mu_TMOneStaTight, &b_Reco_mu_TMOneStaTight);
-  Int_t           Reco_mu_nPixWMea[maxBranchSize];   //[Reco_mu_size]
-  TBranch        *b_Reco_mu_nPixWMea;   //!
-  mytree->SetBranchAddress("Reco_mu_nPixWMea", Reco_mu_nPixWMea, &b_Reco_mu_nPixWMea);
-  Int_t           Reco_QQ_sign[maxBranchSize];   //[Reco_QQ_size]
-  TBranch        *b_Reco_QQ_sign;   //!
-  mytree->SetBranchAddress("Reco_QQ_sign", Reco_QQ_sign, &b_Reco_QQ_sign);
-  Float_t         rpAng[29];   //[nEP]
-  TBranch        *b_rpAng;   //!
-//  mytree->SetBranchAddress("rpAng", rpAng, &b_rpAng);
-
-  Int_t           Reco_mu_nPixValHits[maxBranchSize];   //[Reco_QQ_size]
-  TBranch        *b_Reco_mu_nPixValHits;   //!
-  mytree->SetBranchAddress("Reco_mu_nPixValHits", Reco_mu_nPixValHits, &b_Reco_mu_nPixValHits);
-  Float_t         Reco_mu_ptErr_global[maxBranchSize];   //[Reco_QQ_size]
-  TBranch        *b_Reco_mu_ptErr_global;   //!
-  mytree->SetBranchAddress("Reco_mu_ptErr_global", Reco_mu_ptErr_global, &b_Reco_mu_ptErr_global);
-
-  Int_t           Reco_mu_SelectionType[maxBranchSize];
-  TBranch        *b_Reco_mu_SelectionType;
-  mytree->SetBranchAddress("Reco_mu_SelectionType", Reco_mu_SelectionType, &b_Reco_mu_SelectionType);
-
-
-  const int nEP = 29;  // number of event planes in the tree
-  Double_t qx[nEP]; 
-  Double_t qy[nEP]; 
-  TBranch *b_qx;
-  TBranch *b_qy;
-  tree->SetBranchAddress("qx", qx, &b_qx);
-  tree->SetBranchAddress("qy", qy, &b_qy);
-
-  Double_t    	  epang[29];
-  TBranch         *b_epang;
-  tree->SetBranchAddress("epang", epang, &b_epang);
-  
   TFile* newfile;
-  newfile = new TFile(Form("skims/newOniaTree_Skim_UpsTrig_RD_RECENTERED_nords_n%i_%i.root",nevt,dateStr),"recreate");
+  newfile = new TFile(Form("skims/newOniaTree_Skim_UpsTrig_MM_RECENTERED_nords_n%i_%i.root",nevt,dateStr),"recreate");
 
   DiMuon dm;
   TTree* mmtree = new TTree("mmep","dimuonAndEventPlanes");
   mmtree->SetMaxTreeSize(MAXTREESIZE);
   mmtree->Branch("mm",&dm.run,branchString.Data());
-  
-  ////////////////////////////////////////////////////////////////////////
-  ////////////////// TLorentzVector dummies 
-  ////////////////////////////////////////////////////////////////////////
-  TLorentzVector* JP_Reco = new TLorentzVector;
-  TLorentzVector* mupl_Reco = new TLorentzVector;
-  TLorentzVector* mumi_Reco = new TLorentzVector;
 
-
-  int kTrigSel = 13;
-  int DIMUIDPASS = 0;
   int ALLPASS = 0;
 
-  if(nevt == -1) nevt = mytree->GetEntries();
+  if(nevt == -1) nevt = 56114317;
+
+  int nevtReal = mytree->GetEntries();
 
   //averages for flattening
   const int flatOrder = 21;
@@ -373,57 +230,53 @@ void SkimRDTree_recentering_GetAverageEP_nords(int nevt=100000, int dateStr=2020
   int ptPASS[numptbins] = {0};
   int centPASS[numcbins] = {0};
 
-  cout << "Total events = " << nevt << ", : " << mytree->GetEntries() << endl;
+  cout << "Total events = " << nevtReal << ", : " << mytree->GetEntries() << endl;
 
   // event loop start
-  for(int iev=0; iev<nevt ; ++iev)
+  for(int iev=0; iev<nevtReal ; ++iev)
   {
-    if(iev%10000==0) cout << ">>>>> EVENT " << iev << " / " << mytree->GetEntries() <<  " ("<<(int)(100.*iev/nevt) << "%)" << endl;
+    if(iev%10000==0) cout << ">>>>> EVENT " << iev << " / " << mytree->GetEntries() <<  " ("<<(int)(100.*iev/nevtReal) << "%)" << endl;
 
     mytree->GetEntry(iev);
-  
-    if(!( (HLTriggers&((ULong64_t)pow(2, kTrigSel))) == ((ULong64_t)pow(2, kTrigSel)) ) ) continue;
+    TLeaf *runLeaf = mm->GetLeaf("run");
+    TLeaf *lumiLeaf = mm->GetLeaf("lumi");
+    TLeaf *eventLeaf = mm->GetLeaf("event");
+    TLeaf *vzLeaf = mm->GetLeaf("vz");
+    TLeaf *massLeaf = mm->GetLeaf("mass");
+    TLeaf *ptLeaf = mm->GetLeaf("pt");
+    TLeaf *yLeaf = mm->GetLeaf("y");
+    TLeaf *phiLeaf = mm->GetLeaf("phi");
+    TLeaf *etaLeaf = mm->GetLeaf("eta");
+    TLeaf *pt1Leaf = mm->GetLeaf("pt1");
+    TLeaf *phi1Leaf = mm->GetLeaf("phi1");
+    TLeaf *eta1Leaf = mm->GetLeaf("eta1");
+    TLeaf *pt2Leaf = mm->GetLeaf("pt2");
+    TLeaf *phi2Leaf = mm->GetLeaf("phi2");
+    TLeaf *eta2Leaf = mm->GetLeaf("eta2");
+    TLeaf *ep2Leaf = mm->GetLeaf("ep2");
+    TLeaf *dphiEp2Leaf = mm->GetLeaf("dphiEp2");
+    TLeaf *cBinLeaf = mm->GetLeaf("cBin");
+    TLeaf *qxaLeaf = mm->GetLeaf("qxa");
+    TLeaf *qyaLeaf = mm->GetLeaf("qya");
+    TLeaf *qxbLeaf = mm->GetLeaf("qxb");
+    TLeaf *qybLeaf = mm->GetLeaf("qyb");
+    TLeaf *qxcLeaf = mm->GetLeaf("qxc");
+    TLeaf *qycLeaf = mm->GetLeaf("qyc");
+    TLeaf *qxdLeaf = mm->GetLeaf("qxdimu");
+    TLeaf *qydLeaf = mm->GetLeaf("qydimu");
 
-    if( Centrality<20 || Centrality>180 ) continue;
+    Double_t qx[21] = {0};
+    Double_t qy[21] = {0};
 
-    for (Int_t irqq=0; irqq<Reco_QQ_size; ++irqq) 
-    {
+    qx[6] = qxaLeaf->GetValue();
+    qy[6] = qyaLeaf->GetValue();
+    qx[7] = qxbLeaf->GetValue();
+    qy[7] = qybLeaf->GetValue();
+    qx[8] = qxcLeaf->GetValue();
+    qy[8] = qycLeaf->GetValue();
+    qx[9] = qxdLeaf->GetValue();
+    qy[9] = qydLeaf->GetValue();
 
-      if ( Reco_QQ_VtxProb[irqq]  < 0.01 ) 
-        continue;
-
-      if(!( (Reco_QQ_trig[irqq]&((ULong64_t)pow(2, kTrigSel))) == ((ULong64_t)pow(2, kTrigSel)) ) ) continue;
-      
-      bool passMuonTypePl = true;
-      //passMuonTypePl = passMuonTypePl && (Reco_mu_SelectionType[Reco_QQ_mupl_idx[irqq]]&((int)pow(2,1)));
-      //passMuonTypePl = passMuonTypePl && (Reco_mu_SelectionType[Reco_QQ_mupl_idx[irqq]]&((int)pow(2,3)));
-
-      bool passMuonTypeMi = true;
-      //passMuonTypeMi = passMuonTypeMi && (Reco_mu_SelectionType[Reco_QQ_mumi_idx[irqq]]&((int)pow(2,1)));
-      //passMuonTypeMi = passMuonTypeMi && (Reco_mu_SelectionType[Reco_QQ_mumi_idx[irqq]]&((int)pow(2,3)));
-
-//      if(Reco_mu_whichGen[Reco_QQ_mupl_idx[irqq]] == -1) continue;
-//      if(Reco_mu_whichGen[Reco_QQ_mumi_idx[irqq]] == -1) continue;
-
-      bool muplSoft = ( passMuonTypePl && //(Reco_mu_TMOneStaTight[Reco_QQ_mupl_idx[irqq]]==true) &&
-          (Reco_mu_nTrkWMea[Reco_QQ_mupl_idx[irqq]] > 5) &&
-          (Reco_mu_nPixWMea[Reco_QQ_mupl_idx[irqq]] > 0) &&
-          (fabs(Reco_mu_dxy[Reco_QQ_mupl_idx[irqq]])<0.3) &&
-          (fabs(Reco_mu_dz[Reco_QQ_mupl_idx[irqq]])<20.) 
-          ) ; 
-
-      bool mumiSoft = ( passMuonTypeMi && //(Reco_mu_TMOneStaTight[Reco_QQ_mumi_idx[irqq]]==true) &&
-          (Reco_mu_nTrkWMea[Reco_QQ_mumi_idx[irqq]] > 5) &&
-          (Reco_mu_nPixWMea[Reco_QQ_mumi_idx[irqq]] > 0) &&
-          (fabs(Reco_mu_dxy[Reco_QQ_mumi_idx[irqq]])<0.3) &&
-          (fabs(Reco_mu_dz[Reco_QQ_mumi_idx[irqq]])<20.)  
-          ) ; 
-
-      if ( !(muplSoft && mumiSoft) ) 
-        continue;   
-      
-      DIMUIDPASS++;
-   
       Double_t qxrec = qx[8]-avgqx;
       Double_t qyrec = qy[8]-avgqy;
       Double_t qxHFm2rec = qx[6]-avgqxHFm2;
@@ -450,32 +303,36 @@ void SkimRDTree_recentering_GetAverageEP_nords(int nevt=100000, int dateStr=2020
       ALLPASS++;
 
       dm.clear();      // clear the output tree: 
-      dm.run = runNb;
-      dm.lumi = LS ;
-      dm.event = eventNb ;
-      dm.vz = zVtx;
-      dm.cBin = Centrality ;
+      dm.run = runLeaf->GetValue();
+      dm.lumi = lumiLeaf->GetValue();
+      dm.event = eventLeaf->GetValue();
+      dm.vz = vzLeaf->GetValue();
+      dm.cBin = cBinLeaf->GetValue();
 
-      JP_Reco = (TLorentzVector*) Reco_QQ_4mom->At(irqq);
-      mupl_Reco = (TLorentzVector*) Reco_mu_4mom->At(Reco_QQ_mupl_idx[irqq]);
-      mumi_Reco = (TLorentzVector*) Reco_mu_4mom->At(Reco_QQ_mumi_idx[irqq]);
-
-      dm.phi    = JP_Reco->Phi();
-      //dm.ep2 = epang[8];
+      dm.phi = phiLeaf->GetValue();
       dm.ep2 = epHF2;
       dm.dphiEp2 = getDPHI_Jared( dm.phi, dm.ep2);
 
-      dm.mass   = JP_Reco->M();
-      dm.pt     = JP_Reco->Pt();
+      dm.qxa = qxHFm2rec;
+      dm.qya = qyHFm2rec;
+      dm.qxb = qxHFp2rec;
+      dm.qyb = qyHFp2rec;
+      dm.qxc = qxrec;
+      dm.qyc = qyrec;
+      dm.qxdimu = qxtrackmid2rec;
+      dm.qydimu = qytrackmid2rec;
 
-      dm.y      = JP_Reco->Rapidity();
-      dm.eta      = JP_Reco->Eta();
-      dm.pt1  = mupl_Reco->Pt();
-      dm.eta1 = mupl_Reco->Eta();
-      dm.phi1 = mupl_Reco->Phi();
-      dm.pt2  = mumi_Reco->Pt();
-      dm.eta2 = mumi_Reco->Eta();
-      dm.phi2 = mumi_Reco->Phi();
+      dm.mass = massLeaf->GetValue();
+      dm.pt = ptLeaf->GetValue();
+
+      dm.y = yLeaf->GetValue();
+      dm.eta = etaLeaf->GetValue();
+      dm.pt1 = pt1Leaf->GetValue();
+      dm.eta1 = eta1Leaf->GetValue();
+      dm.phi1 = phi1Leaf->GetValue();
+      dm.pt2 = pt2Leaf->GetValue();
+      dm.eta2 = eta2Leaf->GetValue();
+      dm.phi2 = phi2Leaf->GetValue();
       dm.weight = 1.;
 
       hqxold->Fill(qx[8]);
@@ -561,71 +418,49 @@ void SkimRDTree_recentering_GetAverageEP_nords(int nevt=100000, int dateStr=2020
       sumsqrsCosBC += pow(cos(2*(deltaBC)),2);
 
       //binned averages:(without binned re-centering.)
-      int whichptbin = 0;
-      int whichcBin = 0;
-      if (dm.pt<3) {
-        whichptbin = 0;
-      }
-      else if (dm.pt>=3 && dm.pt<6) {
-        whichptbin = 1;
-      }
-      else if (dm.pt>=6 && dm.pt<30) {
-        whichptbin = 2;
-      }
-      if (dm.cBin<20) {
-        whichcBin = 0;
-      }
-      else if (dm.cBin>=20 && dm.cBin<60) {
-        whichcBin = 1;
-      }
-      else if (dm.cBin>=60 && dm.cBin<100) {
-        whichcBin = 2;
-      }
-      else if (dm.cBin>=100 && dm.cBin<200) {
-        whichcBin = 3;
-      }
+      int whicnptbin = hpt->FindBin(dm.pt)-1;
+      int whicncbin = hcent->FindBin(dm.cBin/2)-1;
 
       for (int n=1; n<=flatOrder; n++) {
-        avgCosEppt[whichptbin][n-1] += cos(2*n*dm.ep2);
-        avgSinEppt[whichptbin][n-1] += sin(2*n*dm.ep2);
-        avgCosEpHFm2pt[whichptbin][n-1] += cos(2*n*epHFm2);
-        avgSinEpHFm2pt[whichptbin][n-1] += sin(2*n*epHFm2);
-        avgCosEpHFp2pt[whichptbin][n-1] += cos(2*n*epHFp2);
-        avgSinEpHFp2pt[whichptbin][n-1] += sin(2*n*epHFp2);
-        avgCosEptrackmid2pt[whichptbin][n-1] += cos(2*n*eptrackmid2);
-        avgSinEptrackmid2pt[whichptbin][n-1] += sin(2*n*eptrackmid2);
+        avgCosEppt[whicnptbin][n-1] += cos(2*n*dm.ep2);
+        avgSinEppt[whicnptbin][n-1] += sin(2*n*dm.ep2);
+        avgCosEpHFm2pt[whicnptbin][n-1] += cos(2*n*epHFm2);
+        avgSinEpHFm2pt[whicnptbin][n-1] += sin(2*n*epHFm2);
+        avgCosEpHFp2pt[whicnptbin][n-1] += cos(2*n*epHFp2);
+        avgSinEpHFp2pt[whicnptbin][n-1] += sin(2*n*epHFp2);
+        avgCosEptrackmid2pt[whicnptbin][n-1] += cos(2*n*eptrackmid2);
+        avgSinEptrackmid2pt[whicnptbin][n-1] += sin(2*n*eptrackmid2);
       }
       for (int n=1; n<=flatOrder; n++) {
-        avgCosEpcent[whichcBin][n-1] += cos(2*n*dm.ep2);
-        avgSinEpcent[whichcBin][n-1] += sin(2*n*dm.ep2);
-        avgCosEpHFm2cent[whichcBin][n-1] += cos(2*n*epHFm2);
-        avgSinEpHFm2cent[whichcBin][n-1] += sin(2*n*epHFm2);
-        avgCosEpHFp2cent[whichcBin][n-1] += cos(2*n*epHFp2);
-        avgSinEpHFp2cent[whichcBin][n-1] += sin(2*n*epHFp2);
-        avgCosEptrackmid2cent[whichcBin][n-1] += cos(2*n*eptrackmid2);
-        avgSinEptrackmid2cent[whichcBin][n-1] += sin(2*n*eptrackmid2);
+        avgCosEpcent[whicncbin][n-1] += cos(2*n*dm.ep2);
+        avgSinEpcent[whicncbin][n-1] += sin(2*n*dm.ep2);
+        avgCosEpHFm2cent[whicncbin][n-1] += cos(2*n*epHFm2);
+        avgSinEpHFm2cent[whicncbin][n-1] += sin(2*n*epHFm2);
+        avgCosEpHFp2cent[whicncbin][n-1] += cos(2*n*epHFp2);
+        avgSinEpHFp2cent[whicncbin][n-1] += sin(2*n*epHFp2);
+        avgCosEptrackmid2cent[whicncbin][n-1] += cos(2*n*eptrackmid2);
+        avgSinEptrackmid2cent[whicncbin][n-1] += sin(2*n*eptrackmid2);
       }
 
 
-      avgCosABpt[whichptbin] += cos(2*(deltaAB));
-      avgCosACpt[whichptbin] += cos(2*(deltaAC));
-      avgCosBCpt[whichptbin] += cos(2*(deltaBC));
-      sumsqrsCosABpt[whichptbin] += pow(cos(2*(deltaAB)),2);
-      sumsqrsCosACpt[whichptbin] += pow(cos(2*(deltaAC)),2);
-      sumsqrsCosBCpt[whichptbin] += pow(cos(2*(deltaBC)),2);
-      ptPASS[whichptbin] += 1;
+      avgCosABpt[whicnptbin] += cos(2*(deltaAB));
+      avgCosACpt[whicnptbin] += cos(2*(deltaAC));
+      avgCosBCpt[whicnptbin] += cos(2*(deltaBC));
+      sumsqrsCosABpt[whicnptbin] += pow(cos(2*(deltaAB)),2);
+      sumsqrsCosACpt[whicnptbin] += pow(cos(2*(deltaAC)),2);
+      sumsqrsCosBCpt[whicnptbin] += pow(cos(2*(deltaBC)),2);
+      ptPASS[whicnptbin] += 1;
 
-      avgCosABcent[whichcBin] += cos(2*(deltaAB));
-      avgCosACcent[whichcBin] += cos(2*(deltaAC));
-      avgCosBCcent[whichcBin] += cos(2*(deltaBC));
-      sumsqrsCosABcent[whichcBin] += pow(cos(2*(deltaAB)),2);
-      sumsqrsCosACcent[whichcBin] += pow(cos(2*(deltaAC)),2);
-      sumsqrsCosBCcent[whichcBin] += pow(cos(2*(deltaBC)),2);
-      centPASS[whichcBin] += 1;
+      avgCosABcent[whicncbin] += cos(2*(deltaAB));
+      avgCosACcent[whicncbin] += cos(2*(deltaAC));
+      avgCosBCcent[whicncbin] += cos(2*(deltaBC));
+      sumsqrsCosABcent[whicncbin] += pow(cos(2*(deltaAB)),2);
+      sumsqrsCosACcent[whicncbin] += pow(cos(2*(deltaAC)),2);
+      sumsqrsCosBCcent[whicncbin] += pow(cos(2*(deltaBC)),2);
+      centPASS[whicncbin] += 1;
 
       mmtree->Fill();
 
-    } // end of dimuon loop
   } //end of event loop
 
   mmtree->Write();  // Don't need to call Write() for trees
@@ -959,6 +794,7 @@ void SkimRDTree_recentering_GetAverageEP_nords(int nevt=100000, int dateStr=2020
     cout << centPASS[i] << ",";
   }
   cout << "}" << endl;
+  cout << "ALLPASS = " << ALLPASS << endl;
 
   cout << endl;
   cout << "avgqx = " << avgqx << endl;

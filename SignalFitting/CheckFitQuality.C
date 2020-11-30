@@ -290,6 +290,8 @@ int CheckFitQuality(
 
   if (dphiEp2High-dphiEp2Low < 0.5) {
     chisqUpperCut = 4.0;
+    //chisqUpperCut = 5.0;
+    //chisqUpperCut = 10.0;
   }
 
   //Check

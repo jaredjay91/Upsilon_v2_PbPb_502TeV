@@ -7,8 +7,8 @@
 
 void draw_v2_pt(int whichUpsilon=1) {
 
-  const int numptbins = 4;
   float ptbins[5] = {0,3,6,10,50};
+  const int numptbins = sizeof(ptbins)/sizeof(float)-1;
 
   setTDRStyle();
   writeExtraText = true;
@@ -17,13 +17,15 @@ void draw_v2_pt(int whichUpsilon=1) {
   TFile* inFile = new TFile(Form("../v2Fitting/Ups_%i_v2_cent10-90.root",whichUpsilon),"READ");
   TH1D* hv2pt = (TH1D*)inFile->Get("hv2pt;1");
 
-  //Make it perfect with shrunk error bars
-  bool makePerfect = kFALSE;
-  if (makePerfect) {
-    for (int i=0; i<numptbins; i++) {
-      float binerr = hv2pt->GetBinError(i+1);
-      hv2pt->SetBinError(i+1,binerr/sqrt(2));
-    }
+  //Apply event plane resolution correction
+  bool EpResCorrection = kTRUE;
+  TString resCorFileName = "../Skimming/condor/averages/resCorFile_n56114317_BinByBin.root";
+  TFile* EPRFile = new TFile(resCorFileName,"READ");
+  TH1D* hRpt = (TH1D*)EPRFile->Get("hRpt;1");
+  hv2pt->Sumw2(); hRpt->Sumw2();
+  if (EpResCorrection) {
+    cout << " Applying resoulution correction" << endl;
+    hv2pt->Divide(hRpt);
   }
 
   //make histograms of systematics
@@ -61,7 +63,7 @@ void draw_v2_pt(int whichUpsilon=1) {
   gv2pt_sys->GetYaxis()->SetTitleOffset(1.5);
   gv2pt_sys->GetYaxis()->SetTitleSize(0.06);
   gv2pt_sys->SetMinimum(-0.05);
-  gv2pt_sys->SetMaximum(0.1);
+  gv2pt_sys->SetMaximum(0.2);
 
   TCanvas* c2 = new TCanvas("c2","c2",40,40,600,600);
 
@@ -85,6 +87,6 @@ void draw_v2_pt(int whichUpsilon=1) {
   else if(collId == kPADATA) CMS_lumi(c2, 3 ,33);
   else if(collId == kAADATA && cLow>=60) CMS_lumi(c2, 21 ,33);
 
-  c2->SaveAs(Form("plots/v2_vs_pt_%is.png",whichUpsilon));
-  c2->SaveAs(Form("plots/v2_vs_pt_%is.pdf",whichUpsilon));
+  c2->SaveAs(Form("Plots/v2_vs_pt_%is.png",whichUpsilon));
+  c2->SaveAs(Form("Plots/v2_vs_pt_%is.pdf",whichUpsilon));
 }

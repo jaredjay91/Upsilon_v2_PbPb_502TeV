@@ -67,8 +67,10 @@ void SkimMMTree_recentering_GetAverageEP_nords(int nevt=-1, int dateStr=20201118
   TH1D* heptrackmid2old = new TH1D("heptrackmid2old","heptrackmid2old",50,-2,2);
   TH1D* heptrackmid2new = new TH1D("heptrackmid2new","heptrackmid2new",50,-2,2);
 
-  //TFile* inFile = TFile::Open(Form("skims/newOniaTree_Skim_UpsTrig_RD_RAW_n%i_20201118.root",nevt),"READ");
-  TFile* inFile = TFile::Open("skims/newOniaTree_Skim_UpsTrig_RD_RAW_n-1_20201112.root","READ");
+  TString inFileName = Form("skims/newOniaTree_Skim_UpsTrig_RD_RAW_n%i_20201118.root",nevt);
+  if (nevt==-1) inFileName = "skims/newOniaTree_Skim_UpsTrig_RD_RAW_n-1_20201112.root";
+  TFile* inFile = TFile::Open(inFileName,"READ");
+
   TTree* mytree = (TTree*)inFile->Get("mmep");
   TBranch* mm = (TBranch*)mytree->GetBranch("mm");
 
@@ -418,46 +420,46 @@ void SkimMMTree_recentering_GetAverageEP_nords(int nevt=-1, int dateStr=20201118
       sumsqrsCosBC += pow(cos(2*(deltaBC)),2);
 
       //binned averages:(without binned re-centering.)
-      int whicnptbin = hpt->FindBin(dm.pt)-1;
-      int whicncbin = hcent->FindBin(dm.cBin/2)-1;
+      int whichptbin = hpt->FindBin(dm.pt)-1;
+      int whichcbin = hcent->FindBin(dm.cBin/2)-1;
 
       for (int n=1; n<=flatOrder; n++) {
-        avgCosEppt[whicnptbin][n-1] += cos(2*n*dm.ep2);
-        avgSinEppt[whicnptbin][n-1] += sin(2*n*dm.ep2);
-        avgCosEpHFm2pt[whicnptbin][n-1] += cos(2*n*epHFm2);
-        avgSinEpHFm2pt[whicnptbin][n-1] += sin(2*n*epHFm2);
-        avgCosEpHFp2pt[whicnptbin][n-1] += cos(2*n*epHFp2);
-        avgSinEpHFp2pt[whicnptbin][n-1] += sin(2*n*epHFp2);
-        avgCosEptrackmid2pt[whicnptbin][n-1] += cos(2*n*eptrackmid2);
-        avgSinEptrackmid2pt[whicnptbin][n-1] += sin(2*n*eptrackmid2);
+        avgCosEppt[whichptbin][n-1] += cos(2*n*dm.ep2);
+        avgSinEppt[whichptbin][n-1] += sin(2*n*dm.ep2);
+        avgCosEpHFm2pt[whichptbin][n-1] += cos(2*n*epHFm2);
+        avgSinEpHFm2pt[whichptbin][n-1] += sin(2*n*epHFm2);
+        avgCosEpHFp2pt[whichptbin][n-1] += cos(2*n*epHFp2);
+        avgSinEpHFp2pt[whichptbin][n-1] += sin(2*n*epHFp2);
+        avgCosEptrackmid2pt[whichptbin][n-1] += cos(2*n*eptrackmid2);
+        avgSinEptrackmid2pt[whichptbin][n-1] += sin(2*n*eptrackmid2);
       }
       for (int n=1; n<=flatOrder; n++) {
-        avgCosEpcent[whicncbin][n-1] += cos(2*n*dm.ep2);
-        avgSinEpcent[whicncbin][n-1] += sin(2*n*dm.ep2);
-        avgCosEpHFm2cent[whicncbin][n-1] += cos(2*n*epHFm2);
-        avgSinEpHFm2cent[whicncbin][n-1] += sin(2*n*epHFm2);
-        avgCosEpHFp2cent[whicncbin][n-1] += cos(2*n*epHFp2);
-        avgSinEpHFp2cent[whicncbin][n-1] += sin(2*n*epHFp2);
-        avgCosEptrackmid2cent[whicncbin][n-1] += cos(2*n*eptrackmid2);
-        avgSinEptrackmid2cent[whicncbin][n-1] += sin(2*n*eptrackmid2);
+        avgCosEpcent[whichcbin][n-1] += cos(2*n*dm.ep2);
+        avgSinEpcent[whichcbin][n-1] += sin(2*n*dm.ep2);
+        avgCosEpHFm2cent[whichcbin][n-1] += cos(2*n*epHFm2);
+        avgSinEpHFm2cent[whichcbin][n-1] += sin(2*n*epHFm2);
+        avgCosEpHFp2cent[whichcbin][n-1] += cos(2*n*epHFp2);
+        avgSinEpHFp2cent[whichcbin][n-1] += sin(2*n*epHFp2);
+        avgCosEptrackmid2cent[whichcbin][n-1] += cos(2*n*eptrackmid2);
+        avgSinEptrackmid2cent[whichcbin][n-1] += sin(2*n*eptrackmid2);
       }
 
 
-      avgCosABpt[whicnptbin] += cos(2*(deltaAB));
-      avgCosACpt[whicnptbin] += cos(2*(deltaAC));
-      avgCosBCpt[whicnptbin] += cos(2*(deltaBC));
-      sumsqrsCosABpt[whicnptbin] += pow(cos(2*(deltaAB)),2);
-      sumsqrsCosACpt[whicnptbin] += pow(cos(2*(deltaAC)),2);
-      sumsqrsCosBCpt[whicnptbin] += pow(cos(2*(deltaBC)),2);
-      ptPASS[whicnptbin] += 1;
+      avgCosABpt[whichptbin] += cos(2*(deltaAB));
+      avgCosACpt[whichptbin] += cos(2*(deltaAC));
+      avgCosBCpt[whichptbin] += cos(2*(deltaBC));
+      sumsqrsCosABpt[whichptbin] += pow(cos(2*(deltaAB)),2);
+      sumsqrsCosACpt[whichptbin] += pow(cos(2*(deltaAC)),2);
+      sumsqrsCosBCpt[whichptbin] += pow(cos(2*(deltaBC)),2);
+      ptPASS[whichptbin] += 1;
 
-      avgCosABcent[whicncbin] += cos(2*(deltaAB));
-      avgCosACcent[whicncbin] += cos(2*(deltaAC));
-      avgCosBCcent[whicncbin] += cos(2*(deltaBC));
-      sumsqrsCosABcent[whicncbin] += pow(cos(2*(deltaAB)),2);
-      sumsqrsCosACcent[whicncbin] += pow(cos(2*(deltaAC)),2);
-      sumsqrsCosBCcent[whicncbin] += pow(cos(2*(deltaBC)),2);
-      centPASS[whicncbin] += 1;
+      avgCosABcent[whichcbin] += cos(2*(deltaAB));
+      avgCosACcent[whichcbin] += cos(2*(deltaAC));
+      avgCosBCcent[whichcbin] += cos(2*(deltaBC));
+      sumsqrsCosABcent[whichcbin] += pow(cos(2*(deltaAB)),2);
+      sumsqrsCosACcent[whichcbin] += pow(cos(2*(deltaAC)),2);
+      sumsqrsCosBCcent[whichcbin] += pow(cos(2*(deltaBC)),2);
+      centPASS[whichcbin] += 1;
 
       mmtree->Fill();
 

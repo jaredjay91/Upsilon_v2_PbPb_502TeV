@@ -43,8 +43,8 @@ bool isAbout(float num1=0.0, float num2=0.0) {
 
 static const long MAXTREESIZE = 1000000000000;
 
-void SkimRDTree_flatten_GetResCor(int nevt=100000,
-      int dateStr=20201114,
+void SkimRDTree_flatten_GetResCor(int nevt=1000,
+      int dateStr=20201119,
       bool flattenBinByBin=kTRUE) 
 {
 
@@ -58,11 +58,13 @@ void SkimRDTree_flatten_GetResCor(int nevt=100000,
   cout << " Index of "<< EPNames[HFp2] << " = " << HFp2 << endl;
   cout << " Index of "<< EPNames[trackmid2] << " = " << trackmid2 << endl;
 
-  Double_t ptbins[4] = {0,3,6,30};
-  const int numptbins = sizeof(ptbins)/sizeof(double)-1;
-
-  Double_t cbins[5] = {0,10,30,50,100};
+  float ptbins[5] = {0,3,6,10,50};
+  const int numptbins = sizeof(ptbins)/sizeof(float)-1;
+  Double_t cbins[4] = {10,30,50,90};
   const int numcbins = sizeof(cbins)/sizeof(double)-1;
+
+  TH1D* hpt = new TH1D("hpt","hist vs pt",numptbins,ptbins);
+  TH1D* hcent = new TH1D("hcent","hist vs cent",numcbins,cbins);
 
   //TH1D* hCosAC = new TH1D("hCosAC","cos(2*(psiA-psiC))",50,-1.2,1.2);
   TH1D* hRpt = new TH1D("hRpt","EP Resolution factor vs pt",numptbins,ptbins);
@@ -95,22 +97,22 @@ void SkimRDTree_flatten_GetResCor(int nevt=100000,
   //TTree* tree = (TTree*)MCfile->Get("tree");
   //mytree->AddFriend(tree);
 
-  //TString inputRD1 = "/home/jared/Documents/Ubuntu_Overflow/DataTrees/2018PbPbRD/PromptAOD_v1_Oniatree_addvn_part1.root";
-  //TString inputRD2 = "/home/jared/Documents/Ubuntu_Overflow/DataTrees/2018PbPbRD/PromptAOD_v1_Oniatree_addvn_part2.root";
-  //TChain* mytree = new TChain("myTree"); 
-  //mytree->Add(inputRD1.Data());
-  //mytree->Add(inputRD2.Data());
+  TString inputRD1 = "/home/jared/Documents/Ubuntu_Overflow/DataTrees/2018PbPbRD/PromptAOD_v1_Oniatree_addvn_part1.root";
+  TString inputRD2 = "/home/jared/Documents/Ubuntu_Overflow/DataTrees/2018PbPbRD/PromptAOD_v1_Oniatree_addvn_part2.root";
+  TChain* mytree = new TChain("myTree"); 
+  mytree->Add(inputRD1.Data());
+  mytree->Add(inputRD2.Data());
 
-  //TChain* tree = new TChain("tree"); 
-  //tree->Add(inputRD1.Data());
-  //tree->Add(inputRD2.Data());
+  TChain* tree = new TChain("tree"); 
+  tree->Add(inputRD1.Data());
+  tree->Add(inputRD2.Data());
 
-  TString inputRD = "/eos/cms/store/group/phys_heavyions/dileptons/Data2018/PbPb502TeV/TTrees/ReReco/AOD/DoubleMuon/ReReco_Oniatree_addvn_part*.root";
+  /*TString inputRD = "/eos/cms/store/group/phys_heavyions/dileptons/Data2018/PbPb502TeV/TTrees/ReReco/AOD/DoubleMuon/ReReco_Oniatree_addvn_part*.root";
   TChain* mytree = new TChain("myTree"); 
   mytree->Add(inputRD.Data());
   TChain* tree = new TChain("tree"); 
   tree->Add(inputRD.Data());
-
+*/
   mytree->AddFriend(tree);
 
   const int maxBranchSize = 1000;
@@ -237,12 +239,6 @@ void SkimRDTree_flatten_GetResCor(int nevt=100000,
   TString binByBinStr = "";
   if (flattenBinByBin) binByBinStr = "BinByBin";
 
-  //TString v2Str;
-  //if (isAbout(v2,0.5)) v2Str = "0point5";
-  //else if (isAbout(v2,0.2)) v2Str = "0point2";
-  //else if (isAbout(v2,0.1)) v2Str = "0point1";
-  //else if (isAbout(v2,0.05)) v2Str = "0point05";
-
   TFile* newfile;
   newfile = new TFile(Form("skims/newOniaTree_Skim_UpsTrig_RD_flattened%s_order%i_n%i_%i.root",binByBinStr.Data(),flatOrder,nevt,dateStr),"recreate");
 
@@ -291,24 +287,22 @@ void SkimRDTree_flatten_GetResCor(int nevt=100000,
   Double_t avgCosAB = 0;
   Double_t avgCosAC = 0;
   Double_t avgCosBC = 0;
-  Double_t avgCosABpt[3] = {0};
-  Double_t avgCosACpt[3] = {0};
-  Double_t avgCosBCpt[3] = {0};
-  Double_t avgCosABcent[4] = {0};
-  Double_t avgCosACcent[4] = {0};
-  Double_t avgCosBCcent[4] = {0};
+  Double_t avgCosABpt[numptbins] = {0};
+  Double_t avgCosACpt[numptbins] = {0};
+  Double_t avgCosBCpt[numptbins] = {0};
+  Double_t avgCosABcent[numcbins] = {0};
+  Double_t avgCosACcent[numcbins] = {0};
+  Double_t avgCosBCcent[numcbins] = {0};
   //errors on averages
   Double_t sumsqrsCosAB = 0;
   Double_t sumsqrsCosAC = 0;
   Double_t sumsqrsCosBC = 0;
-  Double_t sumsqrsCosABpt[3] = {0};
-  Double_t sumsqrsCosACpt[3] = {0};
-  Double_t sumsqrsCosBCpt[3] = {0};
-  Double_t sumsqrsCosABcent[4] = {0};
-  Double_t sumsqrsCosACcent[4] = {0};
-  Double_t sumsqrsCosBCcent[4] = {0};
-  int ptPASS[3] = {0};
-  int centPASS[4] = {0};
+  Double_t sumsqrsCosABpt[numptbins] = {0};
+  Double_t sumsqrsCosACpt[numptbins] = {0};
+  Double_t sumsqrsCosBCpt[numptbins] = {0};
+  Double_t sumsqrsCosABcent[numcbins] = {0};
+  Double_t sumsqrsCosACcent[numcbins] = {0};
+  Double_t sumsqrsCosBCcent[numcbins] = {0};
 
   //get values for flattening
   TFile* avgFile = TFile::Open(Form("averages/avgEpFile%i.root",nevt),"READ");
@@ -341,41 +335,41 @@ void SkimRDTree_flatten_GetResCor(int nevt=100000,
     cout << "avg(Sin(2*" << n << "*Psi)) = " << avgSinEp[n-1] << endl;
   }
 
-  TH1D* havgCosEppt[3];
-  TH1D* havgSinEppt[3];
-  TH1D* havgCosEpHFm2pt[3];
-  TH1D* havgSinEpHFm2pt[3];
-  TH1D* havgCosEpHFp2pt[3];
-  TH1D* havgSinEpHFp2pt[3];
-  TH1D* havgCosEptrackmid2pt[3];
-  TH1D* havgSinEptrackmid2pt[3];
+  TH1D* havgCosEppt[numptbins];
+  TH1D* havgSinEppt[numptbins];
+  TH1D* havgCosEpHFm2pt[numptbins];
+  TH1D* havgSinEpHFm2pt[numptbins];
+  TH1D* havgCosEpHFp2pt[numptbins];
+  TH1D* havgSinEpHFp2pt[numptbins];
+  TH1D* havgCosEptrackmid2pt[numptbins];
+  TH1D* havgSinEptrackmid2pt[numptbins];
 
-  TH1D* havgCosEpcent[4];
-  TH1D* havgSinEpcent[4];
-  TH1D* havgCosEpHFm2cent[4];
-  TH1D* havgSinEpHFm2cent[4];
-  TH1D* havgCosEpHFp2cent[4];
-  TH1D* havgSinEpHFp2cent[4];
-  TH1D* havgCosEptrackmid2cent[4];
-  TH1D* havgSinEptrackmid2cent[4];
+  TH1D* havgCosEpcent[numcbins];
+  TH1D* havgSinEpcent[numcbins];
+  TH1D* havgCosEpHFm2cent[numcbins];
+  TH1D* havgSinEpHFm2cent[numcbins];
+  TH1D* havgCosEpHFp2cent[numcbins];
+  TH1D* havgSinEpHFp2cent[numcbins];
+  TH1D* havgCosEptrackmid2cent[numcbins];
+  TH1D* havgSinEptrackmid2cent[numcbins];
 
-  Double_t avgCosEppt[3][flatOrder] = {0};
-  Double_t avgSinEppt[3][flatOrder] = {0};
-  Double_t avgCosEpHFm2pt[3][flatOrder] = {0};
-  Double_t avgSinEpHFm2pt[3][flatOrder] = {0};
-  Double_t avgCosEpHFp2pt[3][flatOrder] = {0};
-  Double_t avgSinEpHFp2pt[3][flatOrder] = {0};
-  Double_t avgCosEptrackmid2pt[3][flatOrder] = {0};
-  Double_t avgSinEptrackmid2pt[3][flatOrder] = {0};
+  Double_t avgCosEppt[numptbins][flatOrder] = {0};
+  Double_t avgSinEppt[numptbins][flatOrder] = {0};
+  Double_t avgCosEpHFm2pt[numptbins][flatOrder] = {0};
+  Double_t avgSinEpHFm2pt[numptbins][flatOrder] = {0};
+  Double_t avgCosEpHFp2pt[numptbins][flatOrder] = {0};
+  Double_t avgSinEpHFp2pt[numptbins][flatOrder] = {0};
+  Double_t avgCosEptrackmid2pt[numptbins][flatOrder] = {0};
+  Double_t avgSinEptrackmid2pt[numptbins][flatOrder] = {0};
 
-  Double_t avgCosEpcent[4][flatOrder] = {0};
-  Double_t avgSinEpcent[4][flatOrder] = {0};
-  Double_t avgCosEpHFm2cent[4][flatOrder] = {0};
-  Double_t avgSinEpHFm2cent[4][flatOrder] = {0};
-  Double_t avgCosEpHFp2cent[4][flatOrder] = {0};
-  Double_t avgSinEpHFp2cent[4][flatOrder] = {0};
-  Double_t avgCosEptrackmid2cent[4][flatOrder] = {0};
-  Double_t avgSinEptrackmid2cent[4][flatOrder] = {0};
+  Double_t avgCosEpcent[numcbins][flatOrder] = {0};
+  Double_t avgSinEpcent[numcbins][flatOrder] = {0};
+  Double_t avgCosEpHFm2cent[numcbins][flatOrder] = {0};
+  Double_t avgSinEpHFm2cent[numcbins][flatOrder] = {0};
+  Double_t avgCosEpHFp2cent[numcbins][flatOrder] = {0};
+  Double_t avgSinEpHFp2cent[numcbins][flatOrder] = {0};
+  Double_t avgCosEptrackmid2cent[numcbins][flatOrder] = {0};
+  Double_t avgSinEptrackmid2cent[numcbins][flatOrder] = {0};
 
   for (int i=0; i<numptbins; i++) {
     havgCosEppt[i] = (TH1D*)avgFile->Get(Form("havgCosEppt[%i];1",i));
@@ -453,14 +447,14 @@ void SkimRDTree_flatten_GetResCor(int nevt=100000,
   TH1D* havgqyHFp2pt = (TH1D*)avgQFile->Get("hqyHFp2pt;1");
   TH1D* havgqxtrackmid2pt = (TH1D*)avgQFile->Get("hqxtrackmid2pt;1");
   TH1D* havgqytrackmid2pt = (TH1D*)avgQFile->Get("hqytrackmid2pt;1");
-  Double_t avgqxpt[3];
-  Double_t avgqypt[3];
-  Double_t avgqxHFm2pt[3];
-  Double_t avgqyHFm2pt[3];
-  Double_t avgqxHFp2pt[3];
-  Double_t avgqyHFp2pt[3];
-  Double_t avgqxtrackmid2pt[3];
-  Double_t avgqytrackmid2pt[3];
+  Double_t avgqxpt[numptbins];
+  Double_t avgqypt[numptbins];
+  Double_t avgqxHFm2pt[numptbins];
+  Double_t avgqyHFm2pt[numptbins];
+  Double_t avgqxHFp2pt[numptbins];
+  Double_t avgqyHFp2pt[numptbins];
+  Double_t avgqxtrackmid2pt[numptbins];
+  Double_t avgqytrackmid2pt[numptbins];
   for (int i=0; i<3; i++) {
     avgqxpt[i] = havgqxpt->GetBinContent(i+1);
     avgqypt[i] = havgqypt->GetBinContent(i+1);
@@ -480,15 +474,15 @@ void SkimRDTree_flatten_GetResCor(int nevt=100000,
   TH1D* havgqyHFp2cent = (TH1D*)avgQFile->Get("hqyHFp2cent;1");
   TH1D* havgqxtrackmid2cent = (TH1D*)avgQFile->Get("hqxtrackmid2cent;1");
   TH1D* havgqytrackmid2cent = (TH1D*)avgQFile->Get("hqytrackmid2cent;1");
-  Double_t avgqxcent[4];
-  Double_t avgqycent[4];
-  Double_t avgqxHFm2cent[4];
-  Double_t avgqyHFm2cent[4];
-  Double_t avgqxHFp2cent[4];
-  Double_t avgqyHFp2cent[4];
-  Double_t avgqxtrackmid2cent[4];
-  Double_t avgqytrackmid2cent[4];
-  for (int i=0; i<4; i++) {
+  Double_t avgqxcent[numcbins];
+  Double_t avgqycent[numcbins];
+  Double_t avgqxHFm2cent[numcbins];
+  Double_t avgqyHFm2cent[numcbins];
+  Double_t avgqxHFp2cent[numcbins];
+  Double_t avgqyHFp2cent[numcbins];
+  Double_t avgqxtrackmid2cent[numcbins];
+  Double_t avgqytrackmid2cent[numcbins];
+  for (int i=0; i<numcbins; i++) {
     avgqxcent[i] = havgqxcent->GetBinContent(i+1);
     avgqycent[i] = havgqycent->GetBinContent(i+1);
     avgqxHFm2cent[i] = havgqxHFm2cent->GetBinContent(i+1);
@@ -519,10 +513,12 @@ void SkimRDTree_flatten_GetResCor(int nevt=100000,
 
   newfile->cd();
 
-  // event loop start
+  int ptPASS[numptbins] = {0};
+  int centPASS[numcbins] = {0};
 
   cout << "Total events = " << nevt << ", : " << mytree->GetEntries() << endl;
 
+  // event loop start
   for(int iev=0; iev<nevt ; ++iev)
   {
     if(iev%10000==0) cout << ">>>>> EVENT " << iev << " / " << mytree->GetEntries() <<  " ("<<(int)(100.*iev/mytree->GetEntries()) << "%)" << endl;
@@ -544,6 +540,8 @@ void SkimRDTree_flatten_GetResCor(int nevt=100000,
 
     //Start cutting down to the upsilons.
     if(!( (HLTriggers&((ULong64_t)pow(2, kTrigSel))) == ((ULong64_t)pow(2, kTrigSel)) ) ) continue;
+
+    if( Centrality<20 || Centrality>180 ) continue;
 
     for (Int_t irqq=0; irqq<Reco_QQ_size; ++irqq) 
     {
@@ -613,6 +611,11 @@ void SkimRDTree_flatten_GetResCor(int nevt=100000,
 
       ALLPASS++;
 
+      //cout << "************epHF2 = " << epHF2 << endl;
+      //cout << "************epHFm2 = " << epHFm2 << endl;
+      //cout << "************epHFp2 = " << epHFp2 << endl;
+      //cout << "************eptrackmid2 = " << eptrackmid2 << endl;
+
       dm.clear();      // clear the output tree: 
       dm.run = runNb;
       dm.lumi = LS ;
@@ -679,30 +682,10 @@ void SkimRDTree_flatten_GetResCor(int nevt=100000,
       if (eptrackmid2>pi/2) eptrackmid2 = eptrackmid2-pi;
 
       //flatten event plane angles bin by bin in centrality:
-      int whichptbin = 0;
-      int whichcentbin = 0;
       dm.pt     = JP_Reco->Pt();
-      if (dm.pt<3) {
-        whichptbin = 0;
-      }
-      else if (dm.pt>=3 && dm.pt<6) {
-        whichptbin = 1;
-      }
-      else if (dm.pt>=6 && dm.pt<30) {
-        whichptbin = 2;
-      }
-      if (dm.cBin<20) {
-        whichcentbin = 0;
-      }
-      else if (dm.cBin>=20 && dm.cBin<60) {
-        whichcentbin = 1;
-      }
-      else if (dm.cBin>=60 && dm.cBin<100) {
-        whichcentbin = 2;
-      }
-      else if (dm.cBin>=100 && dm.cBin<200) {
-        whichcentbin = 3;
-      }
+      int whichptbin = hpt->FindBin(dm.pt)-1;
+      int whichcbin = hcent->FindBin(dm.cBin/2)-1;
+
       Double_t epHF2cent = epHF2;
       Double_t epHFm2cent = epHFm2;
       Double_t epHFp2cent = epHFp2;
@@ -712,14 +695,14 @@ void SkimRDTree_flatten_GetResCor(int nevt=100000,
       Double_t DeltaEpHFp2cent = 0.0;
       Double_t DeltaEptrackmid2cent = 0.0;
       for (int n=1; n<=flatOrder; n++) {
-        DeltaEp2cent += -cos(2*n*epHF2cent)*avgSinEpcent[whichcentbin][n-1]/n;
-        DeltaEp2cent += sin(2*n*epHF2cent)*avgCosEpcent[whichcentbin][n-1]/n;
-        DeltaEpHFm2cent += -cos(2*n*epHFm2cent)*avgSinEpHFm2cent[whichcentbin][n-1]/n;
-        DeltaEpHFm2cent += sin(2*n*epHFm2cent)*avgCosEpHFm2cent[whichcentbin][n-1]/n;
-        DeltaEpHFp2cent += -cos(2*n*epHFp2cent)*avgSinEpHFp2cent[whichcentbin][n-1]/n;
-        DeltaEpHFp2cent += sin(2*n*epHFp2cent)*avgCosEpHFp2cent[whichcentbin][n-1]/n;
-        DeltaEptrackmid2cent += -cos(2*n*eptrackmid2cent)*avgSinEptrackmid2cent[whichcentbin][n-1]/n;
-        DeltaEptrackmid2cent += sin(2*n*eptrackmid2cent)*avgCosEptrackmid2cent[whichcentbin][n-1]/n;
+        DeltaEp2cent += -cos(2*n*epHF2cent)*avgSinEpcent[whichcbin][n-1]/n;
+        DeltaEp2cent += sin(2*n*epHF2cent)*avgCosEpcent[whichcbin][n-1]/n;
+        DeltaEpHFm2cent += -cos(2*n*epHFm2cent)*avgSinEpHFm2cent[whichcbin][n-1]/n;
+        DeltaEpHFm2cent += sin(2*n*epHFm2cent)*avgCosEpHFm2cent[whichcbin][n-1]/n;
+        DeltaEpHFp2cent += -cos(2*n*epHFp2cent)*avgSinEpHFp2cent[whichcbin][n-1]/n;
+        DeltaEpHFp2cent += sin(2*n*epHFp2cent)*avgCosEpHFp2cent[whichcbin][n-1]/n;
+        DeltaEptrackmid2cent += -cos(2*n*eptrackmid2cent)*avgSinEptrackmid2cent[whichcbin][n-1]/n;
+        DeltaEptrackmid2cent += sin(2*n*eptrackmid2cent)*avgCosEptrackmid2cent[whichcbin][n-1]/n;
       }
       epHF2cent = epHF2cent + DeltaEp2cent;
       epHFm2cent = epHFm2cent + DeltaEpHFm2cent;
@@ -787,7 +770,9 @@ void SkimRDTree_flatten_GetResCor(int nevt=100000,
       hEptrackmid2old->Fill(eptrackmid2old);
       hEptrackmid2new->Fill(eptrackmid2rec);
 
+      cout << "ALLPASS=" << ALLPASS << " : qxrec = " << qxrec << " : avgqxrec = " << avgqxrec << endl;
       avgqxrec += qxrec;
+      cout << "ALLPASS=" << ALLPASS << " : qxrec = " << qxrec << " : avgqxrec = " << avgqxrec << endl;
       avgqyrec += qyrec;
       avgqxHFm2rec += qxHFm2rec;
       avgqyHFm2rec += qyHFm2rec;
@@ -849,13 +834,13 @@ void SkimRDTree_flatten_GetResCor(int nevt=100000,
       sumsqrsCosBCpt[whichptbin] += pow(cos(2*(deltaBC)),2);
       ptPASS[whichptbin] += 1;
 
-      avgCosABcent[whichcentbin] += cos(2*(deltaAB));
-      avgCosACcent[whichcentbin] += cos(2*(deltaAC));
-      avgCosBCcent[whichcentbin] += cos(2*(deltaBC));
-      sumsqrsCosABcent[whichcentbin] += pow(cos(2*(deltaAB)),2);
-      sumsqrsCosACcent[whichcentbin] += pow(cos(2*(deltaAC)),2);
-      sumsqrsCosBCcent[whichcentbin] += pow(cos(2*(deltaBC)),2);
-      centPASS[whichcentbin] += 1;
+      avgCosABcent[whichcbin] += cos(2*(deltaAB));
+      avgCosACcent[whichcbin] += cos(2*(deltaAC));
+      avgCosBCcent[whichcbin] += cos(2*(deltaBC));
+      sumsqrsCosABcent[whichcbin] += pow(cos(2*(deltaAB)),2);
+      sumsqrsCosACcent[whichcbin] += pow(cos(2*(deltaAC)),2);
+      sumsqrsCosBCcent[whichcbin] += pow(cos(2*(deltaBC)),2);
+      centPASS[whichcbin] += 1;
 
       mmtree->Fill();
 
@@ -1078,8 +1063,17 @@ void SkimRDTree_flatten_GetResCor(int nevt=100000,
   c9->SaveAs(Form("AllDimuons_%s.pdf",plotLabel.Data()));
   c9->SaveAs(Form("AllDimuons_%s.png",plotLabel.Data()));
 
-  cout << "ptPASS = {" << ptPASS[0] << "," << ptPASS[1] << "," << ptPASS[2] << "}" << endl;
-  cout << "centPASS = {" << centPASS[0] << "," << centPASS[1] << "," << centPASS[2] << "," << centPASS[3] << "}" << endl;
+  cout << "ptPASS = {";
+  for (int i=0; i<numptbins; i++) {
+    cout << ptPASS[i] << ",";
+  }
+  cout << "}" << endl;
+  cout << "centPASS = {";
+  for (int i=0; i<numcbins; i++) {
+    cout << centPASS[i] << ",";
+  }
+  cout << "}" << endl;
+  cout << "ALLPASS = " << ALLPASS << endl;
 
   cout << endl;
   cout << "avgqx = " << avgqx << endl;

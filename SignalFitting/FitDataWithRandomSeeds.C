@@ -80,7 +80,9 @@ double FitDataWithRandomSeeds(
     kineCut = Form("pt>%.2f && pt<%.2f && abs(y)>%.2f && abs(y)<%.2f && eta1<%.2f && eta1>%.2f && eta2<%.2f && eta2>%.2f",ptLow, ptHigh, yLowLab, yHighLab, eta_high,eta_low, eta_high,eta_low );
   }
   else if (collId==kAADATA) {
-    f1 = new TFile("/home/jared/Documents/Ubuntu_Overflow/Upsilon_v2_502TeV_Thesis/Skimming/skims/newOniaTree_Skim_UpsTrig_RD_withDataset_20201109.root");
+    //f1 = new TFile("/home/jared/Documents/Ubuntu_Overflow/Upsilon_v2_502TeV_Thesis/Skimming/skims/newOniaTree_Skim_UpsTrig_RD_withDataset_20201109.root");
+    //f1 = new TFile("/home/jared/Documents/Ubuntu_Overflow/Upsilon_v2_502TeV_Thesis/Skimming/skims/newOniaTree_Skim_UpsTrig_RD_flattenedBinByBin_order21_n-1_withDataset_20201116.root");
+    f1 = new TFile("/home/jared/Documents/Ubuntu_Overflow/Upsilon_v2_502TeV_Thesis/Skimming/skims/newOniaTree_Skim_UpsTrig_MM_flattenedBinByBin_order21_n-1_withDataset_20201119.root");
     yLowLab = yLow;
     yHighLab = yHigh;
     kineCut = Form("pt>%.2f && pt<%.2f && abs(y)>%.2f && abs(y)<%.2f && eta1<%.2f && eta1>%.2f && eta2<%.2f && eta2>%.2f && cBin>%i && cBin<%i && ((abs(dphiEp2)>%.2f && abs(dphiEp2)<%.2f) || (abs(dphiEp2)>%.2f && abs(dphiEp2)<%.2f))",ptLow, ptHigh, yLowLab, yHighLab, eta_high,eta_low, eta_high,eta_low, cLow*2,cHigh*2, dphiEp2Low*pi,dphiEp2High*pi, (1-dphiEp2High)*pi,(1-dphiEp2Low)*pi);

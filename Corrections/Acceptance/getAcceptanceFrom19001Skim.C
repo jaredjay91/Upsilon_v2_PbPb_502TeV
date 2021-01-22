@@ -14,7 +14,7 @@ const Double_t pi = 3.141592653589;
 TF1* fWgtAA1 = new TF1("fWgtAA1","(([0]-1)*([0]-2)*([2]*[3]*([2]*[3]+([2]-2)*9.460))*TMath::Power((1+(TMath::Sqrt(9.460*9.460+x*x)-9.460)/([0]*[1])),-[0])/(([0]*[1]*([0]*[1]+([0]-2)*9.460))*(([2]-1)*([2]-2))*TMath::Power((1+(TMath::Sqrt(9.460*9.460+x*x)-9.460)/([2]*[3])),-[2])))");
 TF1* fdNdpTWgt = new TF1("fdNdpTWgt","([0]+[1]*x+[2]*x*x)/((x-[3])*(x-[3])*(x-[3]))");
 
-void getAcceptanceFrom19001Skim(int nevt=-1, int dateStr=20210120, int weighted=0) 
+void getAcceptanceFrom19001Skim(int nevt=-1, int dateStr=20210122, int weighted=0) 
 {
 
   gStyle->SetOptStat(0);
@@ -41,6 +41,13 @@ void getAcceptanceFrom19001Skim(int nevt=-1, int dateStr=20210120, int weighted=
   hDenInt->SetMarkerStyle(20);hDenInt->SetMarkerColor(kBlue+2);
   hAccInt->SetMarkerStyle(20);hAccInt->SetMarkerColor(kBlue+2);
 
+  TH1D* hDenIntNoW = new TH1D("hDenIntNoW",";p_{T} (GeV/c);Acceptance of Dimuons",1,0,50);
+  TH1D* hAccIntNoW = new TH1D("hAccIntNoW",";p_{T} (GeV/c);Acceptance of Dimuons",1,0,50);
+  hDenIntNoW->Sumw2(); hDenIntNoW->SetMinimum(0); hDenIntNoW->SetMaximum(1.0);
+  hAccIntNoW->Sumw2(); hAccIntNoW->SetMinimum(0); hAccIntNoW->SetMaximum(1.0);
+  hDenIntNoW->SetMarkerStyle(24);hDenIntNoW->SetMarkerColor(kBlue+2);
+  hAccIntNoW->SetMarkerStyle(24);hAccIntNoW->SetMarkerColor(kBlue+2);
+
   // pT dependence:
   TH1D* hDenPt = new TH1D("hDenPt",";p_{T} (GeV/c);Acceptance of Dimuons",50,0,50);
   TH1D* hAccPt = new TH1D("hAccPt",";p_{T} (GeV/c);Acceptance of Dimuons",50,0,50);
@@ -48,6 +55,13 @@ void getAcceptanceFrom19001Skim(int nevt=-1, int dateStr=20210120, int weighted=
   hAccPt->Sumw2(); hAccPt->SetMinimum(0); hAccPt->SetMaximum(1.0);
   hDenPt->SetMarkerStyle(20);hDenPt->SetMarkerColor(kBlue+2);
   hAccPt->SetMarkerStyle(20);hAccPt->SetMarkerColor(kBlue+2);
+
+  TH1D* hDenPtNoW = new TH1D("hDenPtNoW",";p_{T} (GeV/c);Acceptance of Dimuons",50,0,50);
+  TH1D* hAccPtNoW = new TH1D("hAccPtNoW",";p_{T} (GeV/c);Acceptance of Dimuons",50,0,50);
+  hDenPtNoW->Sumw2(); hDenPtNoW->SetMinimum(0); hDenPtNoW->SetMaximum(1.0);
+  hAccPtNoW->Sumw2(); hAccPtNoW->SetMinimum(0); hAccPtNoW->SetMaximum(1.0);
+  hDenPtNoW->SetMarkerStyle(24);hDenPtNoW->SetMarkerColor(kBlue+2);
+  hAccPtNoW->SetMarkerStyle(24);hAccPtNoW->SetMarkerColor(kBlue+2);
 
   TFile *fweight = TFile::Open("Func_dNdpT_1S.root","READ");
   TF1* fitRatio = (TF1*)fweight->Get("fitRatio");
@@ -59,13 +73,6 @@ void getAcceptanceFrom19001Skim(int nevt=-1, int dateStr=20210120, int weighted=
   fdNdpTWgt->SetParameters( fdNdpTWgt_p0, fdNdpTWgt_p1, fdNdpTWgt_p2, fdNdpTWgt_p3);
 
   TString inFileName = "skimedForAcc_MC_Ups1S_20170808.root";
-  TString weightstr;
-  if (weighted==0) {
-    weightstr = "NoW";
-  }
-  else if (weighted==1) {
-    weightstr = "Weighted";
-  }
   TFile* inFile = TFile::Open(inFileName,"READ");
   TTree* mm = (TTree*)inFile->Get("mmGen");
 
@@ -112,34 +119,50 @@ void getAcceptanceFrom19001Skim(int nevt=-1, int dateStr=20210120, int weighted=
     if (pt>=50 || fabs(y)>=2.4) continue;
 
     Double_t aawgt = fWgtAA1->Eval(pt); // apply weighting factor from functions defined above for AA
-    if (weighted==1) {
-      aawgt=aawgt*fdNdpTWgt->Eval(pt);
-    }
+    aawgt=aawgt*fdNdpTWgt->Eval(pt);
 
-    //hDenInt->Fill(pt);
+    hDenInt->Fill(pt);
     hDenPt->Fill(pt,aawgt);
+    hDenIntNoW->Fill(pt);
+    hDenPtNoW->Fill(pt);
 
     //Count how many of them have both muons in the single-muon acceptance.
     if ( pt1>3.5 && pt2>3.5 && fabs(eta1)<2.4 && fabs(eta2)<2.4 ){
       //cout << "(pt,aawgt) = (" << pt << ", " << aawgt << ")" << endl;
-      //hAccInt->Fill(pt,aawgt);
+      hAccInt->Fill(pt,aawgt);
       hAccPt->Fill(pt,aawgt);
+      hAccIntNoW->Fill(pt);
+      hAccPtNoW->Fill(pt);
     }
 
 
   } //end of loop
 
-  //hAccInt->Divide(hDenInt);
+  hAccInt->Divide(hDenInt);
   hAccPt->Divide(hDenPt);
+  hAccIntNoW->Divide(hDenIntNoW);
+  hAccPtNoW->Divide(hDenPtNoW);
+
   TCanvas* c1 = new TCanvas("c1","c1",0,0,500,500);
-  hAccPt->Draw("PE");
+  hAccPtNoW->Draw("PE");
+  hAccPt->Draw("same PE");
 
-  c1->SaveAs(Form("AcceptancePlot%s_%i.png",weightstr.Data(),dateStr));
-  c1->SaveAs(Form("AcceptancePlot%s_%i.pdf",weightstr.Data(),dateStr));
+  TLegend* leg = new TLegend(0.2,0.7,0.5,0.8);
+  //leg->SetTextSize(19);
+  //leg->SetTextFont(43);
+  leg->SetBorderSize(0);
+  leg->AddEntry(hAccPtNoW,"unweighted","pe");
+  leg->AddEntry(hAccPt,"weighted","pe");
+  leg->Draw("same");
 
-  TFile* accFile = new TFile(Form("acceptance%s_%i.root",weightstr.Data(),dateStr),"RECREATE");
+  c1->SaveAs(Form("AcceptancePlot_%i.png",dateStr));
+  c1->SaveAs(Form("AcceptancePlot_%i.pdf",dateStr));
+
+  TFile* accFile = new TFile(Form("acceptance_%i.root",dateStr),"RECREATE");
   hAccInt->Write();
   hAccPt->Write();
+  hAccIntNoW->Write();
+  hAccPtNoW->Write();
   accFile->Close();
 }
 

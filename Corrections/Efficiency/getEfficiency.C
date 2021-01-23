@@ -13,8 +13,7 @@
 
 const Double_t pi = 3.141592653589;
 
-TF1* fWgtAA1 = new TF1("fWgtAA1","(([0]-1)*([0]-2)*([2]*[3]*([2]*[3]+([2]-2)*9.460))*TMath::Power((1+(TMath::Sqrt(9.460*9.460+x*x)-9.460)/([0]*[1])),-[0])/(([0]*[1]*([0]*[1]+([0]-2)*9.460))*(([2]-1)*([2]-2))*TMath::Power((1+(TMath::Sqrt(9.460*9.460+x*x)-9.460)/([2]*[3])),-[2])))");
-TF1* fdNdpTWgt = new TF1("fdNdpTWgt","([0]+[1]*x+[2]*x*x)/((x-[3])*(x-[3])*(x-[3]))");
+//TF1* fdNdpTWgt = new TF1("fdNdpTWgt","([0]+[1]*x+[2]*x*x)/((x-[3])*(x-[3])*(x-[3]))");
 
 double getSFs(double pt1, double eta1, double pt2, double eta2){
   double weight = 1.0;     
@@ -27,34 +26,26 @@ double getSFs(double pt1, double eta1, double pt2, double eta2){
   return weight;
 }
 
-void getEfficiency(int nevt=-1, int dateStr=20210121, int weighted=0){
+void getEfficiency(int nevt=-1, int dateStr=20210123, int weighted=0){
 
   gStyle->SetOptStat(0);
 
   using namespace std;
   using namespace hi;
 
-  const int numptbins = 50;
-  const int arraysize = numptbins+1;
-  Double_t ptbins[arraysize];
-  Double_t ptmax = 50.0;
-  Double_t ptmin = 0.0;
-  cout << "ptbins = {";
-  for (int i=0; i<arraysize; i++){
-    ptbins[i] = ptmax*i/((Double_t)numptbins);
-    cout << ptbins[i] << ", ";
-  }
-  cout << "}" << endl;
-  Double_t ptbinsInt[2] = {ptmin,ptmax};
-  const int numptbinsInt = 1;
+  Double_t ptbins[33] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23, 26,29,32,35,38,41,44,47,50};
+  int numptbins = sizeof(ptbins)/sizeof(Double_t)-1;
 
   // Integrated bin:
-  TH1D* hEffInt = new TH1D("hEffInt",";p_{T} (GeV/c);Efficiency of Dimuons",numptbinsInt,ptbinsInt);
+  TH1D* hEffInt = new TH1D("hEffInt",";p_{T} (GeV/c);Efficiency of Dimuons",1,0,50);
   hEffInt->Sumw2(); hEffInt->SetMinimum(0); hEffInt->SetMaximum(1.0);
   hEffInt->SetMarkerStyle(20);hEffInt->SetMarkerColor(kBlue+2);
-  TH1D* hDenInt = new TH1D("hDenInt",";p_{T} (GeV/c);Efficiency of Dimuons",numptbinsInt,ptbinsInt);
+  TH1D* hDenInt = new TH1D("hDenInt",";p_{T} (GeV/c);Efficiency of Dimuons",1,0,50);
   hDenInt->Sumw2(); hDenInt->SetMinimum(0); //hDenInt->SetMaximum(1.0);
   hDenInt->SetMarkerStyle(20);hDenInt->SetMarkerColor(kBlue+2);
+
+  TH1D* hEffIntNoW = (TH1D*)hEffInt->Clone("hEffIntNoW");
+  TH1D* hDenIntNoW = (TH1D*)hDenInt->Clone("hDenIntNoW");
 
   // pT dependence:
   TH1D* hEffPt = new TH1D("hEffPt",";p_{T} (GeV/c);Efficiency of Dimuons",numptbins,ptbins);
@@ -64,15 +55,27 @@ void getEfficiency(int nevt=-1, int dateStr=20210121, int weighted=0){
   hDenPt->Sumw2(); hDenPt->SetMinimum(0); //hDenPt->SetMaximum(1.0);
   hDenPt->SetMarkerStyle(20);hDenPt->SetMarkerColor(kBlue+2);
 
+  TH1D* hEffPtLowC = (TH1D*)hEffPt->Clone("hEffPtLowC");
+  TH1D* hEffPtMidC = (TH1D*)hEffPt->Clone("hEffPtMidC");
+  TH1D* hEffPtHighC = (TH1D*)hEffPt->Clone("hEffPtHighC");
+
+  TH1D* hDenPtLowC = (TH1D*)hDenPt->Clone("hDenPtLowC");
+  TH1D* hDenPtMidC = (TH1D*)hDenPt->Clone("hDenPtMidC");
+  TH1D* hDenPtHighC = (TH1D*)hDenPt->Clone("hDenPtHighC");
+
+  TH1D* hEffPtNoW = (TH1D*)hEffPt->Clone("hEffPtNoW");
+  TH1D* hEffPtLowCNoW = (TH1D*)hEffPt->Clone("hEffPtLowCNoW");
+  TH1D* hEffPtMidCNoW = (TH1D*)hEffPt->Clone("hEffPtMidCNoW");
+  TH1D* hEffPtHighCNoW = (TH1D*)hEffPt->Clone("hEffPtHighCNoW");
+
+  TH1D* hDenPtNoW = (TH1D*)hDenPt->Clone("hDenPtNoW");
+  TH1D* hDenPtLowCNoW = (TH1D*)hDenPt->Clone("hDenPtLowCNoW");
+  TH1D* hDenPtMidCNoW = (TH1D*)hDenPt->Clone("hDenPtMidCNoW");
+  TH1D* hDenPtHighCNoW = (TH1D*)hDenPt->Clone("hDenPtHighCNoW");
+
   //pt weighting function
   TFile *fweight = TFile::Open("../Acceptance/Func_dNdpT_1S.root","READ");
   TF1* fitRatio = (TF1*)fweight->Get("fitRatio");
-  double fdNdpTWgt_p0 = fitRatio->GetParameter(0);
-  double fdNdpTWgt_p1 = fitRatio->GetParameter(1);
-  double fdNdpTWgt_p2 = fitRatio->GetParameter(2);
-  double fdNdpTWgt_p3 = fitRatio->GetParameter(3);
-  fWgtAA1->SetParameters( 1.0001, 5.1, 2.0024, 12.4243);
-  fdNdpTWgt->SetParameters( fdNdpTWgt_p0, fdNdpTWgt_p1, fdNdpTWgt_p2, fdNdpTWgt_p3);
 
   TString inputMC1 = "/home/jared/Documents/Ubuntu_Overflow/DataTrees/2018PbPbMCOfficial/Upsi1S_TuneCP5_HydjetDrumMB_officialPythia8MC_v1.root";
   TString inputMC2 = "/home/jared/Documents/Ubuntu_Overflow/DataTrees/2018PbPbMCOfficial/Upsi1S_TuneCP5_HydjetDrumMB_officialPythia8MC_ext-v1.root";
@@ -245,13 +248,8 @@ void getEfficiency(int nevt=-1, int dateStr=20210121, int weighted=0){
   TLorentzVector* mumi_Gen = new TLorentzVector;
 
   Double_t kTrigSel = 13;
-  Double_t NUMERATOR = 0;//# of RECO dimuons in acceptance with muId+Trig
-  Double_t DENOMINATOR = 0;//# of GEN dimuons in acceptance
 
-  Double_t NUMERATORPT[numptbins] = {0};//# of RECO dimuons in bin with muId+Trig
-  Double_t DENOMINATORPT[numptbins] = {0};//# of GEN dimuons in bin
-
-  Double_t pt, rap, pt1, pt2, eta1, eta2, weight;
+  Double_t pt, rap, pt1, pt2, eta1, eta2, weight, ptweight;
 
   int nevtReal = mytree->GetEntries();
 
@@ -266,13 +264,8 @@ void getEfficiency(int nevt=-1, int dateStr=20210121, int weighted=0){
 
     mytree->GetEntry(iev);
 
-    //Centrality cut
-    if (Centrality<100 || Centrality>180) continue;
-
-    int Gen_QQ_pass = 0;
-    int Reco_QQ_pass = 0;
-
-      //cout << "Gen_QQ_size=" << Gen_QQ_size << ", Reco_QQ_size=" << Reco_QQ_size << ", Gen_mu_size=" << Gen_mu_size << ", Reco_mu_size=" << Reco_mu_size << endl;
+    //Centrality cut 10-90%
+    if (Centrality<20 || Centrality>180) continue;
 
     //Gen dimuon loop start
     for (Int_t irqq=0; irqq<Gen_QQ_size; ++irqq) 
@@ -304,16 +297,27 @@ void getEfficiency(int nevt=-1, int dateStr=20210121, int weighted=0){
       weight = findNcoll(Centrality)*Gen_weight;
 
       //Apply pt reweighting function;
-      //weight = weight*fdNdpTWgt->Eval(pt);
-      weight = weight*fitRatio->Eval(pt);
+      ptweight = fitRatio->Eval(pt);
 
-      //Increment DENOMINATOR with scale factors
+      //Increment DENOMINATOR
       //weight = weight*getSFs(pt1,eta1,pt2,eta2);
-      hDenInt->Fill(pt,weight);
-      hDenPt->Fill(pt,weight);
+      hDenInt->Fill(pt,weight*ptweight);
+      hDenPt->Fill(pt,weight*ptweight);
+      hDenIntNoW->Fill(pt);
+      hDenPtNoW->Fill(pt);
 
-      //cout << " passed!" << endl;
-      Gen_QQ_pass++;
+      if (Centrality<60) {
+        hDenPtLowC->Fill(pt,weight*ptweight);//10-30%
+        hDenPtLowCNoW->Fill(pt);
+      }
+      else if (Centrality<100) {
+        hDenPtMidC->Fill(pt,weight*ptweight);//30-50%
+        hDenPtMidCNoW->Fill(pt);
+      }
+      else {
+        hDenPtHighC->Fill(pt,weight*ptweight);//50-90%
+        hDenPtHighCNoW->Fill(pt);
+      }
     }//end of gen dimuon loop
 
     //Apply event trigger
@@ -385,45 +389,79 @@ void getEfficiency(int nevt=-1, int dateStr=20210121, int weighted=0){
 
       //Apply pt reweighting function;
       weight = findNcoll(Centrality)*Gen_weight;
-      weight = weight*fdNdpTWgt->Eval(pt);
+      ptweight = fitRatio->Eval(pt);
 
       //Get scale factors
       weight = weight*getSFs(pt1,eta1,pt2,eta2);
 
       //Increment NUMERATOR with scale factors
-      hEffInt->Fill(pt,weight);
-      hEffPt->Fill(pt,weight);
+      hEffInt->Fill(pt,weight*ptweight);
+      hEffPt->Fill(pt,weight*ptweight);
+      hEffIntNoW->Fill(pt);
+      hEffPtNoW->Fill(pt);
 
-      //cout << " passed!" << endl;
-      Reco_QQ_pass++;
+      if (Centrality<60) {
+        hEffPtLowC->Fill(pt,weight*ptweight);//10-30%
+        hEffPtLowCNoW->Fill(pt);
+      }
+      else if (Centrality<100) {
+        hEffPtMidC->Fill(pt,weight*ptweight);//30-50%
+        hEffPtMidCNoW->Fill(pt);
+      }
+      else {
+        hEffPtHighC->Fill(pt,weight*ptweight);//50-90%
+        hEffPtHighCNoW->Fill(pt);
+      }
 
     }//end of reco dimuon loop
 
-    //cout << "Gen_QQ_pass=" << Gen_QQ_pass << ", Reco_QQ_pass=" << Reco_QQ_pass << endl;
-    //if (Reco_QQ_pass>Gen_QQ_pass) {
-    //  cout << "^^^^^^^ BAD ONE!!! ^^^^^^^" << endl << endl;
-    //}
   } //end of event loop
 
   hEffInt->Divide(hDenInt);
   hEffPt->Divide(hDenPt);
+  hEffPtLowC->Divide(hDenPtLowC);
+  hEffPtMidC->Divide(hDenPtMidC);
+  hEffPtHighC->Divide(hDenPtHighC);
 
-  TCanvas* c1 = new TCanvas("c1","c1",0,0,500,500);
-  hEffPt->Draw("PE");
+  hEffIntNoW->Divide(hDenIntNoW);
+  hEffPtNoW->Divide(hDenPtNoW);
+  hEffPtLowCNoW->Divide(hDenPtLowCNoW);
+  hEffPtMidCNoW->Divide(hDenPtMidCNoW);
+  hEffPtHighCNoW->Divide(hDenPtHighCNoW);
+
+  TCanvas* c1 = new TCanvas("c1","c1",0,0,1200,400);
+  c1->Divide(3);
+  c1->cd(1);
+  hEffPtLowC->Draw("PE");
+  hEffPtLowCNoW->SetMarkerStyle(24);
+  hEffPtLowCNoW->Draw("same PE");
+  c1->cd(2);
+  hEffPtMidC->Draw("PE");
+  hEffPtMidCNoW->SetMarkerStyle(24);
+  hEffPtMidCNoW->Draw("same PE");
+  c1->cd(3);
+  hEffPtHighC->Draw("PE");
+  hEffPtHighCNoW->SetMarkerStyle(24);
+  hEffPtHighCNoW->Draw("same PE");
 
   TCanvas* c2 = new TCanvas("c2","c2",400,0,500,500);
   hDenPt->SetTitle("Gen: Centrality 50-90%");
   hDenPt->Draw("PE");
 
-  TString weightstr = "NoW";
+  c1->SaveAs(Form("EfficiencyPlot%s_%i.png",dateStr));
+  c1->SaveAs(Form("EfficiencyPlot%s_%i.pdf",dateStr));
 
-  c1->SaveAs(Form("EfficiencyPlot%s_%i.png",weightstr.Data(),dateStr));
-  c1->SaveAs(Form("EfficiencyPlot%s_%i.pdf",weightstr.Data(),dateStr));
-
-  TFile* effFile = new TFile(Form("efficiency%s_%i.root",weightstr.Data(),dateStr),"RECREATE");
+  TFile* effFile = new TFile(Form("efficiency%s_%i.root",dateStr),"RECREATE");
   hEffInt->Write();
   hEffPt->Write();
-  //feff->Write();
+  hEffPtLowC->Write();
+  hEffPtMidC->Write();
+  hEffPtHighC->Write();
+  hEffIntNoW->Write();
+  hEffPtNoW->Write();
+  hEffPtLowCNoW->Write();
+  hEffPtMidCNoW->Write();
+  hEffPtHighCNoW->Write();
   effFile->Close();
 }
 

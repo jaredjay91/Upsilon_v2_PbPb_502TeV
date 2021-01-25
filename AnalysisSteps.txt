@@ -1,0 +1,69 @@
+I. Get the data.
+
+PbPb Data 2018: 
+PbPb MC 2018:
+SkimForAcceptance:
+
+
+II. Skim the data
+
+Run Skimming/condor/SkimRDTree_raw_GetAverageQ_noDataset.C on lxplus using the condor config files condorExec_raw_GetAverageQ.sh and condorConfig_raw_GetAverageQ.sub. This skim also calculates the average cosines and sines needed for recentering later.
+
+
+III. Recenter the q vectors.
+
+Run Skimming/condor/SkimMMTree_recentering_GetAverageEP_nords.C to create a new skim with recentered q vectors and event plane angle.
+
+
+IV. Flatten reaction plane angle
+
+Add some pre-determined quantity to each reaction plane angle to make the distribution flat. This is done using Skimming/condor/SkimMMTree_flatten_GetResCor_nords.C, which takes the mean values of cos(Psi) and sin(Psi) from the previous skim and uses them in the flattening equation to create a new flattened dataset.
+
+
+V. Calculate resolution correction
+
+The resolution correction is automatically calculated while flattening in the last skim. It is applied the extracted v2 values later.
+
+
+VI. Calculate acceptance and efficiency corrections.
+
+Calculate the acceptance versus pt by running Corrections/Acceptance/getAcceptanceFrom19001Skim.C on the data file /afs/cern.ch/user/g/goni/public/Acceptance/skimedForAcc/skimedForAcc_MC_Ups1S_20170808.root. This file was used in the code for AN-19-001.
+
+
+VII. Make the RooDataSet
+
+Run makeRooDataset.C on the latest flattened dataset. Be sure to include the acceptance and efficiency corrections as weights in the new RooDataset.
+
+
+VIII. Fit the data
+
+Use the code in the SignalFitting directory.
+
+
+IX. Extract signals
+
+Use v2Fitting/GetYieldsvsPhi.C to extract the yields from the fits and put them into histograms versus dphi for each kinematic bin. GetAllYieldsVsPhi.C does this automatically for every bin.
+
+
+X. Calculate v2
+
+Use v2Fitting/Fitv2.C to fit the yield versus dphi histograms to extract a value for v2 in that kinematic bin. Get_v2_vs_var.C does this for every bin and outputs histograms of v2 versus the variable of interest. Apply resolution corrections.
+
+
+XI. Estimate systematic uncertainties
+
+1. Due to method of applying acceptance corrections: Apply different (unweighted) corrections.
+2. Due to method of estimating efficiency corrections: Apply different (unweighted) corrections.
+3. Due to choice of signal pdf: Use an alternative signal pdf.
+4. Due to choice of background pdf: Use an alternative background pdf.
+5. Due to constraining signal parameters: Constrain to different values.
+6. Due to flattening procedure: Don't flatten.
+
+
+XII. Plot the results, including systematic uncertainties.
+
+
+XIII. Perform MC closure test.
+
+
+

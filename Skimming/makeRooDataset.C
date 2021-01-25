@@ -42,11 +42,23 @@ bool isAbout(float num1=0.0, float num2=0.0) {
 }
 
 
-void makeRooDataset(int dateStr=20201119) 
+void makeRooDataset(int dateStr=20210125, bool NomAccTrue=kTRUE, bool NomEffTrue=kFALSE) 
 {
 
   using namespace std;
   using namespace hi;
+
+  TFile* accFile = TFile::Open("../Corrections/Acceptance/acceptance_20210122.root");
+  TH1D* hAccPt = (TH1D*)accFile->Get("hAccPt");
+  TH1D* hAccPtNoW = (TH1D*)accFile->Get("hAccPtNoW");
+
+  TFile* effFile = TFile::Open("../Corrections/Efficiency/efficiency_20210123.root");
+  TH1D* hEffPtLowC = (TH1D*)effFile->Get("hEffPtLowC");
+  TH1D* hEffPtMidC = (TH1D*)effFile->Get("hEffPtMidC");
+  TH1D* hEffPtHighC = (TH1D*)effFile->Get("hEffPtHighC");
+  TH1D* hEffPtLowCNoW = (TH1D*)effFile->Get("hEffPtLowCNoW");
+  TH1D* hEffPtMidCNoW = (TH1D*)effFile->Get("hEffPtMidCNoW");
+  TH1D* hEffPtHighCNoW = (TH1D*)effFile->Get("hEffPtHighCNoW");
 
   //TFile* inFile = TFile::Open("skims/newOniaTree_Skim_UpsTrig_RD_RAW_n-1_20201107.root","READ");
   //TFile* inFile = TFile::Open("condor/skims/newOniaTree_Skim_UpsTrig_RD_flattenedBinByBin_order21_n-1_20201114.root","READ");
@@ -56,9 +68,13 @@ void makeRooDataset(int dateStr=20201119)
 
   int nevt = mytree->GetEntries();
 
+  TString accstr = "";
+  TString effstr = "";
+  if (!NomAccTrue) accstr = "altAcc_";
+  if (!NomEffTrue) effstr = "altEff_";
   TFile* newfile;
   //newfile = new TFile(Form("skims/newOniaTree_Skim_UpsTrig_RD_withDataset_%i.root",dateStr),"recreate");
-  newfile = new TFile(Form("skims/newOniaTree_Skim_UpsTrig_MM_flattenedBinByBin_order21_n-1_withDataset_%i.root",dateStr),"recreate");
+  newfile = new TFile(Form("skims/newOniaTree_Skim_UpsTrig_MM_flattenedBinByBin_order21_n-1_withDataset_%s%s%i.root", accstr.Data(), effstr.Data(), dateStr),"recreate");
   
   RooRealVar* massVar  = new RooRealVar("mass","mass variable",0,200,"GeV/c^{2}");
   RooRealVar* ptVar    = new RooRealVar("pt","pt variable", 0,100,"GeV/c");
@@ -69,13 +85,13 @@ void makeRooDataset(int dateStr=20201119)
   RooRealVar* eta2Var  = (RooRealVar*)eta1Var->Clone("eta2");
   RooRealVar* cBinVar   = new RooRealVar("cBin","Centrality bin", -100,500,"");
   RooRealVar* ep2Var   = new RooRealVar("ep2","2nd order event plane", -100,100,"");
-//  RooRealVar* evtWeight = new RooRealVar("weight","pt weight", 0, 10000,"");
+  RooRealVar* evtWeight = new RooRealVar("weight","pt weight", 0, 10000,"");
   RooRealVar* recoQQsign = new RooRealVar("recoQQsign","qq sign",-1,3,"");
   RooRealVar* dphiEp2Var   = new RooRealVar("dphiEp2","Delta Phi from 2nd order event plane", -100,100,"");
   RooRealVar* qxVar   = new RooRealVar("qx","x-comp of 2nd order q vector", -100,100,"");
   RooRealVar* qyVar   = new RooRealVar("qy","y-comp of 2nd order q vector", -100,100,"");
   RooArgSet* argSet    = new RooArgSet(*massVar, *ptVar, *yVar, *pt1Var, *pt2Var, *eta1Var, *eta2Var);
-  argSet->add(*cBinVar); argSet->add(*ep2Var); argSet->add(*recoQQsign); argSet->add(*dphiEp2Var); argSet->add(*qxVar); argSet->add(*qyVar);
+  argSet->add(*cBinVar); argSet->add(*ep2Var); argSet->add(*recoQQsign); argSet->add(*dphiEp2Var); argSet->add(*qxVar); argSet->add(*qyVar); argSet->add(*evtWeight);
 
   RooDataSet* dataSet  = new RooDataSet("dataset", " a dataset", *argSet);
 
@@ -84,6 +100,8 @@ void makeRooDataset(int dateStr=20201119)
   // event loop start
 
   cout << "Total events = " << nevt << ", : " << mytree->GetEntries() << endl;
+
+  double weight, pt, cBin;
 
   for(int iev=0; iev<nevt ; ++iev)
   {
@@ -102,18 +120,40 @@ void makeRooDataset(int dateStr=20201119)
     TLeaf *dphiEp2Leaf = mm->GetLeaf("dphiEp2");
     TLeaf *cBinLeaf = mm->GetLeaf("cBin");
 
-    recoQQsign->setVal(0);     
-    massVar->setVal( (double)massLeaf->GetValue() ) ;
-    ptVar->setVal(   (double)ptLeaf->GetValue()   ) ;
-    yVar->setVal(    (double)yLeaf->GetValue()    ) ;
-    pt1Var->setVal(  (double)pt1Leaf->GetValue()  ) ;
-    eta1Var->setVal( (double)eta1Leaf->GetValue() ) ;
-    pt2Var->setVal(  (double)pt2Leaf->GetValue()  ) ;
-    eta2Var->setVal( (double)eta2Leaf->GetValue() ) ;
-    ep2Var->setVal( (double)ep2Leaf->GetValue() ) ;
-    dphiEp2Var->setVal(   (double)dphiEp2Leaf->GetValue()  ) ;
-    cBinVar->setVal( (double)cBinLeaf->GetValue() ) ;
-    //evtWeight->setVal( (double)dm.weight ) ;
+    pt = (double)ptLeaf->GetValue();
+    cBin = (double)cBinLeaf->GetValue();
+
+    recoQQsign->setVal(0);
+    ptVar->setVal(pt); 
+    cBinVar->setVal(cBin);  
+    massVar->setVal((double)massLeaf->GetValue());
+    yVar->setVal((double)yLeaf->GetValue());
+    pt1Var->setVal((double)pt1Leaf->GetValue());
+    eta1Var->setVal((double)eta1Leaf->GetValue());
+    pt2Var->setVal((double)pt2Leaf->GetValue());
+    eta2Var->setVal((double)eta2Leaf->GetValue());
+    ep2Var->setVal((double)ep2Leaf->GetValue());
+    dphiEp2Var->setVal((double)dphiEp2Leaf->GetValue());
+
+    //Apply acceptance and efficiency weights.
+    weight = 1.0;
+    int whichptbin = hAccPt->FindBin((double)ptLeaf->GetValue())-1;
+    if (NomAccTrue) weight = weight/(hAccPt->GetBinContent(whichptbin));
+    else weight = weight/(hAccPtNoW->GetBinContent(whichptbin));
+
+    if (cBin>20 && cBin<60) {//Centrality 10-30%
+      if (NomEffTrue) weight = weight/(hEffPtLowC->GetBinContent(whichptbin));
+      else weight = weight/(hEffPtLowCNoW->GetBinContent(whichptbin));
+    }
+    else if (cBin>=60 && cBin<100) {//Centrality 30-50%
+      if (NomEffTrue) weight = weight/(hEffPtMidC->GetBinContent(whichptbin));
+      else weight = weight/(hEffPtMidCNoW->GetBinContent(whichptbin));
+    }
+    else if (cBin>=100 && cBin<180) {//Centrality 50-90%
+      if (NomEffTrue) weight = weight/(hEffPtHighC->GetBinContent(whichptbin));
+      else weight = weight/(hEffPtHighCNoW->GetBinContent(whichptbin));
+    }
+    evtWeight->setVal( (double)weight ) ;
 
     //cout << "massVar = " << massVar->getVal() << endl;
 

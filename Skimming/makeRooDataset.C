@@ -47,6 +47,7 @@ void makeRooDataset(int dateStr=20210125, bool NomAccTrue=kTRUE, bool NomEffTrue
 
   using namespace std;
   using namespace hi;
+  using namespace RooFit;
 
   TFile* accFile = TFile::Open("../Corrections/Acceptance/acceptance_20210122.root");
   TH1D* hAccPt = (TH1D*)accFile->Get("hAccPt");
@@ -94,6 +95,7 @@ void makeRooDataset(int dateStr=20210125, bool NomAccTrue=kTRUE, bool NomEffTrue
   argSet->add(*cBinVar); argSet->add(*ep2Var); argSet->add(*recoQQsign); argSet->add(*dphiEp2Var); argSet->add(*qxVar); argSet->add(*qyVar); argSet->add(*evtWeight);
 
   RooDataSet* dataSet  = new RooDataSet("dataset", " a dataset", *argSet);
+  //RooDataSet* dataSet  = new RooDataSet("dataset", " a dataset", *argSet, WeightVar(*evtWeight));
 
   newfile->cd();
 
@@ -123,6 +125,8 @@ void makeRooDataset(int dateStr=20210125, bool NomAccTrue=kTRUE, bool NomEffTrue
     pt = (double)ptLeaf->GetValue();
     cBin = (double)cBinLeaf->GetValue();
 
+    if (pt>50) continue;
+
     recoQQsign->setVal(0);
     ptVar->setVal(pt); 
     cBinVar->setVal(cBin);  
@@ -137,10 +141,11 @@ void makeRooDataset(int dateStr=20210125, bool NomAccTrue=kTRUE, bool NomEffTrue
 
     //Apply acceptance and efficiency weights.
     weight = 1.0;
-    int whichptbin = hAccPt->FindBin((double)ptLeaf->GetValue())-1;
+    int whichptbin = hAccPt->FindBin((double)ptLeaf->GetValue());
     if (NomAccTrue) weight = weight/(hAccPt->GetBinContent(whichptbin));
     else weight = weight/(hAccPtNoW->GetBinContent(whichptbin));
 
+    whichptbin = hEffPtLowC->FindBin((double)ptLeaf->GetValue());
     if (cBin>20 && cBin<60) {//Centrality 10-30%
       if (NomEffTrue) weight = weight/(hEffPtLowC->GetBinContent(whichptbin));
       else weight = weight/(hEffPtLowCNoW->GetBinContent(whichptbin));
@@ -155,14 +160,22 @@ void makeRooDataset(int dateStr=20210125, bool NomAccTrue=kTRUE, bool NomEffTrue
     }
     evtWeight->setVal( (double)weight ) ;
 
-    //cout << "massVar = " << massVar->getVal() << endl;
+    if (weight>100) cout << "weight = " << weight << ", pt = " << pt << ", ptbin = " << whichptbin << endl;
 
     dataSet->add( *argSet);
 
   }
 
-  dataSet->Write(); 
+  cout << "Adding weights..." << endl;
+
+  //Make sure the dataset is weighted. See https://root.cern.ch/doc/v610/rf403__weightedevts_8C.html
+  RooDataSet* dataSetWeighted = new RooDataSet(dataSet->GetName(),dataSet->GetTitle(),dataSet,*dataSet->get(),0,evtWeight->GetName());
+
+  //dataSet->Write();
+  dataSetWeighted->Write();
   newfile->Close();
+
+  cout << "Done." << endl;
 
 } 
 

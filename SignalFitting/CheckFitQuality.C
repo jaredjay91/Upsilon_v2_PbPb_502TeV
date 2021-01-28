@@ -295,7 +295,7 @@ int CheckFitQuality(
   }
 
   //Check
-  if (chisq/ndf<chisqUpperCut && chisq/ndf>chisqLowerCut && temp1err/temp1<errUpperLimit && temp1err/temp1>0.005){
+  if (chisq/ndf<chisqUpperCut && chisq/ndf>chisqLowerCut){// && temp1err/temp1<errUpperLimit && temp1err/temp1>0.005){
   //if (true) {
     cout << "THE FIT PASSED THE QUALITY CHECK! :)" << endl;
     return 1;

@@ -42,12 +42,17 @@ bool isAbout(float num1=0.0, float num2=0.0) {
 }
 
 
-void makeRooDataset(int dateStr=20210125, bool NomAccTrue=kTRUE, bool NomEffTrue=kFALSE) 
+void makeRooDataset(int dateStr=20210126, bool NomAccTrue=kTRUE, bool NomEffTrue=kTRUE) 
 {
 
   using namespace std;
   using namespace hi;
   using namespace RooFit;
+
+  TString accstr = "";
+  TString effstr = "";
+  if (!NomAccTrue) accstr = "altAcc_";
+  if (!NomEffTrue) effstr = "altEff_";
 
   TFile* accFile = TFile::Open("../Corrections/Acceptance/acceptance_20210122.root");
   TH1D* hAccPt = (TH1D*)accFile->Get("hAccPt");
@@ -69,14 +74,8 @@ void makeRooDataset(int dateStr=20210125, bool NomAccTrue=kTRUE, bool NomEffTrue
 
   int nevt = mytree->GetEntries();
 
-  TString accstr = "";
-  TString effstr = "";
-  if (!NomAccTrue) accstr = "altAcc_";
-  if (!NomEffTrue) effstr = "altEff_";
-  TFile* newfile;
-  //newfile = new TFile(Form("skims/newOniaTree_Skim_UpsTrig_RD_withDataset_%i.root",dateStr),"recreate");
-  newfile = new TFile(Form("skims/newOniaTree_Skim_UpsTrig_MM_flattenedBinByBin_order21_n-1_withDataset_%s%s%i.root", accstr.Data(), effstr.Data(), dateStr),"recreate");
-  
+  //newfile->cd();
+
   RooRealVar* massVar  = new RooRealVar("mass","mass variable",0,200,"GeV/c^{2}");
   RooRealVar* ptVar    = new RooRealVar("pt","pt variable", 0,100,"GeV/c");
   RooRealVar* yVar     = new RooRealVar("y","rapidity of the dimuon pair", -5,5,"");
@@ -96,8 +95,6 @@ void makeRooDataset(int dateStr=20210125, bool NomAccTrue=kTRUE, bool NomEffTrue
 
   RooDataSet* dataSet  = new RooDataSet("dataset", " a dataset", *argSet);
   //RooDataSet* dataSet  = new RooDataSet("dataset", " a dataset", *argSet, WeightVar(*evtWeight));
-
-  newfile->cd();
 
   // event loop start
 
@@ -160,7 +157,7 @@ void makeRooDataset(int dateStr=20210125, bool NomAccTrue=kTRUE, bool NomEffTrue
     }
     evtWeight->setVal( (double)weight ) ;
 
-    if (weight>100) cout << "weight = " << weight << ", pt = " << pt << ", ptbin = " << whichptbin << endl;
+    if (iev==1310707 || iev==2621412 || iev==2621414 || iev==3932118 || iev==3932121) cout << "weight = " << weight << ", pt = " << pt << ", ptbin = " << whichptbin << endl;
 
     dataSet->add( *argSet);
 
@@ -170,6 +167,12 @@ void makeRooDataset(int dateStr=20210125, bool NomAccTrue=kTRUE, bool NomEffTrue
 
   //Make sure the dataset is weighted. See https://root.cern.ch/doc/v610/rf403__weightedevts_8C.html
   RooDataSet* dataSetWeighted = new RooDataSet(dataSet->GetName(),dataSet->GetTitle(),dataSet,*dataSet->get(),0,evtWeight->GetName());
+
+  TFile* newfile;
+  //newfile = new TFile(Form("skims/newOniaTree_Skim_UpsTrig_RD_withDataset_%i.root",dateStr),"recreate");
+  newfile = new TFile(Form("skims/newOniaTree_Skim_UpsTrig_MM_flattenedBinByBin_order21_n-1_withDataset_%s%s%i.root", accstr.Data(), effstr.Data(), dateStr),"recreate");
+
+  newfile->cd();
 
   //dataSet->Write();
   dataSetWeighted->Write();

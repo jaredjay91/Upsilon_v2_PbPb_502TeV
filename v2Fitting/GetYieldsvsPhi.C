@@ -36,12 +36,13 @@ void GetYieldsvsPhi(
     dphiEp2High = phibins[iphi+1];
     TString kineLabel = getKineLabel (collId, ptLow, ptHigh, yLow, yHigh, muPtCut, cLow, cHigh, dphiEp2Low, dphiEp2High);
     TString inFileName = Form("%snomfitresults_upsilon_%s.root",directory.Data(),kineLabel.Data());
+    cout << "Opening file: " << inFileName << endl;
     TFile* inFile = TFile::Open(inFileName,"READ");
     RooWorkspace *ws = (RooWorkspace*)inFile->Get("workspace");
     inFile->Close("R");
     float yield = ws->var(Form("nSig%is",whichUpsilon))->getVal();
     float yielderr = ws->var(Form("nSig%is",whichUpsilon))->getError();
-    delete ws;
+    //delete ws;
     delete inFile;
     cout << yield << " +/- " << yielderr << endl;
     yieldsVsPhi->SetBinContent(iphi+1, yield);

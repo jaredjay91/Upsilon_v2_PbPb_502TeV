@@ -24,7 +24,7 @@
 const double pi = 3.14159265;
 
 //Limits: {sigma1s_1,x1s,alpha1s_1,n1s_1,f1s,err_mu,err_sigma,m_lambda}
-double paramsupper[8] = {0.2, 1.0, 5.0, 5.0, 1.0, 10.0, 15.0, 25.0};
+double paramsupper[8] = {0.2, 1.0, 5.0, 5.0, 1.0, 15.0, 15.0, 25.0};
 double paramslower[8] = {0.02, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0};
 
 using namespace std;
@@ -82,7 +82,8 @@ double FitDataWithRandomSeeds(
   else if (collId==kAADATA) {
     //f1 = new TFile("/home/jared/Documents/Ubuntu_Overflow/Upsilon_v2_502TeV_Thesis/Skimming/skims/newOniaTree_Skim_UpsTrig_RD_withDataset_20201109.root");
     //f1 = new TFile("/home/jared/Documents/Ubuntu_Overflow/Upsilon_v2_502TeV_Thesis/Skimming/skims/newOniaTree_Skim_UpsTrig_RD_flattenedBinByBin_order21_n-1_withDataset_20201116.root");
-    f1 = new TFile("/home/jared/Documents/Ubuntu_Overflow/Upsilon_v2_502TeV_Thesis/Skimming/skims/newOniaTree_Skim_UpsTrig_MM_flattenedBinByBin_order21_n-1_withDataset_20201119.root");
+    //f1 = new TFile("/home/jared/Documents/Ubuntu_Overflow/Upsilon_v2_502TeV_Thesis/Skimming/skims/newOniaTree_Skim_UpsTrig_MM_flattenedBinByBin_order21_n-1_withDataset_20201119.root");
+    f1 = new TFile("/home/jared/Documents/Ubuntu_Overflow/Upsilon_v2_502TeV_ThesisNew/Skimming/skims/newOniaTree_Skim_UpsTrig_MM_flattenedBinByBin_order21_n-1_withDataset_20210125.root");
     yLowLab = yLow;
     yHighLab = yHigh;
     kineCut = Form("pt>%.2f && pt<%.2f && abs(y)>%.2f && abs(y)<%.2f && eta1<%.2f && eta1>%.2f && eta2<%.2f && eta2>%.2f && cBin>%i && cBin<%i && ((abs(dphiEp2)>%.2f && abs(dphiEp2)<%.2f) || (abs(dphiEp2)>%.2f && abs(dphiEp2)<%.2f))",ptLow, ptHigh, yLowLab, yHighLab, eta_high,eta_low, eta_high,eta_low, cLow*2,cHigh*2, dphiEp2Low*pi,dphiEp2High*pi, (1-dphiEp2High)*pi,(1-dphiEp2Low)*pi);
@@ -484,7 +485,7 @@ TString outFileName;
   cout << "here2" << endl;
   if (collId==kPADATA) delete f2;
   cout << "here3" << endl;
-  delete ws;
+  //delete ws;
   cout << "here4" << endl;
   delete cb1s;
   cout << "here5" << endl;

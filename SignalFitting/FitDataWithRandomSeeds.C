@@ -37,7 +37,12 @@ double FitDataWithRandomSeeds(
        float muPtCut=3.5,
        float dphiEp2Low = 0.0,//units of PI
        float dphiEp2High = 0.12,//range is [0,0.5]
-       bool whichModel=0,   // Nominal = 0. Alternative = 1.
+       int whichSyst=0,   
+// 0: Nominal
+// 1: AltSig
+// 2: AltBkg
+// 3: AltAcc
+// 4: AltEff
        bool randomSeeds=kTRUE
 			) 
 {
@@ -66,28 +71,18 @@ double FitDataWithRandomSeeds(
   TString kineCut;
 
   //Select Data Set
-  if (collId==kPADATA) {
-    f1 = new TFile("../yskimPA1st_OpSign_20177262037_unIdentified.root");
-    f2 = new TFile("../yskimPA2nd_OpSign_20177262044_unIdentified.root");
-    yLowLab = yLow+0.47;
-    yHighLab = yHigh+0.47;
-    kineCut = Form("pt>%.2f && pt<%.2f && y>%.2f && y<%.2f && eta1<%.2f && eta1>%.2f && eta2<%.2f && eta2>%.2f",ptLow, ptHigh, yLowLab, yHighLab, eta_high,eta_low, eta_high,eta_low );
+  if (whichSyst==3){//altAcc
+    f1 = new TFile("/home/jared/Documents/Ubuntu_Overflow/Upsilon_v2_502TeV_ThesisNew/Skimming/skims/newOniaTree_Skim_UpsTrig_MM_flattenedBinByBin_order21_n-1_withDataset_altAcc_20210125.root");
   }
-  else if (collId==kPPDATA) {
-    f1 = new TFile("/media/jared/Acer/Users/Jared/Desktop/Ubuntu_Overflow/DataTrees/Jared_yskimPP_L1DoubleMu0PD_Trig-L1DoubleMu0_OpSign_201711171639_unIdentified.root");
-    yLowLab = yLow;
-    yHighLab = yHigh;
-    kineCut = Form("pt>%.2f && pt<%.2f && abs(y)>%.2f && abs(y)<%.2f && eta1<%.2f && eta1>%.2f && eta2<%.2f && eta2>%.2f",ptLow, ptHigh, yLowLab, yHighLab, eta_high,eta_low, eta_high,eta_low );
+  else if (whichSyst==4){//AltEff
+    f1 = new TFile("/home/jared/Documents/Ubuntu_Overflow/Upsilon_v2_502TeV_ThesisNew/Skimming/skims/newOniaTree_Skim_UpsTrig_MM_flattenedBinByBin_order21_n-1_withDataset_altEff_20210125.root");
   }
-  else if (collId==kAADATA) {
-    //f1 = new TFile("/home/jared/Documents/Ubuntu_Overflow/Upsilon_v2_502TeV_Thesis/Skimming/skims/newOniaTree_Skim_UpsTrig_RD_withDataset_20201109.root");
-    //f1 = new TFile("/home/jared/Documents/Ubuntu_Overflow/Upsilon_v2_502TeV_Thesis/Skimming/skims/newOniaTree_Skim_UpsTrig_RD_flattenedBinByBin_order21_n-1_withDataset_20201116.root");
-    //f1 = new TFile("/home/jared/Documents/Ubuntu_Overflow/Upsilon_v2_502TeV_Thesis/Skimming/skims/newOniaTree_Skim_UpsTrig_MM_flattenedBinByBin_order21_n-1_withDataset_20201119.root");
+  else {//nominal dataset
     f1 = new TFile("/home/jared/Documents/Ubuntu_Overflow/Upsilon_v2_502TeV_ThesisNew/Skimming/skims/newOniaTree_Skim_UpsTrig_MM_flattenedBinByBin_order21_n-1_withDataset_20210125.root");
-    yLowLab = yLow;
-    yHighLab = yHigh;
-    kineCut = Form("pt>%.2f && pt<%.2f && abs(y)>%.2f && abs(y)<%.2f && eta1<%.2f && eta1>%.2f && eta2<%.2f && eta2>%.2f && cBin>%i && cBin<%i && ((abs(dphiEp2)>%.2f && abs(dphiEp2)<%.2f) || (abs(dphiEp2)>%.2f && abs(dphiEp2)<%.2f))",ptLow, ptHigh, yLowLab, yHighLab, eta_high,eta_low, eta_high,eta_low, cLow*2,cHigh*2, dphiEp2Low*pi,dphiEp2High*pi, (1-dphiEp2High)*pi,(1-dphiEp2Low)*pi);
   }
+  yLowLab = yLow;
+  yHighLab = yHigh;
+  kineCut = Form("pt>%.2f && pt<%.2f && abs(y)>%.2f && abs(y)<%.2f && eta1<%.2f && eta1>%.2f && eta2<%.2f && eta2>%.2f && cBin>%i && cBin<%i && ((abs(dphiEp2)>%.2f && abs(dphiEp2)<%.2f) || (abs(dphiEp2)>%.2f && abs(dphiEp2)<%.2f))",ptLow, ptHigh, yLowLab, yHighLab, eta_high,eta_low, eta_high,eta_low, cLow*2,cHigh*2, dphiEp2Low*pi,dphiEp2High*pi, (1-dphiEp2High)*pi,(1-dphiEp2Low)*pi);
 
 
   if (muPtCut>0) kineCut = kineCut + Form(" && (pt1>%.2f) && (pt2>%.2f) ", (float)muPtCut, (float)muPtCut);
@@ -185,28 +180,29 @@ double FitDataWithRandomSeeds(
   RooCBShape cb2s_1 = RooCBShape("cball2s_1", "cystal Ball", *(ws->var("mass")), mean2s, sigma2s_1, alpha2s_1, n2s_1);
   RooCBShape cb3s_1 = RooCBShape("cball3s_1", "cystal Ball", *(ws->var("mass")), mean3s, sigma3s_1, alpha3s_1, n3s_1);
 
-  RooAddPdf* cb1s;
-  RooAddPdf* cb2s;
-  RooAddPdf* cb3s;
-
-/*if (whichModel) {
-  //CB+GAUSSIAN
   RooGaussian gauss1s = RooGaussian("gauss1s","gaussian PDF",*(ws->var("mass")),mean1s,sigma1s_2);
   RooGaussian gauss2s = RooGaussian("gauss2s","gaussian PDF",*(ws->var("mass")),mean2s,sigma2s_2);
   RooGaussian gauss3s = RooGaussian("gauss3s","gaussian PDF",*(ws->var("mass")),mean3s,sigma3s_2);
+
+  RooCBShape cb1s_2 = RooCBShape("cball1s_2", "cystal Ball", *(ws->var("mass")), mean1s, sigma1s_2, alpha1s_2, n1s_2);
+  RooCBShape cb2s_2 = RooCBShape("cball2s_2", "cystal Ball", *(ws->var("mass")), mean2s, sigma2s_2, alpha2s_2, n2s_2);
+  RooCBShape cb3s_2 = RooCBShape("cball3s_2", "cystal Ball", *(ws->var("mass")), mean3s, sigma3s_2, alpha3s_2, n3s_2);
+
+  RooAddPdf* cb1s;
+  RooAddPdf* cb2s;
+  RooAddPdf* cb3s;
+if (whichSyst==1) {
+  //AltSig: CB+GAUSSIAN
   cb1s = new RooAddPdf("cb1s","Signal 1S",RooArgList(cb1s_1,gauss1s), RooArgList(f1s) );
   cb2s = new RooAddPdf("cb2s","Signal 2S",RooArgList(cb2s_1,gauss2s), RooArgList(f1s) );
   cb3s = new RooAddPdf("cb3s","Signal 3S",RooArgList(cb3s_1,gauss3s), RooArgList(f1s) );
 }
-else {*/
-  //DOUBLE CRYSTAL BALL
-  RooCBShape cb1s_2 = RooCBShape("cball1s_2", "cystal Ball", *(ws->var("mass")), mean1s, sigma1s_2, alpha1s_2, n1s_2);
-  RooCBShape cb2s_2 = RooCBShape("cball2s_2", "cystal Ball", *(ws->var("mass")), mean2s, sigma2s_2, alpha2s_2, n2s_2);
-  RooCBShape cb3s_2 = RooCBShape("cball3s_2", "cystal Ball", *(ws->var("mass")), mean3s, sigma3s_2, alpha3s_2, n3s_2);
+else {
+  //Nominal: DOUBLE CRYSTAL BALL
   cb1s = new RooAddPdf("cb1s","Signal 1S",RooArgList(cb1s_1,cb1s_2), RooArgList(f1s) );
   cb2s = new RooAddPdf("cb2s","Signal 2S",RooArgList(cb2s_1,cb2s_2), RooArgList(f1s) );
   cb3s = new RooAddPdf("cb3s","Signal 3S",RooArgList(cb3s_1,cb3s_2), RooArgList(f1s) );
-//}
+}
 
   RooRealVar *nSig1s= new RooRealVar("nSig1s"," 1S signals",50000,0,1000000);
   RooRealVar *nSig2s= new RooRealVar("nSig2s"," 2S signals",1000,0,360000);
@@ -443,14 +439,15 @@ else {*/
   pad1->Update();
   pad2->Update();
 
-  if (whichModel) {
-    c1->SaveAs(Form("%saltfitresults_upsilon_%s.png",directory.Data(),kineLabel.Data()));
-    c1->SaveAs(Form("%saltfitresults_upsilon_%s.pdf",directory.Data(),kineLabel.Data()));
-  }
-  else {
-    c1->SaveAs(Form("%snomfitresults_upsilon_%s.png",directory.Data(),kineLabel.Data()));
-    c1->SaveAs(Form("%snomfitresults_upsilon_%s.pdf",directory.Data(),kineLabel.Data()));
-  }
+  TString systStr;
+  if (whichSyst==0) systStr = "nom";
+  else if (whichSyst==1) systStr = "altSig";
+  else if (whichSyst==2) systStr = "altBkg";
+  else if (whichSyst==3) systStr = "altAcc";
+  else if (whichSyst==4) systStr = "altEff";
+
+  c1->SaveAs(Form("%s%sfitresults_upsilon_%s.png", directory.Data(), systStr.Data(), kineLabel.Data() ));
+  c1->SaveAs(Form("%s%sfitresults_upsilon_%s.pdf", directory.Data(), systStr.Data(), kineLabel.Data() ));
 
   float temp1 = ws->var("nSig1s")->getVal();  
   float temp1err = ws->var("nSig1s")->getError();  
@@ -468,13 +465,7 @@ else {*/
   cout <<  ws->var("n1s_1")->getVal() << ", " <<  ws->var("alpha1s_1")->getVal() << ", "<<  ws->var("sigma1s_1")->getVal() << ", " ;
   cout <<  ws->var("m_{#Upsilon(1S)}")->getVal() << ", " <<  ws->var("f1s")->getVal() << ", "<<  ws->var("x1s")->getVal() << " );} " << endl;
 
-TString outFileName;
-  if (whichModel){
-    outFileName = Form("%saltfitresults_upsilon_%s.root",directory.Data(),kineLabel.Data());
-  }
-  else {
-    outFileName = Form("%snomfitresults_upsilon_%s.root",directory.Data(),kineLabel.Data());
-  }
+TString outFileName = Form("%s%sfitresults_upsilon_%s.root", directory.Data(), systStr.Data(), kineLabel.Data() );
   TFile* outf = new TFile(outFileName,"recreate");
   c1->Write();
   ws->Write();
@@ -528,6 +519,6 @@ TString outFileName;
   cout << "that's all." << endl << endl;
 
   return chisq/ndf;
-  return 0.0;
+  //return 0.0;
 } 
  

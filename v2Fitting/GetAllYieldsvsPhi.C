@@ -12,7 +12,7 @@ float ptbins[5] = {0,3,6,10,50};
 const int numcbins = 3;
 float cbins[4] = {10,30,50,90};
 
-void GetAllYieldsvsPhi(int whichUpsilon=1) {
+void GetAllYieldsvsPhi(int whichUpsilon=1, int whichSyst = 0) {
 
   int collId = kAADATA;
   int whichModel = 0;
@@ -20,13 +20,13 @@ void GetAllYieldsvsPhi(int whichUpsilon=1) {
   float ptLow, ptHigh, yLow, yHigh;
   int cLow, cHigh;
 
-  bool INTBIN = kTRUE;
+  bool INTBIN = kFALSE;
   bool PTBINS = kTRUE;
   bool YBINS = kTRUE;
   bool CBINS = kTRUE;
 
   //integrated bin
-  if (INTBIN) GetYieldsvsPhi(collId, 0, 50, 0, 2.4, 10, 90, muPtCut, whichUpsilon);
+  if (INTBIN) GetYieldsvsPhi(collId, 0, 50, 0, 2.4, 10, 90, muPtCut, whichUpsilon, whichSyst);
 
   //Pt bins
   if (PTBINS) {
@@ -38,7 +38,7 @@ void GetAllYieldsvsPhi(int whichUpsilon=1) {
       ptLow = ptbins[ipt];
       ptHigh = ptbins[ipt+1];
       cout << "[" << ptLow << "," << ptHigh << "]" << endl;
-      GetYieldsvsPhi(collId, ptLow, ptHigh, yLow, yHigh, cLow, cHigh, muPtCut, whichUpsilon);
+      GetYieldsvsPhi(collId, ptLow, ptHigh, yLow, yHigh, cLow, cHigh, muPtCut, whichUpsilon, whichSyst);
     }
   }
 
@@ -52,7 +52,7 @@ void GetAllYieldsvsPhi(int whichUpsilon=1) {
       yLow = ybins[iy];
       yHigh = ybins[iy+1];
       cout << "[" << yLow << "," << yHigh << "]" << endl;
-      GetYieldsvsPhi(collId, ptLow, ptHigh, yLow, yHigh, cLow, cHigh, muPtCut, whichUpsilon);
+      GetYieldsvsPhi(collId, ptLow, ptHigh, yLow, yHigh, cLow, cHigh, muPtCut, whichUpsilon, whichSyst);
     }
   }
  
@@ -66,7 +66,7 @@ void GetAllYieldsvsPhi(int whichUpsilon=1) {
       cLow = cbins[ic];
       cHigh = cbins[ic+1];
       cout << "[" << cLow << "," << cHigh << "]" << endl;
-      GetYieldsvsPhi(collId, ptLow, ptHigh, yLow, yHigh, cLow, cHigh, muPtCut, whichUpsilon);
+      GetYieldsvsPhi(collId, ptLow, ptHigh, yLow, yHigh, cLow, cHigh, muPtCut, whichUpsilon, whichSyst);
     }
   }
 }

@@ -50,6 +50,13 @@ double FitDataWithRandomSeeds(
   TString directory = "AllParamFree/";
   //TString directory = "Fits_with_n_fixed/";
 
+  TString systStr;
+  if (whichSyst==0) systStr = "nom";
+  else if (whichSyst==1) systStr = "altSig";
+  else if (whichSyst==2) systStr = "altBkg";
+  else if (whichSyst==3) systStr = "altAcc";
+  else if (whichSyst==4) systStr = "altEff";
+
   float eta_low = -2.4;
   float eta_high = 2.4;
   
@@ -120,7 +127,8 @@ double FitDataWithRandomSeeds(
   RooFormulaVar mean2s("mean2s","m_{#Upsilon(1S)}*mRatio21", RooArgSet(mean1s,mRatio21) );
   RooFormulaVar mean3s("mean3s","m_{#Upsilon(1S)}*mRatio31", RooArgSet(mean1s,mRatio31) );
 
-  //SIGNAL:
+
+  //**************SIGNAL****************:
   double sigma1s_1_init = 0.07;
   double x1s_init = 0.5;
   double alpha1s_1_init = 2.5;
@@ -208,7 +216,23 @@ else {
   RooRealVar *nSig2s= new RooRealVar("nSig2s"," 2S signals",1000,0,360000);
   RooRealVar *nSig3s= new RooRealVar("nSig3s"," 3S signals",10,0,260000);
 
-  //BACKGROUND
+
+  //**********BACKGROUND****************
+
+  //CHEBYCHEV
+  RooRealVar ach1("Ach1","Acheb1",0,-1,1);
+  RooRealVar ach2("Ach2","Acheb2",-0.1,-1,1);
+  RooRealVar ach3("Ach3","Acheb3",0,-1,1);
+  RooRealVar ach4("Ach4","Acheb4",0,-1,1);
+  RooChebychev* bkgCheb = new RooChebychev("bkgLowPt","Background",*(ws->var("mass")),RooArgList(ach1,ach2,ach3,ach4));
+  
+  //POWER LAW
+  RooRealVar m0("m0","m0",1,0,100);
+  RooRealVar pow("pow","pow",10,0,100);
+  RooRealVar mpow("mpow","mpow",0,0,100);
+  RooGenericPdf* bkgPow = new RooGenericPdf("bkgHighPt","Background","TMath::Power(@0,@3)/TMath::Power(1+@0/@1,@2)",RooArgList(*(ws->var("mass")),m0,pow,mpow));
+
+  //NOMINAL BACKGROUND
   double m_lambda_init = 8;
   double err_mu_init = 8;
   double err_sigma_init = 1;
@@ -223,13 +247,27 @@ else {
   RooRealVar err_sigma("#sigma","err_sigma", err_sigma_init, paramslower[6], paramsupper[6]);
   RooRealVar m_lambda("#lambda","m_lambda",  m_lambda_init, paramslower[7], paramsupper[7]);
   
-  RooGenericPdf *bkg;
-  RooGenericPdf *bkgLowPt = new RooGenericPdf("bkgLowPt","Background","TMath::Exp(-@0/@1)*(TMath::Erf((@0-@2)/(TMath::Sqrt(2)*@3))+1)*0.5",RooArgList( *(ws->var("mass")), m_lambda, err_mu, err_sigma) );
+  RooGenericPdf *bkgErfExp = new RooGenericPdf("bkgLowPt","Background","TMath::Exp(-@0/@1)*(TMath::Erf((@0-@2)/(TMath::Sqrt(2)*@3))+1)*0.5",RooArgList( *(ws->var("mass")), m_lambda, err_mu, err_sigma) );
+  RooGenericPdf *bkgExp = new RooGenericPdf("bkgHighPt","Background","TMath::Exp(-@0/@1)",RooArgList(*(ws->var("mass")),m_lambda));
 
-  //THIS IS THE HIGH-PT BACKGROUND FUNCTION
-  RooGenericPdf *bkgHighPt = new RooGenericPdf("bkgHighPt","Background","TMath::Exp(-@0/@1)",RooArgList(*(ws->var("mass")),m_lambda));
-  
-  if  (ptLow >= 5)        bkg = bkgHighPt ;
+  RooAbsPdf *bkg;
+  RooAbsPdf *bkgLowPt;
+  RooAbsPdf *bkgHighPt;
+
+  if (whichSyst==2) {//alternative background
+    //low pt: chebychev
+    bkgLowPt = bkgCheb;
+    //high pt: power law
+    bkgHighPt = bkgPow;
+  }
+  else {//nominal background:
+    //low pt: erf*exponential
+    bkgLowPt = bkgErfExp;
+    //high pt: exponential
+    bkgHighPt = bkgExp;
+  }
+
+  if (ptLow >= 5) bkg = bkgHighPt;
   else bkg = bkgLowPt;
 
   RooRealVar *nBkg = new RooRealVar("nBkg","fraction of component 1 in bkg",25000,0,5000000);
@@ -253,7 +291,7 @@ else {
     //import ICs
     cout << "Importing workspace" << endl;
     TString kineLabelICs = getKineLabel(collId, ptLow, ptHigh, yLow, yHigh, muPtCut, cLow, cHigh, 0.0, 0.5);
-    TString NomFileName = Form("AllParamFree/nomfitresults_upsilon_%s.root",kineLabelICs.Data());
+    TString NomFileName = Form("AllParamFree/%sfitresults_upsilon_%s.root", systStr.Data(), kineLabelICs.Data());
     cout << NomFileName << endl;
     TFile* NomFile = TFile::Open(NomFileName,"READ");
     RooWorkspace *Nomws = (RooWorkspace*)NomFile->Get("workspace");
@@ -262,7 +300,7 @@ else {
     alphafix = Nomws->var("alpha1s_1")->getVal();
     ffix = Nomws->var("f1s")->getVal();
     sigmafix = Nomws->var("sigma1s_1")->getVal();
-    lambdafix = Nomws->var("#lambda")->getVal();
+    //lambdafix = Nomws->var("#lambda")->getVal();
     //errmufix = Nomws->var("#mu")->getVal();
     //errsigmafix = Nomws->var("#sigma")->getVal();
     //cout << "lambdafix = " << lambdafix << endl;
@@ -438,13 +476,6 @@ else {
 
   pad1->Update();
   pad2->Update();
-
-  TString systStr;
-  if (whichSyst==0) systStr = "nom";
-  else if (whichSyst==1) systStr = "altSig";
-  else if (whichSyst==2) systStr = "altBkg";
-  else if (whichSyst==3) systStr = "altAcc";
-  else if (whichSyst==4) systStr = "altEff";
 
   c1->SaveAs(Form("%s%sfitresults_upsilon_%s.png", directory.Data(), systStr.Data(), kineLabel.Data() ));
   c1->SaveAs(Form("%s%sfitresults_upsilon_%s.pdf", directory.Data(), systStr.Data(), kineLabel.Data() ));

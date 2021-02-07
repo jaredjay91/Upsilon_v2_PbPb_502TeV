@@ -5,7 +5,14 @@
 #include "Fitv2.C"
 
 
-void Get_v2_vs_var(int whichUpsilon=1) {
+void Get_v2_vs_var(int whichUpsilon=1, int whichSyst=0) {
+
+  TString systStr;
+  if (whichSyst==0) systStr = "nom";
+  else if (whichSyst==1) systStr = "altSig";
+  else if (whichSyst==2) systStr = "altBkg";
+  else if (whichSyst==3) systStr = "altAcc";
+  else if (whichSyst==4) systStr = "altEff";
 
   gStyle->SetOptStat(0);
 
@@ -41,7 +48,7 @@ void Get_v2_vs_var(int whichUpsilon=1) {
     yLow = 0.0; yHigh = 2.4;
     cLow = 10; cHigh = 90;
 
-    Fitv2(collId, ptLow, ptHigh, yLow, yHigh, cLow, cHigh, muPtCut, v2ValPtr, v2ErrPtr, whichUpsilon);
+    Fitv2(collId, ptLow, ptHigh, yLow, yHigh, cLow, cHigh, muPtCut, v2ValPtr, v2ErrPtr, whichUpsilon, whichSyst);
     hv2pt->SetBinContent(ipt+1,v2Val);
     hv2pt->SetBinError(ipt+1,v2Err);
   }
@@ -59,7 +66,7 @@ void Get_v2_vs_var(int whichUpsilon=1) {
     ptLow = 0; ptHigh = 50;
     cLow =10; cHigh = 90;
 
-    Fitv2(collId, ptLow, ptHigh, yLow, yHigh, cLow, cHigh, muPtCut, v2ValPtr, v2ErrPtr, whichUpsilon);
+    Fitv2(collId, ptLow, ptHigh, yLow, yHigh, cLow, cHigh, muPtCut, v2ValPtr, v2ErrPtr, whichUpsilon, whichSyst);
     hv2y->SetBinContent(iy+1,v2Val);
     hv2y->SetBinError(iy+1,v2Err);
   }
@@ -74,14 +81,14 @@ void Get_v2_vs_var(int whichUpsilon=1) {
     ptLow = 0; ptHigh = 50;
     yLow =0.0; yHigh = 2.4;
 
-    Fitv2(collId, ptLow, ptHigh, yLow, yHigh, cLow, cHigh, muPtCut, v2ValPtr, v2ErrPtr, whichUpsilon);
+    Fitv2(collId, ptLow, ptHigh, yLow, yHigh, cLow, cHigh, muPtCut, v2ValPtr, v2ErrPtr, whichUpsilon, whichSyst);
     hv2c->SetBinContent(ic+1,v2Val);
     hv2c->SetBinError(ic+1,v2Err);
   }
   cv2->cd(3);
   hv2c->Draw();
 
-  TString outFileName = Form("Ups_%i_v2_cent10-90.root",whichUpsilon);
+  TString outFileName = Form("Ups_%i_v2_cent10-90_%s.root", whichUpsilon, systStr.Data());
   TFile* outFile = new TFile(outFileName,"RECREATE");
   hv2pt->Write();
   hv2y->Write();

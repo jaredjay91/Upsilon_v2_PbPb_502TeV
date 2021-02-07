@@ -290,7 +290,8 @@ int CheckFitQuality(
   //Specify quality standards
   //double chisqUpperCut = 2.0 + temp1/10000;
   //double chisqLowerCut = 0.5 + temp1/30000;
-  double chisqUpperCut = 5.0;
+  double chisqUpperCut = 10.0;
+  //double chisqUpperCut = 5.0;
   double chisqLowerCut = 0.5;
   double errUpperLimit = 0.1;
   if (collId==kAADATA) errUpperLimit = 0.25;
@@ -307,8 +308,8 @@ int CheckFitQuality(
   }
 
   //Check
-  //if (chisq/ndf<chisqUpperCut && chisq/ndf>chisqLowerCut){// && temp1err/temp1<errUpperLimit && temp1err/temp1>0.005){
-  if (true) {
+  if (chisq/ndf<chisqUpperCut && chisq/ndf>chisqLowerCut){// && temp1err/temp1<errUpperLimit && temp1err/temp1>0.005){
+  //if (true) {
     cout << "THE FIT PASSED THE QUALITY CHECK! :)" << endl;
     return 1;
   }

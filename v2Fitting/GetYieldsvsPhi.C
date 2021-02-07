@@ -17,10 +17,18 @@ void GetYieldsvsPhi(
   float yLow = 0.0, float yHigh = 2.4,
   int cLow = 0, int cHigh = 100,
   float muPtCut = 4.0,
-  int whichUpsilon = 1 )
+  int whichUpsilon = 1,
+  int whichSyst = 0 )
 
 {
 
+
+  TString systStr;
+  if (whichSyst==0) systStr = "nom";
+  else if (whichSyst==1) systStr = "altSig";
+  else if (whichSyst==2) systStr = "altBkg";
+  else if (whichSyst==3) systStr = "altAcc";
+  else if (whichSyst==4) systStr = "altEff";
 
   float dphiEp2Low; float dphiEp2High;
 
@@ -35,7 +43,7 @@ void GetYieldsvsPhi(
     dphiEp2Low = phibins[iphi];
     dphiEp2High = phibins[iphi+1];
     TString kineLabel = getKineLabel (collId, ptLow, ptHigh, yLow, yHigh, muPtCut, cLow, cHigh, dphiEp2Low, dphiEp2High);
-    TString inFileName = Form("%snomfitresults_upsilon_%s.root",directory.Data(),kineLabel.Data());
+    TString inFileName = Form("%s%sfitresults_upsilon_%s.root", directory.Data(), systStr.Data(), kineLabel.Data());
     cout << "Opening file: " << inFileName << endl;
     TFile* inFile = TFile::Open(inFileName,"READ");
     RooWorkspace *ws = (RooWorkspace*)inFile->Get("workspace");
@@ -53,7 +61,7 @@ void GetYieldsvsPhi(
   yieldsVsPhi->Draw();
   yieldsVsPhi->SetMinimum(0);
 
-  TFile* outFile = new TFile(Form("ExtractedYields/yieldsVsPhi_%iS_%s.root",whichUpsilon,fileLabel.Data()),"RECREATE");
+  TFile* outFile = new TFile(Form("ExtractedYields/%syieldsVsPhi_%iS_%s.root", systStr.Data(), whichUpsilon, fileLabel.Data()),"RECREATE");
   yieldsVsPhi->Write();
   outFile->Close();
 

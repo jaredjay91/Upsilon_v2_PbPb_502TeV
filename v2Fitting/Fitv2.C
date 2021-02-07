@@ -13,16 +13,23 @@ void Fitv2(
   int cLow = 10, int cHigh = 90,
   float muPtCut = 3.5,
   double* v2ValPtr=0, double* v2ErrPtr=0,
-  int whichUpsilon=1 )
+  int whichUpsilon=1, int whichSyst=0 )
 
 {
+
+  TString systStr;
+  if (whichSyst==0) systStr = "nom";
+  else if (whichSyst==1) systStr = "altSig";
+  else if (whichSyst==2) systStr = "altBkg";
+  else if (whichSyst==3) systStr = "altAcc";
+  else if (whichSyst==4) systStr = "altEff";
 
   gStyle->SetOptStat(0);
 
   TString fileLabel = getKineLabel (collId, ptLow, ptHigh, yLow, yHigh, muPtCut, cLow, cHigh, 0.0, 0.5);
 
   //Load the yields vs phi
-  TFile* yieldsFile = TFile::Open(Form("ExtractedYields/yieldsVsPhi_%iS_%s.root",whichUpsilon,fileLabel.Data()),"READ");
+  TFile* yieldsFile = TFile::Open(Form("ExtractedYields/%syieldsVsPhi_%iS_%s.root", systStr.Data(), whichUpsilon, fileLabel.Data()), "READ");
   TH1D* yieldsVsPhi = (TH1D*)yieldsFile->Get("yieldsVsPhi;1");
 
   //Plot it
@@ -51,7 +58,7 @@ void Fitv2(
 
   c1->Update();
 
-  c1->SaveAs(Form("v2_fit_pt%.1f-%.1f_y%.2f-%.2f_cent%i-%i.png",ptLow,ptHigh, yLow,yHigh, cLow, cHigh));
+  c1->SaveAs(Form("fitPlots/%s_v2_fit_pt%.1f-%.1f_y%.2f-%.2f_cent%i-%i.png", systStr.Data(), ptLow,ptHigh, yLow,yHigh, cLow, cHigh));
 
   *v2ValPtr = v2Val;
   *v2ErrPtr = v2Err;

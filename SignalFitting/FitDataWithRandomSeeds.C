@@ -27,6 +27,12 @@ const double pi = 3.14159265;
 double paramsupper[8] = {0.2, 1.0, 5.0, 5.0, 1.0, 15.0, 15.0, 25.0};
 double paramslower[8] = {0.02, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0};
 
+double randomIC(double lo=0, double up=1) {
+  double rangeScale = 0.5;
+  TRandom3 rnd3(0);
+  return rangeScale*(up-lo)*(rnd3.Rndm()-0.5) + (up+lo)/2;
+}
+
 using namespace std;
 using namespace RooFit;
 double FitDataWithRandomSeeds( 
@@ -220,10 +226,20 @@ else {
   //**********BACKGROUND****************
 
   //CHEBYCHEV
-  RooRealVar ach1("Ach1","Acheb1",0,-1,1);
-  RooRealVar ach2("Ach2","Acheb2",-0.1,-1,1);
-  RooRealVar ach3("Ach3","Acheb3",0,-1,1);
-  RooRealVar ach4("Ach4","Acheb4",0,-1,1);
+  double ach1_init = 0;
+  double ach2_init = -0.1;
+  double ach3_init = 0;
+  double ach4_init = 0;
+  if (randomSeeds) {
+    ach1_init = randomIC(-1,1);
+    ach2_init = randomIC(-1,1);
+    ach3_init = randomIC(-1,1);
+    ach4_init = randomIC(-1,1);
+  }
+  RooRealVar ach1("Ach1","Acheb1",ach1_init,-1,1);
+  RooRealVar ach2("Ach2","Acheb2",ach2_init,-1,1);
+  RooRealVar ach3("Ach3","Acheb3",ach3_init,-1,1);
+  RooRealVar ach4("Ach4","Acheb4",ach4_init,-1,1);
   RooChebychev* bkgCheb = new RooChebychev("bkgLowPt","Background",*(ws->var("mass")),RooArgList(ach1,ach2,ach3,ach4));
   
   //POWER LAW

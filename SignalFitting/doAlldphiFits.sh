@@ -8,7 +8,7 @@ then
 fi
 
 #integrated bin:
-./DoFit.sh kAADATA 0.0 50.0 0.0 2.4 10 90 3.5 0.00 0.12 $whichSyst
+#./DoFit.sh kAADATA 0.0 50.0 0.0 2.4 10 90 3.5 0.00 0.12 $whichSyst
 #pt bins:
 ./DoFit.sh kAADATA 0.0 3.0 0.0 2.4 10 90 3.5 0.00 0.12 $whichSyst
 ./DoFit.sh kAADATA 3.0 6.0 0.0 2.4 10 90 3.5 0.00 0.12 $whichSyst
@@ -28,7 +28,7 @@ fi
 ./DoFit.sh kAADATA 0.0 50.0 0.0 2.4 30 90 3.5 0.00 0.12 $whichSyst
 
 #integrated bin:
-./DoFit.sh kAADATA 0.0 50.0 0.0 2.4 10 90 3.5 0.12 0.25 $whichSyst
+#./DoFit.sh kAADATA 0.0 50.0 0.0 2.4 10 90 3.5 0.12 0.25 $whichSyst
 #pt bins:
 ./DoFit.sh kAADATA 0.0 3.0 0.0 2.4 10 90 3.5 0.12 0.25 $whichSyst
 ./DoFit.sh kAADATA 3.0 6.0 0.0 2.4 10 90 3.5 0.12 0.25 $whichSyst
@@ -48,7 +48,7 @@ fi
 ./DoFit.sh kAADATA 0.0 50.0 0.0 2.4 30 90 3.5 0.12 0.25 $whichSyst
 
 #integrated bin:
-./DoFit.sh kAADATA 0.0 50.0 0.0 2.4 10 90 3.5 0.25 0.38 $whichSyst
+#./DoFit.sh kAADATA 0.0 50.0 0.0 2.4 10 90 3.5 0.25 0.38 $whichSyst
 #pt bins:
 ./DoFit.sh kAADATA 0.0 3.0 0.0 2.4 10 90 3.5 0.25 0.38 $whichSyst
 ./DoFit.sh kAADATA 3.0 6.0 0.0 2.4 10 90 3.5 0.25 0.38 $whichSyst
@@ -68,7 +68,7 @@ fi
 ./DoFit.sh kAADATA 0.0 50.0 0.0 2.4 30 90 3.5 0.25 0.38 $whichSyst
 
 #integrated bin:
-./DoFit.sh kAADATA 0.0 50.0 0.0 2.4 10 90 3.5 0.38 0.5 $whichSyst
+#./DoFit.sh kAADATA 0.0 50.0 0.0 2.4 10 90 3.5 0.38 0.5 $whichSyst
 #pt bins:
 ./DoFit.sh kAADATA 0.0 3.0 0.0 2.4 10 90 3.5 0.38 0.5 $whichSyst
 ./DoFit.sh kAADATA 3.0 6.0 0.0 2.4 10 90 3.5 0.38 0.5 $whichSyst

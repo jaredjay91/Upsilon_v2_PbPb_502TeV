@@ -1,6 +1,7 @@
 #include <iostream>
 #include "TFile.h"
 #include "../HeaderFiles/cutsAndBin.h"
+#include "RoundsHeader.h"
 
 
 using namespace std;
@@ -12,12 +13,13 @@ int CheckFitExists(
        float muPtCut=4.0,
        float dphiEp2Low = 0,//multiplied by PI
        float dphiEp2High = 0.5,
-       int whichSyst=0
+       int whichSyst=0,
 // 0: Nominal
 // 1: AltSig
 // 2: AltBkg
 // 3: AltAcc
 // 4: AltEff
+       int whichRound=0
 			) 
 {
 
@@ -25,6 +27,7 @@ int CheckFitExists(
   if (dphiEp2High-dphiEp2Low < 0.5) {
     directory = "dphiFits/";
   }
+  if (whichRound>0) directory = Form("RoundFits_%s/",roundLabel[whichRound].Data());
 
   TString systStr;
   if (whichSyst==0) systStr = "nom";

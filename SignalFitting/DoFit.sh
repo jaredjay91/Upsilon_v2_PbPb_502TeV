@@ -9,7 +9,8 @@ cHigh=60
 muPtCut=4.0
 dphiEp2Low=0.0
 dphiEp2High=0.5
-whichModel=0
+whichSyst=0
+whichRound=0
 nTries=1
 
 if [ "$1" != "" ]
@@ -64,7 +65,12 @@ then
 fi
 if [ "$1" != "" ]
 then
-  whichModel=$1
+  whichSyst=$1
+  shift
+fi
+if [ "$1" != "" ]
+then
+  whichRound=$1
   shift
 fi
 if [ "$1" != "" ]
@@ -75,8 +81,8 @@ fi
 
 if [ $nTries -lt 2 ]
 then
-  echo root -b -q -l "CheckFitExists.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichModel)"
-  root -b -q -l "CheckFitExists.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichModel)" >> junk
+  echo root -b -q -l "CheckFitExists.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichSyst,$whichRound)"
+  root -b -q -l "CheckFitExists.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichSyst,$whichRound)" >> junk
   isIt=$(tail -c 2 junk)
   rm junk
 else
@@ -89,8 +95,8 @@ then
   then
     echo "THE FIT EXISTS ALREADY! :)"
   fi
-  echo root -b -q -l "CheckFitQuality.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichModel)"
-  root -b -q -l "CheckFitQuality.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichModel)" >> junk
+  echo root -b -q -l "CheckFitQuality.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichSyst,$whichRound)"
+  root -b -q -l "CheckFitQuality.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichSyst,$whichRound)" >> junk
   ToF=$(tail -c 2 junk)
   rm junk
 else
@@ -111,17 +117,18 @@ else
     echo "STARTING TRY #$nTries"
     if [ $nTries -lt 2 ]
     then
-      echo root -b -q -l "FitDataWithRandomSeeds.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichModel)"
-      root -b -q -l "FitDataWithRandomSeeds.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichModel)"
+      echo root -b -q -l "FitDataWithRandomSeeds.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichSyst,kTRUE,$whichRound)"
+      root -b -q -l "FitDataWithRandomSeeds.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichSyst,kTRUE,$whichRound)"
     else
-      echo root -b -q -l "FitDataWithRandomSeeds.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichModel,kTRUE)"
-      root -b -q -l "FitDataWithRandomSeeds.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichModel,kTRUE)"
+      echo root -b -q -l "FitDataWithRandomSeeds.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichSyst,kTRUE,$whichRound)"
+      root -b -q -l "FitDataWithRandomSeeds.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichSyst,kTRUE,$whichRound)"
     fi
     nTries=$(($nTries+1))
-    ./DoFit.sh $collId $ptLow $ptHigh $yLow $yHigh $cLow $cHigh $muPtCut $dphiEp2Low $dphiEp2High $whichModel $nTries
+    ./DoFit.sh $collId $ptLow $ptHigh $yLow $yHigh $cLow $cHigh $muPtCut $dphiEp2Low $dphiEp2High $whichSyst $whichRound $nTries
   else
     nTries=$(($nTries-1))
     echo "GIVING UP AFTER $nTries TRIES :("
+    root -b -q -l "WriteToLog.C()"
     echo
   fi
 fi

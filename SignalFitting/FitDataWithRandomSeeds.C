@@ -20,6 +20,7 @@
 #include "TCanvas.h"
 #include "TPad.h"
 #include "TRandom3.h"
+#include "RoundsHeader.h"
 
 const double pi = 3.14159265;
 
@@ -49,12 +50,14 @@ double FitDataWithRandomSeeds(
 // 2: AltBkg
 // 3: AltAcc
 // 4: AltEff
-       bool randomSeeds=kTRUE
+       bool randomSeeds=kTRUE,
+       int whichRound=0
 			) 
 {
 
   TString directory = "AllParamFree/";
   //TString directory = "Fits_with_n_fixed/";
+  if (whichRound>0) directory = Form("RoundFits_%s/",roundLabel[whichRound].Data());
 
   TString systStr;
   if (whichSyst==0) systStr = "nom";
@@ -297,8 +300,6 @@ else {
   float lambdafix;
   float errmufix;
   float errsigmafix;
-  if (collId==kPPDATA) float nfix = 2.14973;
-  else if (collId==kAADATA) float nfix = 3.59489;
   //n1s_1.setVal(nfix);
   //x1s->setVal(0.6);
   //alpha1s_1.setVal(1.5);
@@ -347,6 +348,36 @@ else {
     cout << "n1s_1_init = " << nfix << endl;
     cout << "f1s_init = " << ffix << endl << endl;
   }
+  //fix parameters
+  else if (whichRound==R1a) {
+    alpha1s_1.setVal(1.334649);
+    alpha1s_1.setConstant();
+  }
+  else if (whichRound==R1b) {
+    n1s_1.setVal(2.272255);
+    n1s_1.setConstant();
+  }
+  else if (whichRound==R2a) {
+    n1s_1.setVal(1.791286);
+    n1s_1.setConstant();
+  }
+  else if (whichRound==R2b) {
+    alpha1s_1.setVal(1.235901);
+    alpha1s_1.setConstant();
+  }
+  else if (whichRound==R3a) {
+    alpha1s_1.setVal(1.288009);
+    alpha1s_1.setConstant();
+    n1s_1.setVal(1.791286);
+    n1s_1.setConstant();
+  }
+  else if (whichRound==R3b) {
+    alpha1s_1.setVal(1.235901);
+    alpha1s_1.setConstant();
+    n1s_1.setVal(2.317862);
+    n1s_1.setConstant();
+  }
+
 
   //Build the model
   RooAddPdf* model = new RooAddPdf("model","1S+2S+3S + Bkg",RooArgList(*cb1s, *cb2s, *cb3s, *bkg),RooArgList(*nSig1s,*nSig2s,*nSig3s,*nBkg));

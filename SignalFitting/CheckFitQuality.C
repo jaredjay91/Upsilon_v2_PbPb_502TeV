@@ -17,6 +17,7 @@
 #include "../HeaderFiles/CMS_lumi.C"
 #include "../HeaderFiles/tdrstyle.C"
 #include "../HeaderFiles/StyleSetting.h"
+#include "RoundsHeader.h"
 
 bool isAbout(float a, float b) {
   if (abs(a-b)<0.01) return kTRUE;
@@ -33,12 +34,13 @@ int CheckFitQuality(
        float muPtCut=4.0,
        float dphiEp2Low = 0,//multiplied by PI
        float dphiEp2High = 0.5,
-       int whichSyst=0
+       int whichSyst=0,
 // 0: Nominal
 // 1: AltSig
 // 2: AltBkg
 // 3: AltAcc
 // 4: AltEff
+       int whichRound=0
 			) 
 {
 
@@ -46,6 +48,8 @@ int CheckFitQuality(
   if (dphiEp2High-dphiEp2Low < 0.5) {
     directory = "dphiFits/";
   }
+  if (whichRound>0) directory = Form("RoundFits_%s/",roundLabel[whichRound].Data());
+  TString logFileName = "log.txt";
 
   float eta_low = -2.4;
   float eta_high = 2.4;
@@ -308,6 +312,8 @@ int CheckFitQuality(
   }
 
   //Check
+  ofstream logFile;
+  logFile.open(logFileName, fstream::in | fstream::out | fstream::app);
   if (chisq/ndf<chisqUpperCut && chisq/ndf>chisqLowerCut){// && temp1err/temp1<errUpperLimit && temp1err/temp1>0.005){
   //if (true) {
     cout << "THE FIT PASSED THE QUALITY CHECK! :)" << endl;
@@ -315,6 +321,8 @@ int CheckFitQuality(
   }
   else{
     cout << "THE FIT FAILED THE QUALITY CHECK! :(" << endl;
+    logFile << endl << NomFileName << endl;
+    logFile << "THE FIT FAILED THE QUALITY CHECK! :(" << endl;
     return 0;
   }
 } 

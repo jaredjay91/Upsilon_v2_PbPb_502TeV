@@ -62,6 +62,8 @@ void getSystematics(int whichUpsilon=1, int whichSyst=1) {
   cSyst->cd(3);
   hSystc->Draw();
 
+  cSyst->SaveAs(Form("Plots/Ups_%i_v2_cent10-90_%sSyst.png", whichUpsilon, systStr.Data()));
+
   TString outFileName = Form("Ups_%i_v2_cent10-90_%sSyst.root", whichUpsilon, systStr.Data());
   TFile* outFile = new TFile(outFileName,"RECREATE");
   hSystpt->Write();

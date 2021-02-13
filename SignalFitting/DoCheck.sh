@@ -112,24 +112,5 @@ then
 else
   echo "THE FIT FAILED THE QUALITY CHECK! :("
   echo
-  if [ $nTries -lt 6 ]
-  then
-    echo "STARTING TRY #$nTries"
-    if [ $nTries -lt 2 ]
-    then
-      echo root -b -q -l "FitDataWithRandomSeeds.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichSyst,kFALSE,$whichRound)"
-      root -b -q -l "FitDataWithRandomSeeds.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichSyst,kTRUE,$whichRound)"
-    else
-      echo root -b -q -l "FitDataWithRandomSeeds.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichSyst,kTRUE,$whichRound)"
-      root -b -q -l "FitDataWithRandomSeeds.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichSyst,kTRUE,$whichRound)"
-    fi
-    nTries=$(($nTries+1))
-    ./DoFit.sh $collId $ptLow $ptHigh $yLow $yHigh $cLow $cHigh $muPtCut $dphiEp2Low $dphiEp2High $whichSyst $whichRound $nTries
-  else
-    nTries=$(($nTries-1))
-    echo "GIVING UP AFTER $nTries TRIES :("
-    root -b -q -l "WriteToLog.C()"
-    echo
-  fi
 fi
 

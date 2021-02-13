@@ -38,7 +38,7 @@ void GetYieldsvsPhi(
   TH1D* yieldsVsPhi = new TH1D("yieldsVsPhi", "yieldsVsPhi",numphibins,phibins);
 
   //Read in yields from fit files
-  TString directory = "../SignalFitting/dphiFits/";
+  TString directory = "../SignalFitting/dphiFits_R4a/";
   for (int iphi=0; iphi<numphibins; iphi++) {
     dphiEp2Low = phibins[iphi];
     dphiEp2High = phibins[iphi+1];

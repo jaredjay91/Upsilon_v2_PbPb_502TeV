@@ -26,7 +26,7 @@ const double pi = 3.14159265;
 
 //Limits: {sigma1s_1,x1s,alpha1s_1,n1s_1,f1s,err_mu,err_sigma,m_lambda}
 double paramsupper[8] = {0.2, 1.0, 5.0, 5.0, 1.0, 15.0, 15.0, 25.0};
-double paramslower[8] = {0.02, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0};
+double paramslower[8] = {0.02, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
 double randomIC(double lo=0, double up=1) {
   double rangeScale = 0.5;
@@ -38,12 +38,12 @@ using namespace std;
 using namespace RooFit;
 double FitDataWithRandomSeeds( 
        int collId = kAADATA,
-       float ptLow=0, float ptHigh=50,
-       float yLow=2.1, float yHigh=2.4,//Run 1 has p going in -z direction
+       float ptLow=0, float ptHigh=3,
+       float yLow=0.0, float yHigh=2.4,//Run 1 has p going in -z direction
        int cLow=10, int cHigh=90,//%centrality
        float muPtCut=3.5,
        float dphiEp2Low = 0.0,//units of PI
-       float dphiEp2High = 0.12,//range is [0,0.5]
+       float dphiEp2High = 0.5,//range is [0,0.5]
        int whichSyst=0,   
 // 0: Nominal
 // 1: AltSig
@@ -51,7 +51,7 @@ double FitDataWithRandomSeeds(
 // 3: AltAcc
 // 4: AltEff
        bool randomSeeds=kTRUE,
-       int whichRound=0
+       int whichRound=R4a
 			) 
 {
 
@@ -146,13 +146,11 @@ double FitDataWithRandomSeeds(
 
   //randomize ICs:
   if (randomSeeds) {
-    double rangeScale = 0.5;
-    TRandom3 rnd3(0);
-    sigma1s_1_init = rangeScale*(paramsupper[0]-paramslower[0])*(rnd3.Rndm()-0.5) + (paramsupper[0]+paramslower[0])/2;
-    x1s_init = rangeScale*(paramsupper[1]-paramslower[1])*(rnd3.Rndm()-0.5) + (paramsupper[1]+paramslower[1])/2;
-    alpha1s_1_init = rangeScale*(paramsupper[2]-paramslower[2])*(rnd3.Rndm()-0.5) + (paramsupper[2]+paramslower[2])/2;
-    n1s_1_init = rangeScale*(paramsupper[3]-paramslower[3])*(rnd3.Rndm()-0.5) + (paramsupper[3]+paramslower[3])/2;
-    f1s_init = rangeScale*(paramsupper[4]-paramslower[4])*(rnd3.Rndm()-0.5) + (paramsupper[4]+paramslower[4])/2;
+    sigma1s_1_init = randomIC(paramslower[0],paramsupper[0]);
+    x1s_init = randomIC(paramslower[1],paramsupper[1]);
+    alpha1s_1_init = randomIC(paramslower[2],paramsupper[2]);
+    n1s_1_init = randomIC(paramslower[3],paramsupper[3]);
+    f1s_init = randomIC(paramslower[4],paramsupper[4]);
   }
 
   //Print ICs:
@@ -221,7 +219,7 @@ else {
   cb3s = new RooAddPdf("cb3s","Signal 3S",RooArgList(cb3s_1,cb3s_2), RooArgList(f1s) );
 }
 
-  RooRealVar *nSig1s= new RooRealVar("nSig1s"," 1S signals",50000,0,1000000);
+  RooRealVar *nSig1s= new RooRealVar("nSig1s"," 1S signals",30000,0,1000000);
   RooRealVar *nSig2s= new RooRealVar("nSig2s"," 2S signals",1000,0,360000);
   RooRealVar *nSig3s= new RooRealVar("nSig3s"," 3S signals",10,0,260000);
 
@@ -256,11 +254,9 @@ else {
   double err_mu_init = 8;
   double err_sigma_init = 1;
   if (randomSeeds) {
-    double rangeScale = 0.5;
-    TRandom3 rnd3(0);
-    m_lambda_init = rangeScale*(paramsupper[7]-paramslower[7])*(rnd3.Rndm()-0.5) + (paramsupper[7]+paramslower[7])/2;
-    err_sigma_init = rangeScale*(paramsupper[6]-paramslower[6])*(rnd3.Rndm()-0.5) + (paramsupper[6]+paramslower[6])/2;
-    err_mu_init = rangeScale*(paramsupper[5]-paramslower[5])*(rnd3.Rndm()-0.5) + (paramsupper[5]+paramslower[5])/2;
+    m_lambda_init = randomIC(paramslower[7],paramsupper[7]);
+    err_sigma_init = randomIC(paramslower[6],paramsupper[6]);
+    err_mu_init = randomIC(paramslower[5],paramsupper[5]);
   }
   RooRealVar err_mu("#mu","err_mu", err_mu_init, paramslower[5], paramsupper[5]) ;
   RooRealVar err_sigma("#sigma","err_sigma", err_sigma_init, paramslower[6], paramsupper[6]);
@@ -304,11 +300,12 @@ else {
   //x1s->setVal(0.6);
   //alpha1s_1.setVal(1.5);
   if (dphiEp2High-dphiEp2Low < 0.5) {
-    directory = "dphiFits/";
+    directory = Form("dphiFits_%s/",roundLabel[whichRound].Data());
     //import ICs
     cout << "Importing workspace" << endl;
     TString kineLabelICs = getKineLabel(collId, ptLow, ptHigh, yLow, yHigh, muPtCut, cLow, cHigh, 0.0, 0.5);
-    TString NomFileName = Form("AllParamFree/%sfitresults_upsilon_%s.root", systStr.Data(), kineLabelICs.Data());
+    //TString NomFileName = Form("AllParamFree/%sfitresults_upsilon_%s.root", systStr.Data(), kineLabelICs.Data());
+    TString NomFileName = Form("RoundFits_%s/%sfitresults_upsilon_%s.root", roundLabel[whichRound].Data(), systStr.Data(), kineLabelICs.Data());
     cout << NomFileName << endl;
     TFile* NomFile = TFile::Open(NomFileName,"READ");
     RooWorkspace *Nomws = (RooWorkspace*)NomFile->Get("workspace");
@@ -348,48 +345,133 @@ else {
     cout << "n1s_1_init = " << nfix << endl;
     cout << "f1s_init = " << ffix << endl << endl;
   }
-  //fix parameters
-  else if (whichRound==R1a) {
-    alpha1s_1.setVal(1.334649);
+  else if (!randomSeeds) {
+    //import ICs
+    cout << "Importing workspace" << endl;
+    TString kineLabelICs = getKineLabel(collId, ptLow, ptHigh, yLow, yHigh, muPtCut, cLow, cHigh, 0.0, 0.5);
+    //TString NomFileName = Form("AllParamFree/%sfitresults_upsilon_%s.root", systStr.Data(), kineLabelICs.Data());
+    TString NomFileName = Form("RoundFits_%s/%sfitresults_upsilon_%s.root", roundLabel[whichRound-2].Data(), systStr.Data(), kineLabelICs.Data());
+    if (whichRound<R2a) NomFileName = Form("AllParamFree/%sfitresults_upsilon_%s.root", systStr.Data(), kineLabelICs.Data());
+    cout << NomFileName << endl;
+    TFile* NomFile = TFile::Open(NomFileName,"READ");
+    RooWorkspace *Nomws = (RooWorkspace*)NomFile->Get("workspace");
+    nfix = Nomws->var("n1s_1")->getVal();
+    xfix = Nomws->var("x1s")->getVal();
+    alphafix = Nomws->var("alpha1s_1")->getVal();
+    ffix = Nomws->var("f1s")->getVal();
+    sigmafix = Nomws->var("sigma1s_1")->getVal();
+    double nSig1s_init = Nomws->var("nSig1s")->getVal();
+    double nSig2s_init = Nomws->var("nSig2s")->getVal();
+    double nSig3s_init = Nomws->var("nSig3s")->getVal();
+    double nBkg_init = Nomws->var("nBkg")->getVal();
+    n1s_1.setVal(nfix);
+    x1s.setVal(xfix);
+    alpha1s_1.setVal(alphafix);
+    f1s.setVal(ffix);
+    sigma1s_1.setVal(sigmafix);
+    nSig1s->setVal(nSig1s_init);
+    nSig2s->setVal(nSig2s_init);
+    nSig3s->setVal(nSig3s_init);
+    nBkg->setVal(nBkg_init);
+    delete Nomws;
+    NomFile->Close("R");
+    delete NomFile;
+    cout << endl;
+    cout << "IMPORTED SEEDS:" << endl;
+    cout << "sigma1s_1_init = " << sigmafix << endl;
+    cout << "x1s_init = " << xfix << endl;
+    cout << "alpha1s_1_init = " << alphafix << endl;
+    cout << "n1s_1_init = " << nfix << endl;
+    cout << "f1s_init = " << ffix << endl << endl;
+  }
+
+  //fix parameters for round fits
+  if (whichRound==R1a) {
+    alpha1s_1.setVal(1.283374);
     alpha1s_1.setConstant();
   }
   else if (whichRound==R1b) {
-    n1s_1.setVal(2.272255);
+    n1s_1.setVal(2.739887);
     n1s_1.setConstant();
   }
   else if (whichRound==R2a) {
-    n1s_1.setVal(1.791286);
+    n1s_1.setVal(3.828210);
     n1s_1.setConstant();
   }
   else if (whichRound==R2b) {
-    alpha1s_1.setVal(1.235901);
+    alpha1s_1.setVal(1.798211);
     alpha1s_1.setConstant();
   }
   else if (whichRound==R3a) {
-    alpha1s_1.setVal(1.288009);
+    alpha1s_1.setVal(1.225790);
     alpha1s_1.setConstant();
-    n1s_1.setVal(1.791286);
+    n1s_1.setVal(3.828210);
     n1s_1.setConstant();
   }
   else if (whichRound==R3b) {
-    alpha1s_1.setVal(1.235901);
+    alpha1s_1.setVal(1.798211);
     alpha1s_1.setConstant();
-    n1s_1.setVal(2.317862);
+    n1s_1.setVal(1.784743);
     n1s_1.setConstant();
   }
 
+  // Construct Gaussian constraints on parameters for the final round of fitting
+  //bool badbin = kFALSE;
+  //if (abs(ptLow-6)<0.1 && abs(ptHigh-9)<0.1 && abs(yLow+2.87)<0.1 && abs(yHigh-1.93)<0.1) badbin = kTRUE;
+  float nmu, xmu, alphamu, fmu;
+  float ndev, xdev, alphadev, fdev;
+  //nominal constraints derived from path a
+  if (whichRound==R4a) {
+    alphamu = 1.225790;
+    nmu = 3.828210;
+    xmu = 0.458778;
+    alphadev = 0.230156;
+    ndev = 0.720624;
+    xdev = 0.108756;
+  }
+  else if (whichRound==R4b) {
+    //alternate constraints derived from path b
+    alphamu = 1.798211;
+    nmu = 1.784743;
+    xmu = 0.451104;
+    alphadev = 0.942203;
+    ndev = 1.218936;
+    xdev = 0.088950;
+  }
+
+  RooGaussian nconstraint("nconstraint","nconstraint", n1s_1,RooConst(nmu),RooConst(ndev));
+  RooGaussian alphaconstraint("alphaconstraint","alphaconstraint", alpha1s_1,RooConst(alphamu),RooConst(alphadev));
+  RooGaussian xconstraint("xconstraint","xconstraint", x1s,RooConst(xmu),RooConst(xdev));
+  RooGaussian fconstraint("fconstraint","fconstraint", f1s,RooConst(fmu),RooConst(fdev));
+
+  RooArgSet *allConstraints;
+  RooArgSet *constParams;
+  //allConstraints = new RooArgSet(nconstraint, alphaconstraint, xconstraint, fconstraint);
+  //constParams = new RooArgSet(n1s_1,alpha1s_1,x1s,f1s);
+  allConstraints = new RooArgSet(nconstraint, alphaconstraint, xconstraint);
+  constParams = new RooArgSet(n1s_1,alpha1s_1,x1s);
 
   //Build the model
   RooAddPdf* model = new RooAddPdf("model","1S+2S+3S + Bkg",RooArgList(*cb1s, *cb2s, *cb3s, *bkg),RooArgList(*nSig1s,*nSig2s,*nSig3s,*nBkg));
-
-  ws->import(*model);
+  RooProdPdf modelC("modelC","model with constraint",RooArgSet(*model,*allConstraints));
 
   RooPlot* myPlot2 = (RooPlot*)myPlot->Clone();
   ws->data("reducedDS")->plotOn(myPlot2,Name("dataOS_FIT"),MarkerSize(.8));
 
   //Fit the model to the data
   cout << "Now fitting..." << endl;
-  RooFitResult* fitRes2 = (RooFitResult*)ws->pdf("model")->fitTo(*reducedDS,Save(), Hesse(kTRUE),Range(massLow, massHigh),Timer(kTRUE),Extended(kTRUE));
+  RooFitResult* fitRes2;
+  if (whichRound==R4a || whichRound==R4b) {
+    model->SetName("modelNoC");
+    modelC.SetName("model");
+    ws->import(modelC);
+    ws->import(*allConstraints);
+    fitRes2 = (RooFitResult*)ws->pdf("model")->fitTo(*reducedDS, Constrain(*constParams), Save(), Hesse(kTRUE), Range(massLow, massHigh), Timer(kTRUE), Extended(kTRUE));
+  }
+  else {
+    ws->import(*model);
+    fitRes2 = (RooFitResult*)ws->pdf("model")->fitTo(*reducedDS, Save(), Hesse(kTRUE), Range(massLow, massHigh), Timer(kTRUE), Extended(kTRUE));
+  }
   ws->pdf("model")->plotOn(myPlot2,Name("modelHist"));
   ws->pdf("model")->plotOn(myPlot2,Name("Sig1S"),Components(RooArgSet(*cb1s)),LineColor(kOrange+7),LineWidth(2),LineStyle(2));
   ws->pdf("model")->plotOn(myPlot2,Components(RooArgSet(*cb2s)),LineColor(kOrange+7),LineWidth(2),LineStyle(2));

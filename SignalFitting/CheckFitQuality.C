@@ -40,16 +40,22 @@ int CheckFitQuality(
 // 2: AltBkg
 // 3: AltAcc
 // 4: AltEff
-       int whichRound=0
+       int whichRound=R4a
 			) 
 {
 
   TString directory = "AllParamFree/";
   if (dphiEp2High-dphiEp2Low < 0.5) {
-    directory = "dphiFits/";
+    directory = Form("dphiFits_%s/",roundLabel[whichRound].Data());
   }
-  if (whichRound>0) directory = Form("RoundFits_%s/",roundLabel[whichRound].Data());
-  TString logFileName = "log.txt";
+  else if (whichRound>0) directory = Form("RoundFits_%s/",roundLabel[whichRound].Data());
+  TString logFileName = Form("%slog.txt",directory.Data());
+
+  TString Params[5] = {"sigma1s_1","x1s","alpha1s_1","n1s_1","f1s"};
+
+  //Limits: {sigma1s_1,x1s,alpha1s_1,n1s_1,f1s,err_mu,err_sigma,m_lambda}
+  double paramsupper[8] = {0.25, 1.0, 5.0, 5.0, 1.0, 15.0, 15.0, 25.0};
+  double paramslower[8] = {0.02, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
   float eta_low = -2.4;
   float eta_high = 2.4;
@@ -84,131 +90,17 @@ int CheckFitQuality(
   TFile* NomFile = TFile::Open(NomFileName,"READ");
   RooWorkspace *ws = (RooWorkspace*)NomFile->Get("workspace");
   RooAbsData* reducedDS = ws->data("reducedDS");
-  NomFile->Close("R");
-
-  RooRealVar* m_lambda = ws->var("#lambda");
-  RooRealVar* err_mu = ws->var("#mu");
-  RooRealVar* err_sigma = ws->var("#sigma");
-  RooRealVar* alpha1s_1 = ws->var("alpha1s_1");
-  RooRealVar* f1s = ws->var("f1s");
-  RooRealVar* mRatio21 = ws->var("mRatio21");
-  RooRealVar* mRatio31 = ws->var("mRatio31");
-  RooRealVar* mean1s = ws->var("m_{#Upsilon(1S)}");
-  RooRealVar* n1s_1 = ws->var("n1s_1");
-  RooRealVar* sigma1s_1 = ws->var("sigma1s_1");
-  RooRealVar* x1s = ws->var("x1s");
-  RooRealVar* nSig1s = ws->var("nSig1s");
-  RooRealVar* nSig2s = ws->var("nSig2s");
-  RooRealVar* nSig3s = ws->var("nSig3s");
-  RooRealVar* nBkg = ws->var("nBkg");
-
-  RooAbsPdf* cb1s = ws->pdf("cb1s");
-  RooAbsPdf* cb2s = ws->pdf("cb2s");
-  RooAbsPdf* cb3s = ws->pdf("cb3s");
-  RooAbsPdf* bkg;
-  if (ptLow>5) bkg = ws->pdf("bkgHighPt");
-  else bkg = ws->pdf("bkgLowPt");
-
   RooFitResult* fitRes2 = (RooFitResult*)ws->obj("fitresult_model_reducedDS");
 
   //Plot it
-  TCanvas* c1 =  new TCanvas("canvas2","My plots",4,45,550,520);
-  c1->cd();
-  TPad *pad1 = new TPad("pad1", "pad1", 0, 0.25, 0.98, 1.0);
-  pad1->SetTicks(1,1);
-  pad1->Draw(); pad1->cd();
-
   RooPlot* myPlot = ws->var("mass")->frame(nMassBin); // bins
   ws->data("reducedDS")->plotOn(myPlot,Name("dataHist"));
 
-  RooPlot* myPlot2 = (RooPlot*)myPlot->Clone();
-  ws->data("reducedDS")->plotOn(myPlot2,Name("dataOS_FIT"),MarkerSize(.8));
-
-  ws->pdf("model")->plotOn(myPlot2,Name("modelHist"));
-  ws->pdf("model")->plotOn(myPlot2,Name("Sig1S"),Components(RooArgSet(*cb1s)),LineColor(kOrange+7),LineWidth(2),LineStyle(2));
-  ws->pdf("model")->plotOn(myPlot2,Components(RooArgSet(*cb2s)),LineColor(kOrange+7),LineWidth(2),LineStyle(2));
-  ws->pdf("model")->plotOn(myPlot2,Components(RooArgSet(*cb3s)),LineColor(kOrange+7),LineWidth(2),LineStyle(2));
-  ws->pdf("model")->plotOn(myPlot2,Name("bkgPDF"),Components(RooArgSet(*bkg)),LineColor(kBlue),LineStyle(kDashed),LineWidth(2));
-
-  gStyle->SetTextFont(63);
-
-  //make a pretty plot
-  myPlot2->SetFillStyle(4000);
-  myPlot2->SetAxisRange(massLowForPlot, massHighForPlot,"X");
-  myPlot2->GetYaxis()->SetTitleOffset(1.43);
-  myPlot2->GetYaxis()->CenterTitle();
-  myPlot2->GetYaxis()->SetTitleSize(0.058);
-  myPlot2->GetYaxis()->SetLabelSize(0.054);
-  myPlot2->GetXaxis()->SetLabelSize(0);
-  myPlot2->GetXaxis()->SetRangeUser(8,14);
-  myPlot2->GetXaxis()->SetTitleSize(0);
-  myPlot2->Draw();
-  fitRes2->Print("v");
-  Double_t theNLL = fitRes2->minNll();
-  cout << " *** NLL : " << theNLL << endl;
-  TString perc = "%";
-
-  float pos_text_x = 0.43;
-  float pos_text_y = 0.816;
-  float pos_y_diff = 0.075;
-  float text_size = 16;
-  int text_color = 1;
-  if(ptLow==0 && ptHigh!=2.5) drawText(Form("p_{T}^{#mu#mu} < %.f GeV/c",ptHigh ),pos_text_x,pos_text_y,text_color,text_size);
-  else drawText(Form("%.f < p_{T}^{#mu#mu} < %.f GeV/c",ptLow,ptHigh ),pos_text_x,pos_text_y,text_color,text_size);
-  if((yLow==0) || (yLow==-yHigh)) drawText(Form("|y^{#mu#mu}| < %.2f",yHigh ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
-  else drawText(Form("%.2f < y^{#mu#mu} < %.2f",yLow,yHigh ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);    // for pPb
-  if(collId != kPPDATA && collId != kPPMCUps1S && collId != kPPMCUps2S)
-  {
-    drawText(Form("p_{T}^{#mu} > %.f GeV/c", muPtCut ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
-  }
-  else {
-    drawText(Form("p_{T}^{#mu} > %.f GeV/c", muPtCut ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
-  }
-
-
-  /*TLegend* fitleg = new TLegend(0.2,0.6,0.3,0.8); fitleg->SetTextSize(19);
-  fitleg->SetTextFont(30);
-  fitleg->SetBorderSize(0);
-  fitleg->AddEntry(myPlot2->findObject("dataOS_FIT"),"Data","pe");
-  fitleg->AddEntry(myPlot2->findObject("modelHist"),"Total fit","l");
-  fitleg->AddEntry(myPlot2->findObject("Sig1S"),"Signal","l");
-  fitleg->AddEntry(myPlot2->findObject("bkgPDF"),"Background","l");
-  fitleg->Draw("same");*/
+  ws->pdf("model")->plotOn(myPlot,Name("modelHist"));
 
   // PULL
-  TPad *pad2 = new TPad("pad2", "pad2", 0, 0.05, 0.98, 0.30);
-  pad2->SetTopMargin(0); // Upper and lower plot are joined
-  pad2->SetBottomMargin(0.67);
-  pad1->SetLeftMargin(0.18);
-  pad1->SetRightMargin(0.02);
-  pad2->SetRightMargin(0.02);
-  pad2->SetLeftMargin(0.18);
-  pad2->SetTicks(1,1);
-  pad2->cd();
-  
-  RooHist* hpull = myPlot2->pullHist("dataHist","modelHist");
+  RooHist* hpull = myPlot->pullHist("dataHist","modelHist");
   hpull->SetMarkerSize(0.8);
-  RooPlot* pullFrame = ws->var("mass")->frame(Title("Pull Distribution")) ;
-  pullFrame->addPlotable(hpull,"P") ;
-  pullFrame->SetTitleSize(0);
-  pullFrame->GetYaxis()->SetTitleOffset(0.43) ;
-  pullFrame->GetYaxis()->SetTitle("Pull") ;
-  pullFrame->GetYaxis()->SetTitleSize(0.18) ; //19
-  pullFrame->GetYaxis()->SetLabelSize(0.113) ; // 113
-  pullFrame->GetYaxis()->SetRangeUser(-3.8,3.8) ;
-  pullFrame->GetYaxis()->CenterTitle();
-
-  pullFrame->GetXaxis()->SetTitle("m_{#mu^{+}#mu^{-}} (GeV/c^{2})");
-  pullFrame->GetXaxis()->SetTitleOffset(1.05) ;
-  pullFrame->GetXaxis()->SetLabelOffset(0.04) ;
-  pullFrame->GetXaxis()->SetLabelSize(0.20) ; //23
-  pullFrame->GetXaxis()->SetTitleSize(0.25) ;  //28
-  pullFrame->GetXaxis()->CenterTitle();
-
-  pullFrame->GetYaxis()->SetTickSize(0.04);
-  pullFrame->GetYaxis()->SetNdivisions(404);
-  pullFrame->GetXaxis()->SetTickSize(0.03);
-  pullFrame->Draw() ;
 
   //calculate chi-squared
   double chisq = 0;
@@ -228,39 +120,6 @@ int CheckFitQuality(
   int ndf = nFullBinsPull - numFitPar;
   cout << "chisq/dof = " << chisq/ndf << endl;
 
-  //continue beautifying the plot and print out results
-  TLine *l1 = new TLine(massLow,0,massHigh,0);
-  l1->SetLineStyle(9);
-  l1->Draw("same");
-  pad1->Update();
-
-  setTDRStyle();
-  //writeExtraText = true;
-  //extraText = "Preliminary";
-
-  TString label;
-  label="";
-  if(collId == kPPDATA) CMS_lumi(pad1, 1 ,1);
-  else if(collId == kAADATA && cLow < 60) CMS_lumi(pad1, 2 ,33);
-  else if(collId == kPADATA) CMS_lumi(pad1, 3 ,1);
-  else if(collId == kAADATA && cLow>=60) CMS_lumi(pad1, 21 ,33);
-
-  pad1->Update();
-  pad2->Update();
-
-  c1->cd();
-  pad1->Draw();
-  pad2->Draw();
-
-  pad1->Update();
-  pad2->Update();
-
-  TH1D* outh = new TH1D("fitResults","fit result",20,0,20);
-
-  outh->GetXaxis()->SetBinLabel(1,"Upsilon1S");
-  outh->GetXaxis()->SetBinLabel(2,"Upsilon2S");
-  outh->GetXaxis()->SetBinLabel(3,"Upsilon3S");
-
   float temp1 = ws->var("nSig1s")->getVal();  
   float temp1err = ws->var("nSig1s")->getError();  
   float temp2 = ws->var("nSig2s")->getVal();  
@@ -268,62 +127,99 @@ int CheckFitQuality(
   float temp3 = ws->var("nSig3s")->getVal();  
   float temp3err = ws->var("nSig3s")->getError();  
   
-  outh->SetBinContent(1,  temp1 ) ;
-  outh->SetBinError  (1,  temp1err ) ;
-  outh->SetBinContent(2,  temp2 ) ;
-  outh->SetBinError  (2,  temp2err ) ;
-  outh->SetBinContent(3,  temp3 ) ;
-  outh->SetBinError  (3,  temp3err ) ;
-
-  cout << "1S signal    =  " << outh->GetBinContent(1) << " +/- " << outh->GetBinError(1) << endl;
-  cout << "2S signal    =  " << outh->GetBinContent(2) << " +/- " << outh->GetBinError(2) << endl;
-  cout << "3S signal    =  " << outh->GetBinContent(3) << " +/- " << outh->GetBinError(3) << endl;
+  cout << "1S signal    =  " << temp1 << " +/- " << temp1err << endl;
+  cout << "2S signal    =  " << temp2 << " +/- " << temp2err << endl;
+  cout << "3S signal    =  " << temp3 << " +/- " << temp3err << endl;
   cout << "Total signal =  " << temp1+temp2+temp3 << endl;
 
-  cout << "if ( binMatched( "<<muPtCut<<",  " << ptLow <<", "<< ptHigh<<", "<< yLow<<", "<< yHigh << ", " << cLow << ", " << cHigh << ") ) " ; 
-  cout << "  { setSignalParMC( " ;
-  cout <<  ws->var("n1s_1")->getVal() << ", " <<  ws->var("alpha1s_1")->getVal() << ", "<<  ws->var("sigma1s_1")->getVal() << ", " ;
-  cout <<  ws->var("m_{#Upsilon(1S)}")->getVal() << ", " <<  ws->var("f1s")->getVal() << ", "<<  ws->var("x1s")->getVal() << " );} " << endl;
+  //QUALITY CHECK
 
-  delete pad1;
-  delete pad2;
-  delete c1;
-  delete l1;
-  delete outh;
-
-  //Specify quality standards
+  //chi-squared requirements:
+  bool goodChi2 = kTRUE;
   //double chisqUpperCut = 2.0 + temp1/10000;
   //double chisqLowerCut = 0.5 + temp1/30000;
-  double chisqUpperCut = 10.0;
-  //double chisqUpperCut = 5.0;
+  double chisqUpperCut = 5;
   double chisqLowerCut = 0.5;
-  double errUpperLimit = 0.1;
-  if (collId==kAADATA) errUpperLimit = 0.25;
+
+  //Signal error requirements:
+  bool goodSigErr = kTRUE;
+  double errUpperLimit = 0.15;
+  double errLowerLimit = 0.005;
+  if (collId==kPADATA) errUpperLimit = 0.15;
+
+  //parameter requirements:
+  bool goodParams = kTRUE;
+  //TString badParamsList = "";
+  std::ostringstream sstream;
+  double buffer = 0.03;
+  int paramstart = 0;
+  int paramend = 3;
+  if (whichRound==R4a || whichRound==R4b) {//all the signal parameters should be good in the nominal fits.
+    paramstart = 0;
+    paramend = 4;
+  }
+  else if (whichRound==R3a || whichRound==R3b) {//x has to be good in round 3 so we can get a good average for x.
+    paramstart = 1;
+    paramend = 3;
+  }
+  else {//Only alpha and n need to be good in the AllParamFree fits, i.e. indices 2 and 3.
+    paramstart = 2;
+    paramend = 3;
+  }
+  //for (int i=0;i<5;i++) {
+  for (int i=paramstart;i<=paramend;i++) {
+    double fittedval = ws->var(Params[i])->getVal();
+    double width = paramsupper[i]-paramslower[i];
+    double upper = paramsupper[i]-(buffer*width);
+    double lower = paramslower[i]+(buffer*width);
+    if (fittedval>upper || fittedval<lower) {
+      goodParams = kFALSE;
+      //badParamsList = badParamsList + " " + Params[i] + "=" + fittedval;
+      sstream << " " << Params[i] << "=" << fittedval;
+    }
+  }
+  std::string badParamsList = sstream.str();
 
   //Special bins
   //if (collId==kPPDATA && isAbout(yLow,0.0) && isAbout(yHigh,0.4) && isAbout(ptHigh-ptLow,30)) chisqUpperCut = 3.5;
   //if (collId==kPPDATA && isAbout(yLow,0.0) && isAbout(yHigh,0.8) && isAbout(ptHigh-ptLow,30)) chisqUpperCut = 4.5;
   //if (collId==kAADATA && isAbout(ptLow,4.0) && isAbout(ptHigh,9.0) && isAbout(yHigh-yLow,2.4)) chisqUpperCut = 2.3;
 
-  if (dphiEp2High-dphiEp2Low < 0.5) {
-    chisqUpperCut = 4.0;
-    //chisqUpperCut = 5.0;
-    //chisqUpperCut = 10.0;
-  }
 
   //Check
   ofstream logFile;
   logFile.open(logFileName, fstream::in | fstream::out | fstream::app);
-  if (chisq/ndf<chisqUpperCut && chisq/ndf>chisqLowerCut){// && temp1err/temp1<errUpperLimit && temp1err/temp1>0.005){
-  //if (true) {
+  int good = 0;
+  if (chisq/ndf>chisqUpperCut || chisq/ndf<chisqLowerCut) goodChi2 = kFALSE;
+  else goodChi2 = kTRUE;
+  if (temp1err/temp1>errUpperLimit || temp1err/temp1<errLowerLimit) goodSigErr = kFALSE;
+  else goodSigErr = kTRUE;
+
+  if (goodChi2 && goodSigErr && goodParams){
     cout << "THE FIT PASSED THE QUALITY CHECK! :)" << endl;
-    return 1;
+    good = 1;
   }
   else{
     cout << "THE FIT FAILED THE QUALITY CHECK! :(" << endl;
     logFile << endl << NomFileName << endl;
     logFile << "THE FIT FAILED THE QUALITY CHECK! :(" << endl;
-    return 0;
+    if (!goodChi2) {
+      cout << "  -->bad chi^2 value = " << chisq/ndf << " is not within [" << chisqLowerCut << "-" << chisqUpperCut << "]" << endl;
+      logFile << "  -->bad chi^2 value = " << chisq/ndf << " is not within [" << chisqLowerCut << "-" << chisqUpperCut << "]" << endl;
+    }
+    if (!goodSigErr) {
+      cout << "  -->bad signal error = " << temp1err/temp1*100 << "\%" << endl;
+      logFile << "  -->bad signal error = " << temp1err/temp1*100 << "\%" << endl;
+    }
+    if (!goodParams) {
+      cout << "  -->bad parameter (" << badParamsList << ") hits limit" << endl;
+      logFile << "  -->bad parameter (" << badParamsList << ") hits limit" << endl;
+    }
+
+    good = 0;
   }
+  cout << "good = " << good << endl;
+
+  return good;
 } 
  

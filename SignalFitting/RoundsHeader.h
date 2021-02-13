@@ -5,4 +5,6 @@ int R2a = 3;
 int R2b = 4;
 int R3a = 5;
 int R3b = 6;
-TString roundLabel[7] = {"R0","R1a","R1b","R2a","R2b","R3a","R3b"};
+int R4a = 7;
+int R4b = 8;
+TString roundLabel[9] = {"R0","R1a","R1b","R2a","R2b","R3a","R3b","R4a","R4b"};

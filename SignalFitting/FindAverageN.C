@@ -48,16 +48,29 @@ void GetFitResult(int collId=kAADATA, float ptLow=0.0, float ptHigh=50.0, float 
       double xerr = Nomws->var("x1s")->getError();
       cout << "x1s = " << xval << " +/- " << xerr << endl;
 
-      //old method
-      /*if (alphaval<1.2 || alphaval>4.8) {
+      //old method: distance to limit must be 3% of the available range.
+      //For the AllParamFree fits
+      double buffer = 0.05;
+      double alphalo = 0; double alphaup = 5;
+      double alphabuffer = buffer*(alphaup-alphalo);
+      double nlo = 0; double nup = 5;
+      double nbuffer = buffer*(nup-nlo);
+      double xlo = 0; double xup = 1;
+      double xbuffer = buffer*(xup-xlo);
+
+      if (alphaval<alphalo+alphabuffer || alphaval>alphaup-alphabuffer) {
         cout << "bad alpha value -> skipping this bin." << endl;
         return;
       }
-      if (nval<1.2 || nval>4.8) {
+      if (nval<nlo+nbuffer || nval>nup-nbuffer) {
         cout << "bad n value -> skipping this bin." << endl;
         return;
-      }*/
-      //new method
+      }
+      if (xval<xlo+xbuffer || xval>xup-nbuffer) {
+        cout << "bad x value -> skipping this bin." << endl;
+        return;
+      }
+      //new method: error bar crosses over the limit
       /*if (alphaval+alphaerr>=5.0 || alphaval-alphaerr<=1.0) {
         cout << "bad alpha value -> skipping this bin." << endl;
         return;

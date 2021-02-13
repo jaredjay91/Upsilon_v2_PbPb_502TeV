@@ -19,15 +19,15 @@ int CheckFitExists(
 // 2: AltBkg
 // 3: AltAcc
 // 4: AltEff
-       int whichRound=0
+       int whichRound=R4a
 			) 
 {
 
   TString directory = "AllParamFree/";
   if (dphiEp2High-dphiEp2Low < 0.5) {
-    directory = "dphiFits/";
+    directory = Form("dphiFits_%s/",roundLabel[whichRound].Data());
   }
-  if (whichRound>0) directory = Form("RoundFits_%s/",roundLabel[whichRound].Data());
+  else if (whichRound>0) directory = Form("RoundFits_%s/",roundLabel[whichRound].Data());
 
   TString systStr;
   if (whichSyst==0) systStr = "nom";

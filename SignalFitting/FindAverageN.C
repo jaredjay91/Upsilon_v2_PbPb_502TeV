@@ -23,7 +23,7 @@ using namespace std;
 using namespace RooFit;
 
 //TString directory = "AllParamFree/";
-TString directory = "RoundFits_R3b/";
+TString directory = "RoundFits_R3a/";
 
   float dphiEp2Low = 0; float dphiEp2High = 0.5;
   float muPtCut=3.5;

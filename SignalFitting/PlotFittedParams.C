@@ -20,7 +20,7 @@
 void PlotFittedParams(int whichUpsilon=1, int collId=kAADATA) {
 
   //TString directory = "AllParamFree/";
-  TString directory = "RoundFits_R3a/";
+  TString directory = "RoundFits_R4b/";
 
   float scale = whichUpsilon*40;
   if (collId==kPPDATA) scale = scale*8;
@@ -31,7 +31,7 @@ void PlotFittedParams(int whichUpsilon=1, int collId=kAADATA) {
 
   //arrays of upper and lower limits.
   //{0:sigma1s, 1:x1s, 2:alpha, 3:n1s, 4:f1s, 5:errsigma, 6:errmu, 7:lambda}
-  double paramsupper[8] = {0.2, 1.0, 5.0, 5.0, 1.0, 15.0, 15.0, 25.0};
+  double paramsupper[8] = {0.3, 1.0, 5.0, 5.0, 1.0, 15.0, 15.0, 25.0};
   double paramslower[8] = {0.02, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
   double plotlimupper[8] = {0.3, 1.2, 5.5, 5.5, 1.2, 15.0, 15.0, 25.0};
   double plotlimlower[8] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};

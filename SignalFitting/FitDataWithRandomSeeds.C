@@ -25,7 +25,7 @@
 const double pi = 3.14159265;
 
 //Limits: {sigma1s_1,x1s,alpha1s_1,n1s_1,f1s,err_mu,err_sigma,m_lambda}
-double paramsupper[8] = {0.2, 1.0, 5.0, 5.0, 1.0, 15.0, 15.0, 25.0};
+double paramsupper[8] = {0.35, 1.0, 5.0, 5.0, 1.0, 15.0, 15.0, 25.0};
 double paramslower[8] = {0.02, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
 double randomIC(double lo=0, double up=1) {
@@ -39,7 +39,7 @@ using namespace RooFit;
 double FitDataWithRandomSeeds( 
        int collId = kAADATA,
        float ptLow=0, float ptHigh=3,
-       float yLow=0.0, float yHigh=2.4,//Run 1 has p going in -z direction
+       float yLow=2.1, float yHigh=2.4,//Run 1 has p going in -z direction
        int cLow=10, int cHigh=90,//%centrality
        float muPtCut=3.5,
        float dphiEp2Low = 0.0,//units of PI
@@ -350,8 +350,8 @@ else {
     cout << "Importing workspace" << endl;
     TString kineLabelICs = getKineLabel(collId, ptLow, ptHigh, yLow, yHigh, muPtCut, cLow, cHigh, 0.0, 0.5);
     //TString NomFileName = Form("AllParamFree/%sfitresults_upsilon_%s.root", systStr.Data(), kineLabelICs.Data());
-    TString NomFileName = Form("RoundFits_%s/%sfitresults_upsilon_%s.root", roundLabel[whichRound-2].Data(), systStr.Data(), kineLabelICs.Data());
-    if (whichRound<R2a) NomFileName = Form("AllParamFree/%sfitresults_upsilon_%s.root", systStr.Data(), kineLabelICs.Data());
+    TString NomFileName = Form("RoundFits_%s/nomfitresults_upsilon_%s.root", roundLabel[whichRound-2].Data(), kineLabelICs.Data());
+    if (whichRound<R2a) NomFileName = Form("AllParamFree/nomfitresults_upsilon_%s.root", kineLabelICs.Data());
     cout << NomFileName << endl;
     TFile* NomFile = TFile::Open(NomFileName,"READ");
     RooWorkspace *Nomws = (RooWorkspace*)NomFile->Get("workspace");
@@ -424,10 +424,19 @@ else {
   if (whichRound==R4a) {
     alphamu = 1.225790;
     nmu = 3.828210;
-    xmu = 0.458778;
+    xmu = 0.426153;
     alphadev = 0.230156;
     ndev = 0.720624;
-    xdev = 0.108756;
+    xdev = 0.110304;
+    TString kineLabelICs = getKineLabel(collId, ptLow, ptHigh, yLow, yHigh, muPtCut, cLow, cHigh, 0.0, 0.5);
+    TString NomFileName = Form("RoundFits_R3a/nomfitresults_upsilon_%s.root", kineLabelICs.Data());
+    TFile* NomFile = TFile::Open(NomFileName,"READ");
+    RooWorkspace *Nomws = (RooWorkspace*)NomFile->Get("workspace");
+    fmu = Nomws->var("f1s")->getVal();
+    fdev = Nomws->var("f1s")->getError();
+    delete Nomws;
+    NomFile->Close("R");
+    delete NomFile;
   }
   else if (whichRound==R4b) {
     //alternate constraints derived from path b
@@ -437,6 +446,15 @@ else {
     alphadev = 0.942203;
     ndev = 1.218936;
     xdev = 0.088950;
+    TString kineLabelICs = getKineLabel(collId, ptLow, ptHigh, yLow, yHigh, muPtCut, cLow, cHigh, 0.0, 0.5);
+    TString NomFileName = Form("RoundFits_R3b/nomfitresults_upsilon_%s.root", kineLabelICs.Data());
+    TFile* NomFile = TFile::Open(NomFileName,"READ");
+    RooWorkspace *Nomws = (RooWorkspace*)NomFile->Get("workspace");
+    fmu = Nomws->var("f1s")->getVal();
+    fdev = Nomws->var("f1s")->getError();
+    delete Nomws;
+    NomFile->Close("R");
+    delete NomFile;
   }
 
   RooGaussian nconstraint("nconstraint","nconstraint", n1s_1,RooConst(nmu),RooConst(ndev));
@@ -446,10 +464,10 @@ else {
 
   RooArgSet *allConstraints;
   RooArgSet *constParams;
-  //allConstraints = new RooArgSet(nconstraint, alphaconstraint, xconstraint, fconstraint);
-  //constParams = new RooArgSet(n1s_1,alpha1s_1,x1s,f1s);
-  allConstraints = new RooArgSet(nconstraint, alphaconstraint, xconstraint);
-  constParams = new RooArgSet(n1s_1,alpha1s_1,x1s);
+  allConstraints = new RooArgSet(nconstraint, alphaconstraint, xconstraint, fconstraint);
+  constParams = new RooArgSet(n1s_1,alpha1s_1,x1s,f1s);
+  //allConstraints = new RooArgSet(nconstraint, alphaconstraint, xconstraint);
+  //constParams = new RooArgSet(n1s_1,alpha1s_1,x1s);
 
   //Build the model
   RooAddPdf* model = new RooAddPdf("model","1S+2S+3S + Bkg",RooArgList(*cb1s, *cb2s, *cb3s, *bkg),RooArgList(*nSig1s,*nSig2s,*nSig3s,*nBkg));

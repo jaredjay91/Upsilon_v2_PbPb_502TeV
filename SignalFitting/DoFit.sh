@@ -118,7 +118,7 @@ else
     if [ $nTries -lt 2 ]
     then
       echo root -b -q -l "FitDataWithRandomSeeds.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichSyst,kFALSE,$whichRound)"
-      root -b -q -l "FitDataWithRandomSeeds.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichSyst,kTRUE,$whichRound)"
+      root -b -q -l "FitDataWithRandomSeeds.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichSyst,kFALSE,$whichRound)"
     else
       echo root -b -q -l "FitDataWithRandomSeeds.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichSyst,kTRUE,$whichRound)"
       root -b -q -l "FitDataWithRandomSeeds.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$dphiEp2Low,$dphiEp2High,$whichSyst,kTRUE,$whichRound)"

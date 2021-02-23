@@ -98,7 +98,7 @@ void Fit4dphiBinsSimultaneously(
   yLowLab = yLow;
   yHighLab = yHigh;
   for (int i=0; i<4; i++) {
-    kineCut[i] = Form("pt>%.2f && pt<%.2f && abs(y)>%.2f && abs(y)<%.2f && eta1<%.2f && eta1>%.2f && eta2<%.2f && eta2>%.2f && cBin>%i && cBin<%i && ((abs(dphiEp2)>%.2f && abs(dphiEp2)<%.2f) || (abs(dphiEp2)>%.2f && abs(dphiEp2)<%.2f))",ptLow, ptHigh, yLowLab, yHighLab, eta_high,eta_low, eta_high,eta_low, cLow*2,cHigh*2, dphibins[i]*pi, dphibins[i+1]*pi, (1-dphibins[i+1])*pi,(1-dphibins[i])*pi);
+    kineCut[i] = Form("pt>%.2f && pt<%.2f && abs(y)>%.2f && abs(y)<%.2f && eta1<%.2f && eta1>%.2f && eta2<%.2f && eta2>%.2f && cBin>%i && cBin<%i && ((abs(dphiEp2)>=%.2f && abs(dphiEp2)<%.2f) || (abs(dphiEp2)>=%.2f && abs(dphiEp2)<%.2f))",ptLow, ptHigh, yLowLab, yHighLab, eta_high,eta_low, eta_high,eta_low, cLow*2,cHigh*2, dphibins[i]*pi, dphibins[i+1]*pi, (1-dphibins[i+1])*pi,(1-dphibins[i])*pi);
     if (muPtCut>0) kineCut[i] = kineCut[i] + Form(" && (pt1>%.2f) && (pt2>%.2f) ", (float)muPtCut, (float)muPtCut);
   }
 
@@ -148,6 +148,24 @@ void Fit4dphiBinsSimultaneously(
   double alpha1s_1_init = 1.5;
   double n1s_1_init = 2.0;
   double f1s_init = 0.5;
+
+  //randomize ICs:
+  if (randomSeeds) {
+    sigma1s_1_init = randomIC(paramslower[0],paramsupper[0]);
+    x1s_init = randomIC(paramslower[1],paramsupper[1]);
+    alpha1s_1_init = randomIC(paramslower[2],paramsupper[2]);
+    n1s_1_init = randomIC(paramslower[3],paramsupper[3]);
+    f1s_init = randomIC(paramslower[4],paramsupper[4]);
+  }
+
+  //Print ICs:
+  cout << endl;
+  cout << "SEEDS:" << endl;
+  cout << "sigma1s_1_init = " << sigma1s_1_init << endl;
+  cout << "x1s_init = " << x1s_init << endl;
+  cout << "alpha1s_1_init = " << alpha1s_1_init << endl;
+  cout << "n1s_1_init = " << n1s_1_init << endl;
+  cout << "f1s_init = " << f1s_init << endl << endl;
 
   TCanvas* c[4];
   RooPlot* myPlot[4];

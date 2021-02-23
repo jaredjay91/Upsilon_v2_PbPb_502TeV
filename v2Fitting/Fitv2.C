@@ -4,6 +4,16 @@
 #include "TF1.h"
 #include "../HeaderFiles/cutsAndBin.h"
 
+void drawText(const char *text, float xp, float yp, int textColor=kBlack, int textSize=18, float textFont=43){
+   TLatex *tex = new TLatex(xp,yp,text);
+   tex->SetTextFont(textFont);
+   //   if(bold)tex->SetTextFont(43);
+   tex->SetTextSize(textSize);
+   tex->SetTextColor(textColor);
+   tex->SetLineWidth(1);
+   tex->SetNDC();
+   tex->Draw();
+}
 
 void Fitv2(
 
@@ -55,6 +65,21 @@ void Fitv2(
   latex.SetTextSize(0.05);
   //latex.SetTextAlign(13);
   latex.DrawLatex(0.25,50,Form("v_{2} = %.3f #pm %.3f",v2Val,v2Err));
+
+  TString perc = "%";
+  float pos_text_x = 0.15;
+  float pos_text_y = 0.45;
+  float pos_y_diff = 0.06;
+  float text_size = 16;
+  int text_color = 1;
+  if(ptLow==0) drawText(Form("p_{T}^{#mu#mu} < %.f GeV/c",ptHigh ),pos_text_x,pos_text_y,text_color,text_size);
+  else drawText(Form("%.f < p_{T}^{#mu#mu} < %.f GeV/c",ptLow,ptHigh ),pos_text_x,pos_text_y,text_color,text_size);
+  if(yLow==0) drawText(Form("|y^{#mu#mu}| < %.2f",yHigh ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
+  else drawText(Form("%.2f < |y^{#mu#mu}| < %.2f",yLow,yHigh ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
+  drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
+  drawText(Form("|#eta^{#mu}| < %.1f GeV/c", muEtaCut ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
+  drawText(Form("Centrality %i-%i%s", cLow,cHigh, perc.Data() ), pos_text_x,pos_text_y-pos_y_diff*4,text_color,text_size);
+  drawText(Form("v_{2} = %.3f #pm %.3f", v2Val,v2Err), pos_text_x,pos_text_y-pos_y_diff*5,2,text_size);
 
   c1->Update();
 

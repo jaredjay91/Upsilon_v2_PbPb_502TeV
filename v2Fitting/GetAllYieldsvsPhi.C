@@ -1,4 +1,4 @@
-#include "GetYieldsvsPhi.C"
+#include "GetSimultaneousYieldsvsPhi.C"
 
 //const int numphibins = 4;
 //float phibins[5] = {0.0, 0.125, 0.25, 0.375, 0.5};
@@ -26,7 +26,7 @@ void GetAllYieldsvsPhi(int whichUpsilon=1, int whichSyst = 0) {
   bool CBINS = kTRUE;
 
   //integrated bin
-  if (INTBIN) GetYieldsvsPhi(collId, 0, 50, 0, 2.4, 10, 90, muPtCut, whichUpsilon, whichSyst);
+  if (INTBIN) GetSimultaneousYieldsvsPhi(collId, 0, 50, 0, 2.4, 10, 90, muPtCut, whichUpsilon, whichSyst);
 
   //Pt bins
   if (PTBINS) {
@@ -38,7 +38,7 @@ void GetAllYieldsvsPhi(int whichUpsilon=1, int whichSyst = 0) {
       ptLow = ptbins[ipt];
       ptHigh = ptbins[ipt+1];
       cout << "[" << ptLow << "," << ptHigh << "]" << endl;
-      GetYieldsvsPhi(collId, ptLow, ptHigh, yLow, yHigh, cLow, cHigh, muPtCut, whichUpsilon, whichSyst);
+      GetSimultaneousYieldsvsPhi(collId, ptLow, ptHigh, yLow, yHigh, cLow, cHigh, muPtCut, whichUpsilon, whichSyst);
     }
   }
 
@@ -52,7 +52,7 @@ void GetAllYieldsvsPhi(int whichUpsilon=1, int whichSyst = 0) {
       yLow = ybins[iy];
       yHigh = ybins[iy+1];
       cout << "[" << yLow << "," << yHigh << "]" << endl;
-      GetYieldsvsPhi(collId, ptLow, ptHigh, yLow, yHigh, cLow, cHigh, muPtCut, whichUpsilon, whichSyst);
+      GetSimultaneousYieldsvsPhi(collId, ptLow, ptHigh, yLow, yHigh, cLow, cHigh, muPtCut, whichUpsilon, whichSyst);
     }
   }
  
@@ -66,7 +66,7 @@ void GetAllYieldsvsPhi(int whichUpsilon=1, int whichSyst = 0) {
       cLow = cbins[ic];
       cHigh = cbins[ic+1];
       cout << "[" << cLow << "," << cHigh << "]" << endl;
-      GetYieldsvsPhi(collId, ptLow, ptHigh, yLow, yHigh, cLow, cHigh, muPtCut, whichUpsilon, whichSyst);
+      GetSimultaneousYieldsvsPhi(collId, ptLow, ptHigh, yLow, yHigh, cLow, cHigh, muPtCut, whichUpsilon, whichSyst);
     }
   }
 }

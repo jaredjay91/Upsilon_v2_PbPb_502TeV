@@ -76,6 +76,7 @@ fi
 if [ $nTries -lt 2 ]
 then
   echo root -b -q -l "CheckSimFitExists.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$whichSyst)"
+  sleep 1
   root -b -q -l "CheckSimFitExists.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$whichSyst)" >> junkSim
   isIt=$(tail -c 2 junkSim)
   rm junkSim
@@ -90,6 +91,7 @@ then
     echo "THE FIT EXISTS ALREADY! :)"
   fi
   echo root -b -q -l "CheckSimFitQuality.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$whichSyst)"
+  sleep 1
   root -b -q -l "CheckSimFitQuality.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$whichSyst)" >> junkSim
   ToF=$(tail -c 2 junkSim)
   rm junkSim
@@ -113,9 +115,11 @@ else
     then
       echo root -b -q -l "Fit4dphiBinsSimultaneously.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$whichSyst,kFALSE)"
       root -b -q -l "Fit4dphiBinsSimultaneously.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$whichSyst,kTRUE)"
+      sleep 5
     else
       echo root -b -q -l "Fit4dphiBinsSimultaneously.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$whichSyst,kTRUE)"
       root -b -q -l "Fit4dphiBinsSimultaneously.C($collId,$ptLow,$ptHigh,$yLow,$yHigh,$cLow,$cHigh,$muPtCut,$whichSyst,kTRUE)"
+      sleep 5
     fi
     nTries=$(($nTries+1))
     ./DoFit.sh $collId $ptLow $ptHigh $yLow $yHigh $cLow $cHigh $muPtCut $whichSyst $nTries

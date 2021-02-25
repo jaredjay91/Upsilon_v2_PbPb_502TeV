@@ -41,7 +41,6 @@ void FitPseudoDataSimultaneously(
        float ptLow=0, float ptHigh=3, 
        float yLow=2.1, float yHigh=2.4,//Run 1 has p going in -z direction
        int cLow=10, int cHigh=90,
-       float muPtCut=3.5,
        int whichSyst=1,   
 // 0: Nominal
 // 1: AltSig
@@ -58,8 +57,7 @@ void FitPseudoDataSimultaneously(
 
   int whichRound = R4a;
   bool randomSeeds=kTRUE;
-
-  TString directory = "Simultaneous_dPhiFits/";
+  float muPtCut=3.5;
 
   TString systStr;
   if (whichSyst==0) systStr = "nom";
@@ -94,7 +92,7 @@ void FitPseudoDataSimultaneously(
   //import generating model
   cout << "importing nominal fit file..." << endl;
   TString kineLabel = getKineLabel (collId, ptLow, ptHigh, yLow, yHigh, muPtCut, cLow, cHigh, 0.0, 0.5);
-  TString NomFileName = Form("../../SignalFitting/Simultaneous_dPhiFits/sim_dphinomfitresults_upsilon_%s.root",kineLabel.Data());
+  TString NomFileName = Form("/afs/cern.ch/work/j/jjay/public/Upsilonv2/SignalFitting/Simultaneous_dPhiFits/sim_dphinomfitresults_upsilon_%s.root",kineLabel.Data());
   cout << NomFileName << endl;
   TFile* NomFile = TFile::Open(NomFileName,"READ");
   RooWorkspace *Nomws = (RooWorkspace*)NomFile->Get("workspace");
@@ -185,7 +183,7 @@ void FitPseudoDataSimultaneously(
   
     //import info from full bin
     TString kineLabel = getKineLabel (collId, ptLow, ptHigh, yLow, yHigh, muPtCut, cLow, cHigh, 0.0, 0.5);
-    TString NomFileName = Form("../../SignalFitting/RoundFits_R4a/nomfitresults_upsilon_%s.root",kineLabel.Data());
+    TString NomFileName = Form("/afs/cern.ch/work/j/jjay/public/Upsilonv2/SignalFitting/RoundFits_R4a/nomfitresults_upsilon_%s.root",kineLabel.Data());
     cout << NomFileName << endl;
     TFile* NomFile = TFile::Open(NomFileName,"READ");
     RooWorkspace *Nomws = (RooWorkspace*)NomFile->Get("workspace");
@@ -382,7 +380,7 @@ void FitPseudoDataSimultaneously(
       ndev = 0.720624;
       xdev = 0.110304;
       TString kineLabelICs = getKineLabel(collId, ptLow, ptHigh, yLow, yHigh, muPtCut, cLow, cHigh, 0.0, 0.5);
-      TString NomFileName = Form("../../SignalFitting/RoundFits_R3a/nomfitresults_upsilon_%s.root", kineLabelICs.Data());
+      TString NomFileName = Form("/afs/cern.ch/work/j/jjay/public/Upsilonv2/SignalFitting/RoundFits_R3a/nomfitresults_upsilon_%s.root", kineLabelICs.Data());
       TFile* NomFile = TFile::Open(NomFileName,"READ");
       RooWorkspace *Nomws = (RooWorkspace*)NomFile->Get("workspace");
       fmu = Nomws->var("f1s")->getVal();
@@ -400,7 +398,7 @@ void FitPseudoDataSimultaneously(
       ndev = 1.218936;
       xdev = 0.088950;
       TString kineLabelICs = getKineLabel(collId, ptLow, ptHigh, yLow, yHigh, muPtCut, cLow, cHigh, 0.0, 0.5);
-      TString NomFileName = Form("../../SignalFitting/RoundFits_R3b/nomfitresults_upsilon_%s.root", kineLabelICs.Data());
+      TString NomFileName = Form("/afs/cern.ch/work/j/jjay/public/Upsilonv2/SignalFitting/RoundFits_R3b/nomfitresults_upsilon_%s.root", kineLabelICs.Data());
       TFile* NomFile = TFile::Open(NomFileName,"READ");
       RooWorkspace *Nomws = (RooWorkspace*)NomFile->Get("workspace");
       fmu = Nomws->var("f1s")->getVal();

@@ -19,7 +19,7 @@ void writeFile(TString filename,
 	  float ptLow = 0, float ptHigh = 50,
 	  float yLow = 0.0, float yHigh = 2.4,
 	  int cLow = 10, int cHigh = 90,
-	  int whichSyst = 1) {
+	  int whichSyst = 2) {
 
   remove(filename.Data());
 
@@ -42,7 +42,8 @@ void writeFile(TString filename,
   subFile << "output                = output/condor.$(ClusterId).$(ProcId).out" << endl;
   subFile << "error                 = error/condor.$(ClusterId).$(ProcId).err" << endl;
   subFile << "log                   = log/condor.$(ClusterId).log" << endl;
-  subFile << "+JobFlavour           = \"longlunch\" " << endl;
+//  subFile << "+JobFlavour           = \"longlunch\" " << endl;
+  subFile << "+JobFlavour           = \"workday\" " << endl;
   for (int i=1; i<101; i++) {
     TString outFileName = Form("PseudoExpResults/%sPseudoExpResults_%s_%i.root", systStr.Data(), kineLabel.Data(), i);
     if (fileExists(outFileName)) {
@@ -53,25 +54,22 @@ void writeFile(TString filename,
       }
       else cout << " but it's bad. :(" << endl;
     }
-    else {
-      cout << "File " << outFileName << " does not exist. :(" << endl;
-      subFile << "arguments = " << ptLow << " " << ptHigh << " " << yLow << " " << yHigh << " " << cLow << " " << cHigh << " " << whichSyst << " " << i << endl;
-      subFile << "queue" << endl << endl;
-    }
+    cout << "File " << outFileName << " does not exist. :(" << endl;
+    subFile << "arguments = " << ptLow << " " << ptHigh << " " << yLow << " " << yHigh << " " << cLow << " " << cHigh << " " << whichSyst << " " << i << endl;
+    subFile << "queue" << endl << endl;
   }
 }
 
-void makeSubFiles() {
+void makeSubFiles(int whichSyst=2) {
 
-  writeFile("condorJobs_pt_0_3.sub", 0, 3, 0.0, 2.4, 10, 90, 1);
-  /*writeFile("condorJobs_pt_3_6.sub", 3, 6, 0.0, 2.4, 10, 90, 1);
-  writeFile("condorJobs_pt_6_10.sub", 6, 10, 0.0, 2.4, 10, 90, 1);
-  writeFile("condorJobs_pt_10_50.sub", 10, 50, 0.0, 2.4, 10, 90, 1);
-  writeFile("condorJobs_y_00_08.sub", 0, 50, 0.0, 0.8, 10, 90, 1);
-  writeFile("condorJobs_y_08_16.sub", 0, 50, 0.8, 1.6, 10, 90, 1);
-  writeFile("condorJobs_y_16_24.sub", 0, 50, 1.6, 2.4, 10, 90, 1);
-  writeFile("condorJobs_c_10_30.sub", 0, 50, 0.0, 2.4, 10, 30, 1);
-  writeFile("condorJobs_c_30_50.sub", 0, 50, 0.0, 2.4, 30, 50, 1);
-  writeFile("condorJobs_c_50_90.sub", 0, 50, 0.0, 2.4, 50, 90, 1);
-*/
+  writeFile("condorJobs_pt_0_3.sub", 0, 3, 0.0, 2.4, 10, 90, whichSyst);
+  writeFile("condorJobs_pt_3_6.sub", 3, 6, 0.0, 2.4, 10, 90, whichSyst);
+  writeFile("condorJobs_pt_6_10.sub", 6, 10, 0.0, 2.4, 10, 90, whichSyst);
+  writeFile("condorJobs_pt_10_50.sub", 10, 50, 0.0, 2.4, 10, 90, whichSyst);
+  writeFile("condorJobs_y_00_08.sub", 0, 50, 0.0, 0.8, 10, 90, whichSyst);
+  writeFile("condorJobs_y_08_16.sub", 0, 50, 0.8, 1.6, 10, 90, whichSyst);
+  writeFile("condorJobs_y_16_24.sub", 0, 50, 1.6, 2.4, 10, 90, whichSyst);
+  writeFile("condorJobs_c_10_30.sub", 0, 50, 0.0, 2.4, 10, 30, whichSyst);
+  writeFile("condorJobs_c_30_50.sub", 0, 50, 0.0, 2.4, 30, 50, whichSyst);
+  writeFile("condorJobs_c_50_90.sub", 0, 50, 0.0, 2.4, 50, 90, whichSyst);
 }

@@ -4,14 +4,19 @@ void mergeSystematics(){
 
   TString systStr[4] = {"altSig","altBkg","altAcc","altEff"};
 
+  TString systFileName[4] = {
+	"PseudoExperimentsCode/Ups_1_v2_cent10-90_altSigSyst.root",
+	"Ups_1_v2_cent10-90_altBkgSyst.root",
+	"Ups_1_v2_cent10-90_altAccSyst.root",
+	"Ups_1_v2_cent10-90_altEffSyst.root"};
+
   TFile* altFile[4];
   TH1D* hSystpt[4];
   TH1D* hSysty[4];
   TH1D* hSystc[4];
 
   for (int i=0; i<4; i++) {
-    TString altFileName = Form("Ups_1_v2_cent10-90_%sSyst.root", systStr[i].Data());
-    altFile[i] = TFile::Open(altFileName,"READ");
+    altFile[i] = TFile::Open(systFileName[i],"READ");
     hSystpt[i] = (TH1D*)altFile[i]->Get("hv2pt");
     hSysty[i] = (TH1D*)altFile[i]->Get("hv2y");
     hSystc[i] = (TH1D*)altFile[i]->Get("hv2c");
@@ -32,11 +37,11 @@ void mergeSystematics(){
   for (int i=0; i<nptbins; i++) {
     sumsqrs = 0.0;
     for (int jSyst=0; jSyst<4; jSyst++) {
-      systval = hSystpt[jSyst]->GetBinContent(i);
+      systval = hSystpt[jSyst]->GetBinContent(i+1);
       sumsqrs = sumsqrs + pow(systval,2);
     }
     sumsqrs = sqrt(sumsqrs);
-    hSystptCombined->SetBinContent(i,sumsqrs);
+    hSystptCombined->SetBinContent(i+1,sumsqrs);
   }
 
   // Y BINS
@@ -44,11 +49,11 @@ void mergeSystematics(){
   for (int i=0; i<nybins; i++) {
     sumsqrs = 0.0;
     for (int jSyst=0; jSyst<4; jSyst++) {
-      systval = hSysty[jSyst]->GetBinContent(i);
+      systval = hSysty[jSyst]->GetBinContent(i+1);
       sumsqrs = sumsqrs + pow(systval,2);
     }
     sumsqrs = sqrt(sumsqrs);
-    hSystyCombined->SetBinContent(i,sumsqrs);
+    hSystyCombined->SetBinContent(i+1,sumsqrs);
   }
 
   // CENTRALITY BINS
@@ -56,12 +61,77 @@ void mergeSystematics(){
   for (int i=0; i<ncbins; i++) {
     sumsqrs = 0.0;
     for (int jSyst=0; jSyst<4; jSyst++) {
-      systval = hSystc[jSyst]->GetBinContent(i);
+      systval = hSystc[jSyst]->GetBinContent(i+1);
       sumsqrs = sumsqrs + pow(systval,2);
     }
     sumsqrs = sqrt(sumsqrs);
-    hSystcCombined->SetBinContent(i,sumsqrs);
+    hSystcCombined->SetBinContent(i+1,sumsqrs);
   }
+
+  TCanvas* cpt = new TCanvas("cpt","cpt",0,0,500,500);
+  cpt->cd();
+  hSystptCombined->SetTitle("Systematics vs p_{T}");
+  hSystptCombined->GetXaxis()->SetTitle("p_{T}^{#Upsilon}");
+  hSystptCombined->SetMinimum(0);
+  hSystptCombined->SetLineColor(1);
+  hSystptCombined->Draw();
+  TLegend* legpt = new TLegend(0.7,0.6,0.89,0.8);
+  legpt->SetTextSize(19);
+  legpt->SetTextFont(43);
+  legpt->SetBorderSize(0);
+  legpt->AddEntry(hSystptCombined,"Total","l");
+  for (int i=0; i<4; i++) {
+    hSystpt[i]->Draw("hist same");
+    hSystpt[i]->SetLineColor(i+2);
+    legpt->AddEntry(hSystpt[i],systStr[i].Data(),"l");
+  }
+  legpt->Draw("same");
+  hSystptCombined->Draw("same");
+  gPad->RedrawAxis();
+
+
+  TCanvas* cy = new TCanvas("cy","cy",400,0,500,500);
+  cy->cd();
+  hSystyCombined->SetTitle("Systematics vs Rapidity");
+  hSystyCombined->GetXaxis()->SetTitle("y^{#Upsilon}");
+  hSystyCombined->SetMinimum(0);
+  hSystyCombined->SetLineColor(1);
+  hSystyCombined->Draw();
+  TLegend* legy = new TLegend(0.7,0.6,0.89,0.8);
+  legy->SetTextSize(19);
+  legy->SetTextFont(43);
+  legy->SetBorderSize(0);
+  legy->AddEntry(hSystyCombined,"Total","l");
+  for (int i=0; i<4; i++) {
+    hSysty[i]->Draw("hist same");
+    hSysty[i]->SetLineColor(i+2);
+    legy->AddEntry(hSysty[i],systStr[i].Data(),"l");
+  }
+  legy->Draw("same");
+  hSystyCombined->Draw("same");
+  gPad->RedrawAxis();
+
+  TCanvas* cc = new TCanvas("cc","cc",800,0,500,500);
+  cc->cd();
+  hSystcCombined->SetTitle("Systematics vs Centrality");
+  hSystcCombined->GetXaxis()->SetTitle("Centrality (%)");
+  hSystcCombined->SetMinimum(0);
+  hSystcCombined->SetLineColor(1);
+  hSystcCombined->Draw();
+  TLegend* legc = new TLegend(0.7,0.6,0.89,0.8);
+  legc->SetTextSize(19);
+  legc->SetTextFont(43);
+  legc->SetBorderSize(0);
+  legc->AddEntry(hSystcCombined,"Total","l");
+  for (int i=0; i<4; i++) {
+    hSystc[i]->Draw("hist same");
+    hSystc[i]->SetLineColor(i+2);
+    legc->AddEntry(hSystc[i],systStr[i].Data(),"l");
+  }
+  legc->Draw("same");
+  hSystcCombined->Draw("same");
+  gPad->RedrawAxis();
+
 
   TString outFileName = Form("Ups_1_v2_cent10-90_SystCombined.root");
   TFile* outFile = new TFile(outFileName,"RECREATE");

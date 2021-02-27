@@ -90,7 +90,7 @@ void draw_v2(int whichUpsilon=1) {
   SetGraphStyleSys(gv2y_sys, 1);
 
   float ymin=0; float ymax=2.4;
-  gv2y_sys->GetXaxis()->SetTitle("p_{T}^{#varUpsilon} (GeV/c)");
+  gv2y_sys->GetXaxis()->SetTitle("y^{#varUpsilon}");
   gv2y_sys->GetXaxis()->CenterTitle();
   gv2y_sys->GetXaxis()->SetTitleOffset(1.);
   gv2y_sys->GetXaxis()->SetLimits(ymin,ymax);
@@ -120,7 +120,7 @@ void draw_v2(int whichUpsilon=1) {
   SetGraphStyleSys(gv2c_sys, 1);
 
   float cmin=10; float cmax=90;
-  gv2c_sys->GetXaxis()->SetTitle("p_{T}^{#varUpsilon} (GeV/c)");
+  gv2c_sys->GetXaxis()->SetTitle("Centrality (%)");
   gv2c_sys->GetXaxis()->CenterTitle();
   gv2c_sys->GetXaxis()->SetTitleOffset(1.);
   gv2c_sys->GetXaxis()->SetLimits(cmin,cmax);

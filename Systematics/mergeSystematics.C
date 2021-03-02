@@ -6,7 +6,7 @@ void mergeSystematics(){
 
   TString systFileName[4] = {
 	"PseudoExperimentsCode/Ups_1_v2_cent10-90_altSigSyst.root",
-	"Ups_1_v2_cent10-90_altBkgSyst.root",
+	"PseudoExperimentsCode/Ups_1_v2_cent10-90_altBkgSyst.root",
 	"Ups_1_v2_cent10-90_altAccSyst.root",
 	"Ups_1_v2_cent10-90_altEffSyst.root"};
 

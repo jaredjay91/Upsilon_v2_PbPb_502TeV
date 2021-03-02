@@ -401,10 +401,10 @@ else {
   for (int i=0; i<4; i++) {
     c[i]->cd();
     ws->pdf(Form("model[%i]",i))->plotOn(myPlot2[i],Name(Form("modelHist[%i]",i)), Range(massLow, massHigh));
-    ws->pdf(Form("model[%i]",i))->plotOn(myPlot2[i],Name("Sig1S"),Components(RooArgSet(*cb1s)),LineColor(kOrange+7),LineWidth(2),LineStyle(2));
-    ws->pdf(Form("model[%i]",i))->plotOn(myPlot2[i],Components(RooArgSet(*cb2s)),LineColor(kOrange+7),LineWidth(2),LineStyle(2));
-    ws->pdf(Form("model[%i]",i))->plotOn(myPlot2[i],Components(RooArgSet(*cb3s)),LineColor(kOrange+7),LineWidth(2),LineStyle(2));
-    ws->pdf(Form("model[%i]",i))->plotOn(myPlot2[i],Name("bkgPDF"),Components(RooArgSet(*bkg)),LineColor(kBlue),LineStyle(kDashed),LineWidth(2));
+    ws->pdf(Form("model[%i]",i))->plotOn(myPlot2[i],Name("Sig1S"),Components(RooArgSet(*cb1s)), Range(massLow, massHigh),LineColor(kOrange+7),LineWidth(2),LineStyle(2));
+    ws->pdf(Form("model[%i]",i))->plotOn(myPlot2[i],Components(RooArgSet(*cb2s)), Range(massLow, massHigh),LineColor(kOrange+7),LineWidth(2),LineStyle(2));
+    ws->pdf(Form("model[%i]",i))->plotOn(myPlot2[i],Components(RooArgSet(*cb3s)), Range(massLow, massHigh),LineColor(kOrange+7),LineWidth(2),LineStyle(2));
+    ws->pdf(Form("model[%i]",i))->plotOn(myPlot2[i],Name("bkgPDF"),Components(RooArgSet(*bkg)), Range(massLow, massHigh),LineColor(kBlue),LineStyle(kDashed),LineWidth(2));
 
     //make a pretty plot
     myPlot2[i]->SetFillStyle(4000);

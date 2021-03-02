@@ -54,16 +54,6 @@ then
 fi
 if [ "$1" != "" ]
 then
-  dphiEp2Low=$1
-  shift
-fi
-if [ "$1" != "" ]
-then
-  dphiEp2High=$1
-  shift
-fi
-if [ "$1" != "" ]
-then
   whichSyst=$1
   shift
 fi

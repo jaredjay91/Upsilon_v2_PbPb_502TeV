@@ -150,7 +150,7 @@ int CheckSimFitQuality(
     temp2err[i] = ws->var(Form("nSig2s[%i]",i))->getError();  
     temp3[i] = ws->var(Form("nSig3s[%i]",i))->getVal();  
     temp3err[i] = ws->var(Form("nSig3s[%i]",i))->getError();  
-  
+
     cout << "1S signal    =  " << temp1[i] << " +/- " << temp1err[i] << endl;
     cout << "2S signal    =  " << temp2[i] << " +/- " << temp2err[i] << endl;
     cout << "3S signal    =  " << temp3[i] << " +/- " << temp3err[i] << endl;
@@ -219,8 +219,8 @@ int CheckSimFitQuality(
     }
   }
 
-  if (goodChi2 && goodSigErr && goodParams){
-  //if (kTRUE){
+  //if (goodChi2 && goodSigErr && goodParams){
+  if (kTRUE){
     cout << "THE FIT PASSED THE QUALITY CHECK! :)" << endl;
     good = 1;
   }

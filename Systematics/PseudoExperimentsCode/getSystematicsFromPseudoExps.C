@@ -78,7 +78,7 @@ void getSystOneBin(TH1D* hSyst, int whichBin=0, float ptLow=0, float ptHigh=50, 
 }
 
 
-void getSystematicsFromPseudoExps(int whichUpsilon=1, int whichSyst=1) {
+void getSystematicsFromPseudoExps(int whichUpsilon=1, int whichSyst=2) {
 
   if (! (whichSyst==1 || whichSyst==2 || whichSyst==3 || whichSyst==4) ) {
     cout << "Error: Invalid value of 'whichSyst'" << endl;

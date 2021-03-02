@@ -11,7 +11,7 @@ int CheckSimFitExists(
        float yLow=0.0, float yHigh=2.4,
        int cLow=10, int cHigh=90,
        float muPtCut=3.5,
-       int whichSyst=0
+       int whichSyst=3
 // 0: Nominal
 // 1: AltSig
 // 2: AltBkg

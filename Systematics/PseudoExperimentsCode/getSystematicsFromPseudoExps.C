@@ -39,8 +39,8 @@ void getSystOneBin(TH1D* hSyst, int whichBin=0, float ptLow=0, float ptHigh=50, 
   TLeaf *v2AltLeaf = ntuple->GetLeaf("v2Alt");
   int numEntries = ntuple->GetEntries();
   double avgDiff = 0;
-  double median = 0;
   int numBelow = 0;
+  double numList[numEntries];
   for (int j=0; j<numEntries; j++) {
     ntuple->GetEntry(j);
     double v2Nom = v2NomLeaf->GetValue();
@@ -51,16 +51,19 @@ void getSystOneBin(TH1D* hSyst, int whichBin=0, float ptLow=0, float ptHigh=50, 
       cout << "v2Alt=" << v2Alt << endl;
       cout << "percDiff=" << percDiff << endl;
     }
-    if (percDiff>median && numBelow<numEntries/2) {
-      median = percDiff;
-    }
+    numList[j] = percDiff;
     avgDiff = avgDiff + percDiff;
     hDiff->Fill(percDiff);
   }
 
+  sort(numList, numList+numEntries);
+  double median;
+  if (numEntries/2==0) median = (numList[numEntries/2]+numList[numEntries/2-1])/2;
+  else median = numList[(numEntries+1)/2];
   avgDiff = avgDiff/numEntries;
   cout << endl << avgDiff << " = " << hDiff->GetMean() << endl << endl;
-  double systVal = avgDiff/100;
+  //double systVal = avgDiff/100;
+  double systVal = median/100;
   cout << "systVal = " << systVal << endl;
   hSyst->SetBinContent(whichBin, systVal);
   cout << "hSyst->GetBinContent(whichBin) = " << hSyst->GetBinContent(whichBin) << endl;
@@ -78,7 +81,7 @@ void getSystOneBin(TH1D* hSyst, int whichBin=0, float ptLow=0, float ptHigh=50, 
 }
 
 
-void getSystematicsFromPseudoExps(int whichUpsilon=1, int whichSyst=2) {
+void getSystematicsFromPseudoExps(int whichUpsilon=1, int whichSyst=1) {
 
   if (! (whichSyst==1 || whichSyst==2 || whichSyst==3 || whichSyst==4) ) {
     cout << "Error: Invalid value of 'whichSyst'" << endl;

@@ -19,7 +19,7 @@ void subtractHists(TH1D* hNom, TH1D* hAlt, TH1D* hSyst) {
 
 }
 
-void getSystematics(int whichUpsilon=1, int whichSyst=1) {
+void getSystematics(int whichUpsilon=1, int whichSyst=4) {
 
   if (! (whichSyst==1 || whichSyst==2 || whichSyst==3 || whichSyst==4) ) {
     cout << "Error: Invalid value of 'whichSyst'" << endl;

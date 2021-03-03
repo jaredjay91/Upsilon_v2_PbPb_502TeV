@@ -77,7 +77,7 @@ void Fitv2(
   if(yLow==0) drawText(Form("|y^{#mu#mu}| < %.2f",yHigh ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
   else drawText(Form("%.2f < |y^{#mu#mu}| < %.2f",yLow,yHigh ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
   drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
-  drawText(Form("|#eta^{#mu}| < %.1f GeV/c", muEtaCut ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
+  drawText(Form("|#eta^{#mu}| < %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
   drawText(Form("Centrality %i-%i%s", cLow,cHigh, perc.Data() ), pos_text_x,pos_text_y-pos_y_diff*4,text_color,text_size);
   drawText(Form("v_{2} = %.3f #pm %.3f", v2Val,v2Err), pos_text_x,pos_text_y-pos_y_diff*5,2,text_size);
 

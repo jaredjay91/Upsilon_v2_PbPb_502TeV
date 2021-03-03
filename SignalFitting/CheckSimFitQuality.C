@@ -220,7 +220,8 @@ int CheckSimFitQuality(
   }
 
   //if (goodChi2 && goodSigErr && goodParams){
-  if (kTRUE){
+  if (goodChi2 && goodSigErr){
+  //if (kTRUE){
     cout << "THE FIT PASSED THE QUALITY CHECK! :)" << endl;
     good = 1;
   }

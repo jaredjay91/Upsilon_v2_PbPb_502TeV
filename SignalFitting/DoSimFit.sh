@@ -112,7 +112,7 @@ else
       sleep 5
     fi
     nTries=$(($nTries+1))
-    ./DoFit.sh $collId $ptLow $ptHigh $yLow $yHigh $cLow $cHigh $muPtCut $whichSyst $nTries
+    ./DoSimFit.sh $collId $ptLow $ptHigh $yLow $yHigh $cLow $cHigh $muPtCut $whichSyst $nTries
   else
     nTries=$(($nTries-1))
     echo "GIVING UP AFTER $nTries TRIES :("

@@ -33,6 +33,7 @@ void Fitv2(
   else if (whichSyst==2) systStr = "altBkg";
   else if (whichSyst==3) systStr = "altAcc";
   else if (whichSyst==4) systStr = "altEff";
+  else if (whichSyst==5) systStr = "altConst";
 
   gStyle->SetOptStat(0);
 

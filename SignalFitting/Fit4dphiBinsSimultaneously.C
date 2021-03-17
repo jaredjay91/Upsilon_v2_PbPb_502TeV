@@ -38,16 +38,17 @@ using namespace std;
 using namespace RooFit;
 void Fit4dphiBinsSimultaneously( 
        int collId = kAADATA,  
-       float ptLow=0, float ptHigh=3, 
-       float yLow=2.1, float yHigh=2.4,//Run 1 has p going in -z direction
+       float ptLow=0, float ptHigh=50, 
+       float yLow=1.6, float yHigh=2.4,//Run 1 has p going in -z direction
        int cLow=10, int cHigh=90,
        float muPtCut=3.5,
-       int whichSyst=0,   
+       int whichSyst=4,   
 // 0: Nominal
 // 1: AltSig
 // 2: AltBkg
 // 3: AltAcc
 // 4: AltEff
+// 5: AltConst
        bool randomSeeds=kTRUE,
        int whichRound=R4a
 			) 
@@ -61,6 +62,9 @@ void Fit4dphiBinsSimultaneously(
   else if (whichSyst==2) systStr = "altBkg";
   else if (whichSyst==3) systStr = "altAcc";
   else if (whichSyst==4) systStr = "altEff";
+  else if (whichSyst==5) systStr = "altConst";
+
+  if (whichSyst==5) whichRound = R4b;
 
   float eta_low = -2.4;
   float eta_high = 2.4;

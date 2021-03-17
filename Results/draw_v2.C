@@ -27,11 +27,18 @@ void draw_v2(int whichUpsilon=1) {
   bool EpResCorrection = kTRUE;
   TString resCorFileName = "../Skimming/condor/averages/resCorFile_n56114317_BinByBin.root";
   TFile* EPRFile = new TFile(resCorFileName,"READ");
-  TH1D* hRpt = (TH1D*)EPRFile->Get("hRpt;1");
-  hv2pt->Sumw2(); hRpt->Sumw2();
+  TH1D* hRpt = (TH1D*)EPRFile->Get("hRpt");
+  TH1D* hRy = (TH1D*)EPRFile->Get("hRy");
+  TH1D* hRc = (TH1D*)EPRFile->Get("hRc");
+  hv2pt->Sumw2();
+  hRpt->Sumw2();
+  hRy->Sumw2();
+  hRc->Sumw2();
   if (EpResCorrection) {
     cout << " Applying resoulution correction" << endl;
     hv2pt->Divide(hRpt);
+    hv2y->Divide(hRy);
+    hv2c->Divide(hRc);
   }
 
   //make histograms of systematics
@@ -137,7 +144,7 @@ void draw_v2(int whichUpsilon=1) {
   gv2pt_sys->Draw("A5");
   gv2pt->Draw("P");
 
-  TLegend *legpt= new TLegend(0.7, 0.2, 0.9, 0.3);
+  TLegend *legpt= new TLegend(0.7, 0.6, 0.9, 0.7);
   SetLegendStyle(legpt);
   legpt->AddEntry(gv2pt,Form(" #Upsilon(%iS)",whichUpsilon),"lp");
 
@@ -146,6 +153,9 @@ void draw_v2(int whichUpsilon=1) {
   gPad->SetBottomMargin(0.16);
   gPad->SetRightMargin(0.06);
   gPad->SetTopMargin(0.1);
+  TLine *lpt = new TLine(0,0,50,0);
+  lpt->SetLineStyle(9);
+  lpt->Draw();
 
   int collId = kAADATA;
   int cLow = 0;
@@ -162,7 +172,7 @@ void draw_v2(int whichUpsilon=1) {
   gv2y_sys->Draw("A5");
   gv2y->Draw("P");
 
-  TLegend *legy= new TLegend(0.7, 0.2, 0.9, 0.3);
+  TLegend *legy= new TLegend(0.7, 0.6, 0.9, 0.7);
   SetLegendStyle(legy);
   legy->AddEntry(gv2y,Form(" #Upsilon(%iS)",whichUpsilon),"lp");
 
@@ -171,6 +181,9 @@ void draw_v2(int whichUpsilon=1) {
   gPad->SetBottomMargin(0.16);
   gPad->SetRightMargin(0.06);
   gPad->SetTopMargin(0.1);
+  TLine *ly = new TLine(0,0,2.4,0);
+  ly->SetLineStyle(9);
+  ly->Draw();
 
   if(collId == kPPDATA) CMS_lumi(cy, 1 ,33);
   else if(collId == kAADATA && cLow < 60) CMS_lumi(cy, 2 ,33);
@@ -185,7 +198,7 @@ void draw_v2(int whichUpsilon=1) {
   gv2c_sys->Draw("A5");
   gv2c->Draw("P");
 
-  TLegend *legc= new TLegend(0.7, 0.2, 0.9, 0.3);
+  TLegend *legc= new TLegend(0.7, 0.6, 0.9, 0.7);
   SetLegendStyle(legc);
   legc->AddEntry(gv2c,Form(" #Upsilon(%iS)",whichUpsilon),"lp");
 
@@ -194,6 +207,9 @@ void draw_v2(int whichUpsilon=1) {
   gPad->SetBottomMargin(0.16);
   gPad->SetRightMargin(0.06);
   gPad->SetTopMargin(0.1);
+  TLine *lc = new TLine(10,0,90,0);
+  lc->SetLineStyle(9);
+  lc->Draw();
 
   if(collId == kPPDATA) CMS_lumi(cc, 1 ,33);
   else if(collId == kAADATA && cLow < 60) CMS_lumi(cc, 2 ,33);

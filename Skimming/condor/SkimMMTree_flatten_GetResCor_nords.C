@@ -44,7 +44,7 @@ bool isAbout(float num1=0.0, float num2=0.0) {
 static const long MAXTREESIZE = 1000000000000;
 
 void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
-      int dateStr=20201119,
+      int dateStr=20210317,
       bool flattenBinByBin=kTRUE) 
 {
 
@@ -60,16 +60,20 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
 
   float ptbins[5] = {0,3,6,10,50};
   const int numptbins = sizeof(ptbins)/sizeof(float)-1;
+  float ybins[4] = {0.0,0.8,1.6,2.4};
+  const int numybins = sizeof(ybins)/sizeof(float)-1;
   Double_t cbins[4] = {10,30,50,90};
   const int numcbins = sizeof(cbins)/sizeof(double)-1;
 
   TH1D* hpt = new TH1D("hpt","hist vs pt",numptbins,ptbins);
+  TH1D* hy = new TH1D("hy","hist vs y",numybins,ybins);
   TH1D* hcent = new TH1D("hcent","hist vs cent",numcbins,cbins);
 
   //gStyle->SetOptStat(0);
   //TH1D* hCosAC = new TH1D("hCosAC","cos(2*(psiA-psiC))",50,-1.2,1.2);
   TH1D* hRpt = new TH1D("hRpt","EP Resolution factor vs pt",numptbins,ptbins);
-  TH1D* hRcent = new TH1D("hRcent","EP Resolution factor vs cent",numcbins,cbins);
+  TH1D* hRy = new TH1D("hRy","EP Resolution factor vs y",numybins,ybins);
+  TH1D* hRc = new TH1D("hRc","EP Resolution factor vs cent",numcbins,cbins);
 
   //Event planes
   TH1D* hEpHF2old = new TH1D("hEpHF2old","hEpHF2old",50,-2,2);
@@ -122,6 +126,9 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
   Double_t avgCosABpt[numptbins] = {0};
   Double_t avgCosACpt[numptbins] = {0};
   Double_t avgCosBCpt[numptbins] = {0};
+  Double_t avgCosABy[numybins] = {0};
+  Double_t avgCosACy[numybins] = {0};
+  Double_t avgCosBCy[numybins] = {0};
   Double_t avgCosABcent[numcbins] = {0};
   Double_t avgCosACcent[numcbins] = {0};
   Double_t avgCosBCcent[numcbins] = {0};
@@ -132,6 +139,9 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
   Double_t sumsqrsCosABpt[numptbins] = {0};
   Double_t sumsqrsCosACpt[numptbins] = {0};
   Double_t sumsqrsCosBCpt[numptbins] = {0};
+  Double_t sumsqrsCosABy[numybins] = {0};
+  Double_t sumsqrsCosACy[numybins] = {0};
+  Double_t sumsqrsCosBCy[numybins] = {0};
   Double_t sumsqrsCosABcent[numcbins] = {0};
   Double_t sumsqrsCosACcent[numcbins] = {0};
   Double_t sumsqrsCosBCcent[numcbins] = {0};
@@ -193,6 +203,15 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
   Double_t avgSinEpHFp2pt[numptbins][flatOrder] = {0};
   Double_t avgCosEptrackmid2pt[numptbins][flatOrder] = {0};
   Double_t avgSinEptrackmid2pt[numptbins][flatOrder] = {0};
+
+  Double_t avgCosEpy[numybins][flatOrder] = {0};
+  Double_t avgSinEpy[numybins][flatOrder] = {0};
+  Double_t avgCosEpHFm2y[numybins][flatOrder] = {0};
+  Double_t avgSinEpHFm2y[numybins][flatOrder] = {0};
+  Double_t avgCosEpHFp2y[numybins][flatOrder] = {0};
+  Double_t avgSinEpHFp2y[numybins][flatOrder] = {0};
+  Double_t avgCosEptrackmid2y[numybins][flatOrder] = {0};
+  Double_t avgSinEptrackmid2y[numybins][flatOrder] = {0};
 
   Double_t avgCosEpcent[numcbins][flatOrder] = {0};
   Double_t avgSinEpcent[numcbins][flatOrder] = {0};
@@ -269,6 +288,7 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
   newfile->cd();
 
   int ptPASS[numptbins] = {0};
+  int yPASS[numybins] = {0};
   int centPASS[numcbins] = {0};
 
   cout << "Total events = " << nevtReal << ", : " << mytree->GetEntries() << endl;
@@ -455,6 +475,7 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
 
       //flatten event plane angles bin by bin in centrality:
       int whichptbin = hpt->FindBin(dm.pt)-1;
+      int whichybin = hy->FindBin(dm.y)-1;
       int whichcbin = hcent->FindBin(dm.cBin/2)-1;
 
       Double_t epHF2cent = epHF2;
@@ -571,6 +592,14 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
       sumsqrsCosBCpt[whichptbin] += pow(cos(2*(deltaBC)),2);
       ptPASS[whichptbin] += 1;
 
+      avgCosABy[whichybin] += cos(2*(deltaAB));
+      avgCosACy[whichybin] += cos(2*(deltaAC));
+      avgCosBCy[whichybin] += cos(2*(deltaBC));
+      sumsqrsCosABy[whichybin] += pow(cos(2*(deltaAB)),2);
+      sumsqrsCosACy[whichybin] += pow(cos(2*(deltaAC)),2);
+      sumsqrsCosBCy[whichybin] += pow(cos(2*(deltaBC)),2);
+      yPASS[whichybin] += 1;
+
       avgCosABcent[whichcbin] += cos(2*(deltaAB));
       avgCosACcent[whichcbin] += cos(2*(deltaAC));
       avgCosBCcent[whichcbin] += cos(2*(deltaBC));
@@ -653,6 +682,24 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
   }
   hRpt->Write();
 
+  cout << "filling y histogram" << endl;
+  for (int i=0; i<numybins; i++) {
+    avgCosABy[i] = avgCosABy[i]/yPASS[i];
+    avgCosACy[i] = avgCosACy[i]/yPASS[i];
+    avgCosBCy[i] = avgCosBCy[i]/yPASS[i];
+    Double_t rmsCosABy = sqrt(sumsqrsCosABy[i]/yPASS[i] - pow(avgCosABy[i],2));
+    Double_t rmsCosACy = sqrt(sumsqrsCosACy[i]/yPASS[i] - pow(avgCosACy[i],2));
+    Double_t rmsCosBCy = sqrt(sumsqrsCosBCy[i]/yPASS[i] - pow(avgCosBCy[i],2));
+    rmsCosABy = rmsCosABy/sqrt(yPASS[i]);
+    rmsCosACy = rmsCosACy/sqrt(yPASS[i]);
+    rmsCosBCy = rmsCosBCy/sqrt(yPASS[i]);
+    Double_t RAy = sqrt(avgCosABy[i]*avgCosACy[i]/avgCosBCy[i]);
+    Double_t RAyerr = 0.5*RAy*sqrt(pow(rmsCosABy/avgCosABy[i],2) + pow(rmsCosACy/avgCosACy[i],2) + pow(rmsCosBCy/avgCosBCy[i],2));
+    hRy->SetBinContent(i+1,RAy);
+    hRy->SetBinError(i+1,RAyerr);
+  }
+  hRy->Write();
+
   cout << "filling cent histogram" << endl;
   for (int i=0; i<numcbins; i++) {
     avgCosABcent[i] = avgCosABcent[i]/centPASS[i];
@@ -666,20 +713,23 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
     rmsCosBCcent = rmsCosBCcent/sqrt(centPASS[i]);
     Double_t RAcent = sqrt(avgCosABcent[i]*avgCosACcent[i]/avgCosBCcent[i]);
     Double_t RAcenterr = 0.5*RAcent*sqrt(pow(rmsCosABcent/avgCosABcent[i],2) + pow(rmsCosACcent/avgCosACcent[i],2) + pow(rmsCosBCcent/avgCosBCcent[i],2));
-    hRcent->SetBinContent(i+1,RAcent);
-    hRcent->SetBinError(i+1,RAcenterr);
+    hRc->SetBinContent(i+1,RAcent);
+    hRc->SetBinError(i+1,RAcenterr);
   }
-  hRcent->Write();
+  hRc->Write();
 
   hRpt->Sumw2();
-  hRcent->Sumw2();
+  hRy->Sumw2();
+  hRc->Sumw2();
 
-  TCanvas* c1 = new TCanvas("c1","c1",0,0,600,300);
-  c1->Divide(2);
+  TCanvas* c1 = new TCanvas("c1","c1",0,0,900,300);
+  c1->Divide(3);
   c1->cd(1);
   hRpt->Draw();
   c1->cd(2);
-  hRcent->Draw();
+  hRy->Draw();
+  c1->cd(3);
+  hRc->Draw();
 
   hEpHF2->Write();
   hEpHFm2->Write();
@@ -801,6 +851,11 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
   cout << "ptPASS = {";
   for (int i=0; i<numptbins; i++) {
     cout << ptPASS[i] << ",";
+  }
+  cout << "}" << endl;
+  cout << "yPASS = {";
+  for (int i=0; i<numybins; i++) {
+    cout << yPASS[i] << ",";
   }
   cout << "}" << endl;
   cout << "centPASS = {";

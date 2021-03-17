@@ -2,20 +2,30 @@
 
 void mergeSystematics(){
 
-  TString systStr[4] = {"altSig","altBkg","altAcc","altEff"};
+  double etaGapSensitivity = 0.025; //From https://arxiv.org/pdf/1204.1850.pdf
+  double evtPlaneRes = 0.01;
+  double evtPlaneUnc = evtPlaneRes+etaGapSensitivity;
 
-  TString systFileName[4] = {
+  double singleMuTrkUnc = 0.006; //For PbPb (from Jpsi analysis)  
+  double doubleMuTrkUnc = 2*singleMuTrkUnc;
+
+  TString systStr[5] = {"altSig","altBkg","altAcc","altEff","altConst"};
+
+  TString systFileName[5] = {
 	"PseudoExperimentsCode/Ups_1_v2_cent10-90_altSigSyst.root",
 	"PseudoExperimentsCode/Ups_1_v2_cent10-90_altBkgSyst.root",
 	"Ups_1_v2_cent10-90_altAccSyst.root",
-	"Ups_1_v2_cent10-90_altEffSyst.root"};
+	"Ups_1_v2_cent10-90_altEffSyst.root",
+	"Ups_1_v2_cent10-90_altConstSyst.root"};
 
-  TFile* altFile[4];
-  TH1D* hSystpt[4];
-  TH1D* hSysty[4];
-  TH1D* hSystc[4];
+  int color[5] = {2, 3, 4, 6, 7};
 
-  for (int i=0; i<4; i++) {
+  TFile* altFile[5];
+  TH1D* hSystpt[5];
+  TH1D* hSysty[5];
+  TH1D* hSystc[5];
+
+  for (int i=0; i<5; i++) {
     altFile[i] = TFile::Open(systFileName[i],"READ");
     hSystpt[i] = (TH1D*)altFile[i]->Get("hv2pt");
     hSysty[i] = (TH1D*)altFile[i]->Get("hv2y");
@@ -36,10 +46,11 @@ void mergeSystematics(){
   TH1D* hSystptCombined = (TH1D*)hSystpt[0]->Clone();
   for (int i=0; i<nptbins; i++) {
     sumsqrs = 0.0;
-    for (int jSyst=0; jSyst<4; jSyst++) {
+    for (int jSyst=0; jSyst<5; jSyst++) {
       systval = hSystpt[jSyst]->GetBinContent(i+1);
       sumsqrs = sumsqrs + pow(systval,2);
     }
+    sumsqrs = sumsqrs + pow(evtPlaneUnc,2) + pow(doubleMuTrkUnc,2);
     sumsqrs = sqrt(sumsqrs);
     hSystptCombined->SetBinContent(i+1,sumsqrs);
   }
@@ -48,10 +59,11 @@ void mergeSystematics(){
   TH1D* hSystyCombined = (TH1D*)hSysty[0]->Clone();
   for (int i=0; i<nybins; i++) {
     sumsqrs = 0.0;
-    for (int jSyst=0; jSyst<4; jSyst++) {
+    for (int jSyst=0; jSyst<5; jSyst++) {
       systval = hSysty[jSyst]->GetBinContent(i+1);
       sumsqrs = sumsqrs + pow(systval,2);
     }
+    sumsqrs = sumsqrs + pow(evtPlaneUnc,2) + pow(doubleMuTrkUnc,2);
     sumsqrs = sqrt(sumsqrs);
     hSystyCombined->SetBinContent(i+1,sumsqrs);
   }
@@ -60,10 +72,11 @@ void mergeSystematics(){
   TH1D* hSystcCombined = (TH1D*)hSystc[0]->Clone();
   for (int i=0; i<ncbins; i++) {
     sumsqrs = 0.0;
-    for (int jSyst=0; jSyst<4; jSyst++) {
+    for (int jSyst=0; jSyst<5; jSyst++) {
       systval = hSystc[jSyst]->GetBinContent(i+1);
       sumsqrs = sumsqrs + pow(systval,2);
     }
+    sumsqrs = sumsqrs + pow(evtPlaneUnc,2) + pow(doubleMuTrkUnc,2);
     sumsqrs = sqrt(sumsqrs);
     hSystcCombined->SetBinContent(i+1,sumsqrs);
   }
@@ -80,9 +93,9 @@ void mergeSystematics(){
   legpt->SetTextFont(43);
   legpt->SetBorderSize(0);
   legpt->AddEntry(hSystptCombined,"Total","l");
-  for (int i=0; i<4; i++) {
+  for (int i=0; i<5; i++) {
     hSystpt[i]->Draw("hist same");
-    hSystpt[i]->SetLineColor(i+2);
+    hSystpt[i]->SetLineColor(color[i]);
     legpt->AddEntry(hSystpt[i],systStr[i].Data(),"l");
   }
   legpt->Draw("same");
@@ -102,9 +115,9 @@ void mergeSystematics(){
   legy->SetTextFont(43);
   legy->SetBorderSize(0);
   legy->AddEntry(hSystyCombined,"Total","l");
-  for (int i=0; i<4; i++) {
+  for (int i=0; i<5; i++) {
     hSysty[i]->Draw("hist same");
-    hSysty[i]->SetLineColor(i+2);
+    hSysty[i]->SetLineColor(color[i]);
     legy->AddEntry(hSysty[i],systStr[i].Data(),"l");
   }
   legy->Draw("same");
@@ -123,14 +136,21 @@ void mergeSystematics(){
   legc->SetTextFont(43);
   legc->SetBorderSize(0);
   legc->AddEntry(hSystcCombined,"Total","l");
-  for (int i=0; i<4; i++) {
+  for (int i=0; i<5; i++) {
     hSystc[i]->Draw("hist same");
-    hSystc[i]->SetLineColor(i+2);
+    hSystc[i]->SetLineColor(color[i]);
     legc->AddEntry(hSystc[i],systStr[i].Data(),"l");
   }
   legc->Draw("same");
   hSystcCombined->Draw("same");
   gPad->RedrawAxis();
+
+  cpt->SaveAs("Plots/Systpt.pdf");
+  cpt->SaveAs("Plots/Systpt.png");
+  cy->SaveAs("Plots/Systy.pdf");
+  cy->SaveAs("Plots/Systy.png");
+  cc->SaveAs("Plots/Systc.pdf");
+  cc->SaveAs("Plots/Systc.png");
 
 
   TString outFileName = Form("Ups_1_v2_cent10-90_SystCombined.root");

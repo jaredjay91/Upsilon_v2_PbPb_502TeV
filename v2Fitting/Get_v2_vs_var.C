@@ -13,6 +13,7 @@ void Get_v2_vs_var(int whichUpsilon=1, int whichSyst=0) {
   else if (whichSyst==2) systStr = "altBkg";
   else if (whichSyst==3) systStr = "altAcc";
   else if (whichSyst==4) systStr = "altEff";
+  else if (whichSyst==5) systStr = "altConst";
 
   gStyle->SetOptStat(0);
 

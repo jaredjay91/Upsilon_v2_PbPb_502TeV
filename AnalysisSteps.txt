@@ -29,38 +29,53 @@ VI. Calculate acceptance and efficiency corrections.
 
 Calculate the acceptance versus pt by running Corrections/Acceptance/getAcceptanceFrom19001Skim.C on the data file /afs/cern.ch/user/g/goni/public/Acceptance/skimedForAcc/skimedForAcc_MC_Ups1S_20170808.root. This file was used in the code for AN-19-001.
 
+Calculate efficiency corrections by running Corrections/Acceptance/getEfficiency.C on the files Upsi1S_TuneCP5_HydjetDrumMB_officialPythia8MC_v1.root and Upsi1S_TuneCP5_HydjetDrumMB_officialPythia8MC_ext-v1.root.
+
 
 VII. Make the RooDataSet
 
-Run makeRooDataset.C on the latest flattened dataset. Be sure to include the acceptance and efficiency corrections as weights in the new RooDataset.
+Run makeRooDataset.C on the latest flattened dataset. Be sure to include the acceptance and efficiency corrections as weights in the new RooDataset. Also create a dataset with a alternative acceptance weights and one with alternative efficiency weights. These alternative weights were already created by the acceptance and efficiency macros.
 
 
 VIII. Fit the data
 
-Use the code in the SignalFitting directory.
+Use the code in the SignalFitting directory. First, we do iterative "round" fitting with FitDataWithRandomSeeds.C.
+Round R0 has all parameters free.
+Round R1a has alpha fixed to the average from R0.
+Round R1b has n fixed to the average from R0.
+Round R2a has n fixed to the average from R1a.
+Round R2b has alpha fixed to the average from R1b.
+Round R3a has alpha fixed to the average from R2a and n fixed to the average from R1a.
+Round R3b has n fixed to the average from R2b and alpha fixed to the average from R1b.
+Round R4a has constraints. The n constraint is from R1a, the alpha constraint from R2a, the x constraint from R3a, and the f constraint comes bin-by-bin from R3a.
+Round R4b has alternative constraints. The n constraint is from R2b, the alpha constraint from R1b, the x constraint from R3b, and the f constraint comes bin-by-bin from R3b.
+
+The nominal fits to the delta-phi bins are obtained via simultaneous fits to all 4 bins using Fit4dphiBinsSimultaneously.C. The constraints are the same as those in Round R4a, and the seeds come from R4a. This ensures stability and expeditious fitting. The alternative constraints are used for systematics.
 
 
 IX. Extract signals
 
-Use v2Fitting/GetYieldsvsPhi.C to extract the yields from the fits and put them into histograms versus dphi for each kinematic bin. GetAllYieldsVsPhi.C does this automatically for every bin.
+Use v2Fitting/GetSimultaneousYieldsvsPhi.C to extract the yields from the fits and put them into histograms versus dphi for each kinematic bin. GetAllYieldsVsPhi.C does this automatically for every bin.
 
 
 X. Calculate v2
 
-Use v2Fitting/Fitv2.C to fit the yield versus dphi histograms to extract a value for v2 in that kinematic bin. Get_v2_vs_var.C does this for every bin and outputs histograms of v2 versus the variable of interest. Apply resolution corrections.
+Use v2Fitting/Fitv2.C to fit the yield versus dphi histograms to extract a value for v2 in that kinematic bin. Get_v2_vs_var.C does this for every bin and outputs histograms of v2 versus the variable of interest.
 
 
 XI. Estimate systematic uncertainties
 
-1. Due to method of applying acceptance corrections: Apply different (unweighted) corrections.
-2. Due to method of estimating efficiency corrections: Apply different (unweighted) corrections.
-3. Due to choice of signal pdf: Use an alternative signal pdf.
-4. Due to choice of background pdf: Use an alternative background pdf.
-5. Due to constraining signal parameters: Constrain to different values.
+1. Due to method of applying acceptance corrections: Apply different (unweighted) corrections and extract the results just as in the nominal method. The percent difference in v2 in each analysis bin is the systematic uncertainty in that bin.
+2. Due to method of estimating efficiency corrections: Apply different (unweighted) corrections and extract the results just as in the nominal method. The percent difference in v2 in each analysis bin is the systematic uncertainty in that bin.
+3. Due to choice of signal pdf: Use an alternative signal pdf. This is sensitive to fluctuations, so we use the method of pseudoexperiments. We use the nominal fits to generate pseudodata which we then fit with the nominal function and the alternative function and fit the yield distributions versus dphi to get two different v2 values. The median percent difference between the two v2 values after 100 pseudoexperiments is the systematic uncertainty. The code is in Systematics/PseudoExperimentsCode/.
+4. Due to choice of background pdf: Use an alternative background pdf. This is sensitive to fluctuations, so we use the method of pseudoexperiments. We use the nominal fits to generate pseudodata which we then fit with the nominal function and the alternative function and fit the yield distributions versus dphi to get two different v2 values. The median percent difference between the two v2 values after 100 pseudoexperiments is the systematic uncertainty.
+5. Due to constraining signal parameters: Constrain to different values and extract the results just as in the nominal method. The percent difference in v2 in each analysis bin is the systematic uncertainty in that bin.
 6. Due to flattening procedure: Don't flatten.
 
+Gather the systematics and merge them using Systematics/PseudoExperimentsCode/getSystematicsFromPseudoExps.C, Systematics/getSystematics.C, and Systematics/mergeSystematics.C.
 
-XII. Plot the results, including systematic uncertainties.
+
+XII. Plot the results, including systematic uncertainties and the resolution corrections. Use Results/draw_v2.C.
 
 
 XIII. Perform MC closure test.

@@ -27,7 +27,7 @@ Double_t getDPHI_Jared( Double_t phi1, Double_t phi2) {
 
 static const long MAXTREESIZE = 1000000000000;
 
-void SkimMMTree_recentering_GetAverageEP_nords(int nevt=-1, int dateStr=20201118) 
+void SkimMMTree_recentering_GetAverageEP_nords(int nevt=10000, int dateStr=20210317) 
 {
 
   using namespace std;
@@ -40,15 +40,19 @@ void SkimMMTree_recentering_GetAverageEP_nords(int nevt=-1, int dateStr=20201118
 
   float ptbins[5] = {0,3,6,10,50};
   const int numptbins = sizeof(ptbins)/sizeof(float)-1;
+  float ybins[4] = {0.0,0.8,1.6,2.4};
+  const int numybins = sizeof(ybins)/sizeof(float)-1;
   Double_t cbins[4] = {10,30,50,90};
   const int numcbins = sizeof(cbins)/sizeof(double)-1;
 
   TH1D* hpt = new TH1D("hpt","hist vs pt",numptbins,ptbins);
+  TH1D* hy = new TH1D("hy","hist vs y",numybins,ybins);
   TH1D* hcent = new TH1D("hcent","hist vs cent",numcbins,cbins);
 
   gStyle->SetOptStat(0);
   //TH1D* hCosAC = new TH1D("hCosAC","cos(2*(psiA-psiC))",50,-1.2,1.2);
   TH1D* hRpt = new TH1D("hRpt","EP Resolution factor vs pt",numptbins,ptbins);
+  TH1D* hRy = new TH1D("hRy","EP Resolution factor vs y",numybins,ybins);
   TH1D* hRcent = new TH1D("hRcent","EP Resolution factor vs cent",numcbins,cbins);
 
   //Histograms to contain the distributions of qx and qy:
@@ -108,6 +112,15 @@ void SkimMMTree_recentering_GetAverageEP_nords(int nevt=-1, int dateStr=20201118
   Double_t avgCosEptrackmid2pt[numptbins][flatOrder] = {0};
   Double_t avgSinEptrackmid2pt[numptbins][flatOrder] = {0};
 
+  Double_t avgCosEpy[numybins][flatOrder] = {0};
+  Double_t avgSinEpy[numybins][flatOrder] = {0};
+  Double_t avgCosEpHFm2y[numybins][flatOrder] = {0};
+  Double_t avgSinEpHFm2y[numybins][flatOrder] = {0};
+  Double_t avgCosEpHFp2y[numybins][flatOrder] = {0};
+  Double_t avgSinEpHFp2y[numybins][flatOrder] = {0};
+  Double_t avgCosEptrackmid2y[numybins][flatOrder] = {0};
+  Double_t avgSinEptrackmid2y[numybins][flatOrder] = {0};
+
   Double_t avgCosEpcent[numcbins][flatOrder] = {0};
   Double_t avgSinEpcent[numcbins][flatOrder] = {0};
   Double_t avgCosEpHFm2cent[numcbins][flatOrder] = {0};
@@ -124,6 +137,9 @@ void SkimMMTree_recentering_GetAverageEP_nords(int nevt=-1, int dateStr=20201118
   Double_t avgCosABpt[numptbins] = {0};
   Double_t avgCosACpt[numptbins] = {0};
   Double_t avgCosBCpt[numptbins] = {0};
+  Double_t avgCosABy[numybins] = {0};
+  Double_t avgCosACy[numybins] = {0};
+  Double_t avgCosBCy[numybins] = {0};
   Double_t avgCosABcent[numcbins] = {0};
   Double_t avgCosACcent[numcbins] = {0};
   Double_t avgCosBCcent[numcbins] = {0};
@@ -134,6 +150,9 @@ void SkimMMTree_recentering_GetAverageEP_nords(int nevt=-1, int dateStr=20201118
   Double_t sumsqrsCosABpt[numptbins] = {0};
   Double_t sumsqrsCosACpt[numptbins] = {0};
   Double_t sumsqrsCosBCpt[numptbins] = {0};
+  Double_t sumsqrsCosABy[numybins] = {0};
+  Double_t sumsqrsCosACy[numybins] = {0};
+  Double_t sumsqrsCosBCy[numybins] = {0};
   Double_t sumsqrsCosABcent[numcbins] = {0};
   Double_t sumsqrsCosACcent[numcbins] = {0};
   Double_t sumsqrsCosBCcent[numcbins] = {0};
@@ -230,6 +249,7 @@ void SkimMMTree_recentering_GetAverageEP_nords(int nevt=-1, int dateStr=20201118
   newfile->cd();
 
   int ptPASS[numptbins] = {0};
+  int yPASS[numybins] = {0};
   int centPASS[numcbins] = {0};
 
   cout << "Total events = " << nevtReal << ", : " << mytree->GetEntries() << endl;
@@ -421,6 +441,7 @@ void SkimMMTree_recentering_GetAverageEP_nords(int nevt=-1, int dateStr=20201118
 
       //binned averages:(without binned re-centering.)
       int whichptbin = hpt->FindBin(dm.pt)-1;
+      int whichybin = hy->FindBin(dm.y)-1;
       int whichcbin = hcent->FindBin(dm.cBin/2)-1;
 
       for (int n=1; n<=flatOrder; n++) {
@@ -501,6 +522,15 @@ void SkimMMTree_recentering_GetAverageEP_nords(int nevt=-1, int dateStr=20201118
   TH1D* havgSinEpHFp2pt[numptbins];
   TH1D* havgCosEptrackmid2pt[numptbins];
   TH1D* havgSinEptrackmid2pt[numptbins];
+
+  TH1D* havgCosEpy[numybins];
+  TH1D* havgSinEpy[numybins];
+  TH1D* havgCosEpHFm2y[numybins];
+  TH1D* havgSinEpHFm2y[numybins];
+  TH1D* havgCosEpHFp2y[numybins];
+  TH1D* havgSinEpHFp2y[numybins];
+  TH1D* havgCosEptrackmid2y[numybins];
+  TH1D* havgSinEptrackmid2y[numybins];
 
   TH1D* havgCosEpcent[numcbins];
   TH1D* havgSinEpcent[numcbins];

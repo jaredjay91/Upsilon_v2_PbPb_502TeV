@@ -21,7 +21,7 @@ void subtractHists(TH1D* hNom, TH1D* hAlt, TH1D* hSyst) {
 
 void getSystematics(int whichUpsilon=1, int whichSyst=4) {
 
-  if (! (whichSyst==1 || whichSyst==2 || whichSyst==3 || whichSyst==4) ) {
+  if (! (whichSyst==1 || whichSyst==2 || whichSyst==3 || whichSyst==4 || whichSyst==5) ) {
     cout << "Error: Invalid value of 'whichSyst'" << endl;
     return;
   }
@@ -32,6 +32,7 @@ void getSystematics(int whichUpsilon=1, int whichSyst=4) {
   else if (whichSyst==2) systStr = "altBkg";
   else if (whichSyst==3) systStr = "altAcc";
   else if (whichSyst==4) systStr = "altEff";
+  else if (whichSyst==5) systStr = "altConst";
 
   TString nomFileName = Form("../v2Fitting/Ups_%i_v2_cent10-90_nom.root", whichUpsilon);
   TFile* nomFile = TFile::Open(nomFileName,"READ");

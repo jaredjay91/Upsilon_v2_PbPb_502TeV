@@ -17,6 +17,7 @@ int CheckSimFitExists(
 // 2: AltBkg
 // 3: AltAcc
 // 4: AltEff
+// 5: AltConst
 			) 
 {
 
@@ -27,6 +28,7 @@ int CheckSimFitExists(
   else if (whichSyst==2) systStr = "altBkg";
   else if (whichSyst==3) systStr = "altAcc";
   else if (whichSyst==4) systStr = "altEff";
+  else if (whichSyst==5) systStr = "altConst";
 
   TString kineLabel = getKineLabel (collId, ptLow, ptHigh, yLow, yHigh, muPtCut, cLow, cHigh, 0.0, 0.5);
   TString NomFileName = Form("%ssim_dphi%sfitresults_upsilon_%s.root", directory.Data(), systStr.Data(), kineLabel.Data());

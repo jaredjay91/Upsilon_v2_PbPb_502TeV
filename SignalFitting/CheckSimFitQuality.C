@@ -28,8 +28,8 @@ using namespace std;
 using namespace RooFit;
 int CheckSimFitQuality( 
        int collId = kAADATA,
-       float ptLow=0, float ptHigh=3,
-       float yLow=0.0, float yHigh=2.4,
+       float ptLow=0, float ptHigh=50,
+       float yLow=1.6, float yHigh=2.4,
        int cLow=10, int cHigh=90,
        float muPtCut=3.5,
        int whichSyst=0
@@ -38,6 +38,7 @@ int CheckSimFitQuality(
 // 2: AltBkg
 // 3: AltAcc
 // 4: AltEff
+// 5: AltConst
 			) 
 {
 
@@ -69,6 +70,7 @@ int CheckSimFitQuality(
   else if (whichSyst==2) systStr = "altBkg";
   else if (whichSyst==3) systStr = "altAcc";
   else if (whichSyst==4) systStr = "altEff";
+  else if (whichSyst==5) systStr = "altConst";
 
   //import the model
   cout << "Importing workspace" << endl;
@@ -165,7 +167,7 @@ int CheckSimFitQuality(
   bool goodChi2 = kTRUE;
   //double chisqUpperCut = 2.0 + temp1/10000;
   //double chisqLowerCut = 0.5 + temp1/30000;
-  double chisqUpperCut = 5;
+  double chisqUpperCut = 2;
   double chisqLowerCut = 0.5;
 
   //Signal error requirements:

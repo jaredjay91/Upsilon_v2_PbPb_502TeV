@@ -19,7 +19,7 @@ void writeFile(TString filename,
 	  float ptLow = 0, float ptHigh = 50,
 	  float yLow = 0.0, float yHigh = 2.4,
 	  int cLow = 10, int cHigh = 90,
-	  int whichSyst = 2) {
+	  int whichSyst = 5) {
 
   remove(filename.Data());
 
@@ -29,6 +29,7 @@ void writeFile(TString filename,
   else if (whichSyst==2) systStr = "altBkg";
   else if (whichSyst==3) systStr = "altAcc";
   else if (whichSyst==4) systStr = "altEff";
+  else if (whichSyst==5) systStr = "altConst";
 
   int collId = kAADATA;
   float muPtCut = 3.5;
@@ -60,7 +61,7 @@ void writeFile(TString filename,
   }
 }
 
-void makeSubFiles(int whichSyst=2) {
+void makeSubFiles(int whichSyst=5) {
 
   writeFile("condorJobs_pt_0_3.sub", 0, 3, 0.0, 2.4, 10, 90, whichSyst);
   writeFile("condorJobs_pt_3_6.sub", 3, 6, 0.0, 2.4, 10, 90, whichSyst);

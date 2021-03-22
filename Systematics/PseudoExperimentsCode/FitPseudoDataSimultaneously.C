@@ -1,4 +1,4 @@
-//This code fits the upsilon data with either the nominal fit or an alternative fit. The difference between the two fits is the signal shape. The nominal fit fits the signals with Double_t CB functions, while the alternative fit fits them with just a gaussian.
+//This code fits the upsilon data with either the nominal fit or an alternative fit. The difference between the two fits is the signal shape.
 
 #include <iostream>
 #include "../../HeaderFiles/rootFitHeaders.h"
@@ -41,16 +41,17 @@ void FitPseudoDataSimultaneously(
        float ptLow=0, float ptHigh=3, 
        float yLow=2.1, float yHigh=2.4,//Run 1 has p going in -z direction
        int cLow=10, int cHigh=90,
-       int whichSyst=1,   
+       int whichSyst=5,   
 // 0: Nominal
 // 1: AltSig
 // 2: AltBkg
 // 3: AltAcc
 // 4: AltEff
+// 5: AltConst
        int iTrial=3
 			) 
 {
-  if (!(whichSyst==1 || whichSyst==2)) {
+  if (!(whichSyst==1 || whichSyst==2 || whichSyst==5)) {
     cout << "ERROR: Invalid value of whichSyst!" << endl;
     return;
   }
@@ -65,6 +66,7 @@ void FitPseudoDataSimultaneously(
   else if (whichSyst==2) systStr = "altBkg";
   else if (whichSyst==3) systStr = "altAcc";
   else if (whichSyst==4) systStr = "altEff";
+  else if (whichSyst==5) systStr = "altConst";
 
   float eta_low = -2.4;
   float eta_high = 2.4;
@@ -173,6 +175,8 @@ void FitPseudoDataSimultaneously(
 
     if (imodel==0) whichSyst = 0;
     else whichSyst = altModel;
+
+    if (whichSyst==5) whichRound = R4b;
 
     RooWorkspace *ws = new RooWorkspace("workspace");
     ws->import(*reducedDS[0]);
@@ -398,7 +402,7 @@ void FitPseudoDataSimultaneously(
       ndev = 1.218936;
       xdev = 0.088950;
       TString kineLabelICs = getKineLabel(collId, ptLow, ptHigh, yLow, yHigh, muPtCut, cLow, cHigh, 0.0, 0.5);
-      TString NomFileName = Form("/afs/cern.ch/work/j/jjay/public/Upsilonv2/SignalFitting/RoundFits_R3b/nomfitresults_upsilon_%s.root", kineLabelICs.Data());
+      TString NomFileName = Form("/afs/cern.ch/work/j/jjay/public/Upsilonv2/SignalFitting/RoundFits_R4a/nomfitresults_upsilon_%s.root", kineLabelICs.Data());
       TFile* NomFile = TFile::Open(NomFileName,"READ");
       RooWorkspace *Nomws = (RooWorkspace*)NomFile->Get("workspace");
       fmu = Nomws->var("f1s")->getVal();

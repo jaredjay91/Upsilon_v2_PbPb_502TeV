@@ -1,6 +1,6 @@
 
 
-void mergeSystematics(){
+void mergeSystematics(int whichUpsilon=1){
 
   double etaGapSensitivity = 0.025; //From https://arxiv.org/pdf/1204.1850.pdf
   double evtPlaneRes = 0.01;
@@ -12,11 +12,11 @@ void mergeSystematics(){
   TString systStr[5] = {"altSig","altBkg","altAcc","altEff","altConst"};
 
   TString systFileName[5] = {
-	"PseudoExperimentsCode/Ups_1_v2_cent10-90_altSigSyst.root",
-	"PseudoExperimentsCode/Ups_1_v2_cent10-90_altBkgSyst.root",
-	"Ups_1_v2_cent10-90_altAccSyst.root",
-	"Ups_1_v2_cent10-90_altEffSyst.root",
-	"Ups_1_v2_cent10-90_altConstSyst.root"};
+	Form("PseudoExperimentsCode/Ups_%i_v2_cent10-90_altSigSyst.root", whichUpsilon),
+	Form("PseudoExperimentsCode/Ups_%i_v2_cent10-90_altBkgSyst.root", whichUpsilon),
+	Form("Ups_%i_v2_cent10-90_altAccSyst.root", whichUpsilon),
+	Form("Ups_%i_v2_cent10-90_altEffSyst.root", whichUpsilon),
+	Form("PseudoExperimentsCode/Ups_%i_v2_cent10-90_altConstSyst.root", whichUpsilon)};
 
   int color[5] = {2, 3, 4, 6, 7};
 
@@ -145,15 +145,15 @@ void mergeSystematics(){
   hSystcCombined->Draw("same");
   gPad->RedrawAxis();
 
-  cpt->SaveAs("Plots/Systpt.pdf");
-  cpt->SaveAs("Plots/Systpt.png");
-  cy->SaveAs("Plots/Systy.pdf");
-  cy->SaveAs("Plots/Systy.png");
-  cc->SaveAs("Plots/Systc.pdf");
-  cc->SaveAs("Plots/Systc.png");
+  cpt->SaveAs(Form("Plots/Systpt_%is.pdf", whichUpsilon));
+  cpt->SaveAs(Form("Plots/Systpt_%is.png", whichUpsilon));
+  cy->SaveAs(Form("Plots/Systy_%is.pdf", whichUpsilon));
+  cy->SaveAs(Form("Plots/Systy_%is.png", whichUpsilon));
+  cc->SaveAs(Form("Plots/Systc_%is.pdf", whichUpsilon));
+  cc->SaveAs(Form("Plots/Systc_%is.png", whichUpsilon));
 
 
-  TString outFileName = Form("Ups_1_v2_cent10-90_SystCombined.root");
+  TString outFileName = Form("Ups_%i_v2_cent10-90_SystCombined.root", whichUpsilon);
   TFile* outFile = new TFile(outFileName,"RECREATE");
   hSystptCombined->Write();
   hSystyCombined->Write();

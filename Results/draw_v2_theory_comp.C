@@ -14,7 +14,7 @@ void drawText(const char *text, float xp, float yp, int textColor=kBlack, int te
    tex->Draw();
 }
 
-void draw_v2(int whichUpsilon=2) {
+void draw_v2_theory_comp(int whichUpsilon=1) {
 
   float ptbins[5] = {0,3,6,10,50};
   const int numptbins = sizeof(ptbins)/sizeof(float)-1;
@@ -24,7 +24,7 @@ void draw_v2(int whichUpsilon=2) {
   const int numcbins = sizeof(cbins)/sizeof(float)-1;
 
   float plotmin = -0.1;
-  float plotmax = 0.2;
+  float plotmax = 0.15;
   if (whichUpsilon==2) {
     plotmin = -0.3;
     plotmax = 0.6;
@@ -58,7 +58,7 @@ void draw_v2(int whichUpsilon=2) {
   }
 
   //make histograms of systematics
-  TString systFileName = Form("../Systematics/Ups_%i_v2_cent10-90_SystCombined.root",whichUpsilon);
+  TString systFileName = "../Systematics/Ups_1_v2_cent10-90_SystCombined.root";
   TFile* systFile = new TFile(systFileName,"READ");
   TH1D* hsyspt = (TH1D*)systFile->Get("hv2pt");
   TH1D* hsysy = (TH1D*)systFile->Get("hv2y");
@@ -95,7 +95,7 @@ void draw_v2(int whichUpsilon=2) {
   gv2pt_sys->SetMinimum(plotmin);
   gv2pt_sys->SetMaximum(plotmax);
 
-  TGraphErrors* gv2y = new TGraphErrors(hv2y);
+/*  TGraphErrors* gv2y = new TGraphErrors(hv2y);
   TGraphErrors* gv2y_sys = new TGraphErrors(hv2y);
   for (int iy=0; iy<numybins; iy++) {
     double pxtmp=0; double pytmp=0; double extmp=0; double eytmp=0; double relsys=0;
@@ -153,27 +153,12 @@ void draw_v2(int whichUpsilon=2) {
   gv2c_sys->GetYaxis()->SetTitleOffset(1.5);
   gv2c_sys->GetYaxis()->SetTitleSize(0.06);
   gv2c_sys->SetMinimum(plotmin);
-  gv2c_sys->SetMaximum(plotmax);
+  gv2c_sys->SetMaximum(plotmax);*/
 
-
-  //Draw plots and write on them
   TCanvas* cpt = new TCanvas("cpt","cpt",40,40,600,600);
 
   gv2pt_sys->Draw("A5");
   gv2pt->Draw("P");
-
-  TString perc = "%";
-  float pos_text_x = 0.25;
-  float pos_text_y = 0.82;
-  float pos_y_diff = 0.05;
-  float text_size = 18;
-  int text_color = 1;
-  float muPtCut = 3.5;
-  float yCut = 2.4;
-  drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y,text_color,text_size);
-  drawText(Form("|#eta^{#mu}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
-  drawText(Form("|y^{#Upsilon}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
-  drawText(Form("Centrality %i-%i%s", 10,90, perc.Data() ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
 
   TLegend *legpt= new TLegend(0.5, 0.75, 0.6, 0.85);
   SetLegendStyle(legpt);
@@ -188,6 +173,60 @@ void draw_v2(int whichUpsilon=2) {
   lpt->SetLineStyle(9);
   lpt->Draw();
 
+  //Theory lines:
+  gStyle->SetHatchesSpacing(0.5);
+  TFile* file_aHydro = TFile::Open("Theory/Theory_v2_aHydro.root");
+  TGraphErrors* g_aHydro = (TGraphErrors*)file_aHydro->Get("g_v2_aHydro");
+  g_aHydro->SetLineColor(kOrange);
+  g_aHydro->SetLineStyle(7);
+  g_aHydro->SetLineWidth(2);
+  g_aHydro->Draw("same");
+
+  TFile* file_DuRapp = TFile::Open("Theory/Theory_v2_DuRapp.root");
+  TGraph* g_DuRapp = (TGraph*)file_DuRapp->Get("gv2_tot");
+  g_DuRapp->SetFillColor(kGreen);
+  g_DuRapp->SetFillStyle(3345);
+  g_DuRapp->SetLineColor(kGreen);
+  g_DuRapp->SetLineWidth(2);
+  g_DuRapp->Draw("same F");
+
+  TFile* file_pNRQCD = TFile::Open("Theory/Theory_v2_pNRQCD.root");
+  TGraphErrors* g_pNRQCD = (TGraphErrors*)file_pNRQCD->Get("g_v2_d8");
+  g_pNRQCD->SetLineColor(kViolet);
+  g_pNRQCD->SetLineStyle(8);
+  g_pNRQCD->SetLineWidth(2);
+  g_pNRQCD->Draw("same");
+
+  TFile* file_Xiaojun = TFile::Open("Theory/Theory_v2_Xiaojun.root");
+  TGraphErrors* g_Xiaojun = (TGraphErrors*)file_Xiaojun->Get("gv2_tot");
+  g_Xiaojun->SetLineColor(kBlue);
+  g_Xiaojun->SetLineStyle(7);
+  g_Xiaojun->SetLineWidth(2);
+  g_Xiaojun->Draw("same");
+
+  TString perc = "%";
+  float pos_text_x = 0.25;
+  float pos_text_y = 0.82;
+  float pos_y_diff = 0.05;
+  float text_size = 18;
+  int text_color = 1;
+  float muPtCut = 3.5;
+  float yCut = 2.4;
+  drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y,text_color,text_size);
+  drawText(Form("|#eta^{#mu}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
+  drawText(Form("|y^{#Upsilon}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
+  drawText(Form("Centrality %i-%i%s", 10,90, perc.Data() ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
+
+  TLegend *legtheory= new TLegend(0.5, 0.2, 0.85, 0.4);
+  SetLegendStyle(legtheory);
+  legtheory->SetTextSize(0.03);
+  legtheory->AddEntry(g_pNRQCD,"Hong, Lee (10-50%)","l");
+  legtheory->AddEntry(g_Xiaojun,"Yao (10-60%)","l");
+  legtheory->AddEntry(g_DuRapp,"Du, Rapp (20-40%)","l");
+  legtheory->AddEntry(g_aHydro,"Bhaduri, Borghini, (10-30%)","l");
+  legtheory->AddEntry(g_aHydro,"Jaiswal, Strickland","");
+  legtheory->Draw("same");
+
   int collId = kAADATA;
   int cLow = 0;
   if(collId == kPPDATA) CMS_lumi(cpt, 1 ,33);
@@ -195,20 +234,15 @@ void draw_v2(int whichUpsilon=2) {
   else if(collId == kPADATA) CMS_lumi(cpt, 3 ,33);
   else if(collId == kAADATA && cLow>=60) CMS_lumi(cpt, 21 ,33);
 
-  cpt->SaveAs(Form("Plots/v2_vs_pt_%is.png",whichUpsilon));
-  cpt->SaveAs(Form("Plots/v2_vs_pt_%is.pdf",whichUpsilon));
+  cpt->SaveAs(Form("Plots/theorycomp_v2_vs_pt_%is.png",whichUpsilon));
+  cpt->SaveAs(Form("Plots/theorycomp_v2_vs_pt_%is.pdf",whichUpsilon));
 
-  TCanvas* cy = new TCanvas("cy","cy",40,40,600,600);
+ /* TCanvas* cy = new TCanvas("cy","cy",40,40,600,600);
 
   gv2y_sys->Draw("A5");
   gv2y->Draw("P");
 
-  drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y,text_color,text_size);
-  drawText(Form("|#eta^{#mu}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
-  drawText(Form("0 < p_{T}^{#Upsilon} < %i GeV/c", 50 ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
-  drawText(Form("Centrality %i-%i%s", 10,90, perc.Data() ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
-
-  TLegend *legy= new TLegend(0.5, 0.75, 0.6, 0.85);
+  TLegend *legy= new TLegend(0.4, 0.75, 0.6, 0.85);
   SetLegendStyle(legy);
   legy->AddEntry(gv2y,Form(" #Upsilon(%iS)",whichUpsilon),"lp");
 
@@ -226,20 +260,15 @@ void draw_v2(int whichUpsilon=2) {
   else if(collId == kPADATA) CMS_lumi(cy, 3 ,33);
   else if(collId == kAADATA && cLow>=60) CMS_lumi(cy, 21 ,33);
 
-  cy->SaveAs(Form("Plots/v2_vs_y_%is.png",whichUpsilon));
-  cy->SaveAs(Form("Plots/v2_vs_y_%is.pdf",whichUpsilon));
+  cy->SaveAs(Form("Plots/theorycomp_v2_vs_y_%is.png",whichUpsilon));
+  cy->SaveAs(Form("Plots/theorycomp_v2_vs_y_%is.pdf",whichUpsilon));
 
   TCanvas* cc = new TCanvas("cc","cc",40,40,600,600);
 
   gv2c_sys->Draw("A5");
   gv2c->Draw("P");
 
-  drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y,text_color,text_size);
-  drawText(Form("|#eta^{#mu}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
-  drawText(Form("|y| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
-  drawText(Form("0 < p_{T}^{#Upsilon} < %i GeV/c", 50 ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
-
-  TLegend *legc= new TLegend(0.5, 0.75, 0.6, 0.85);
+  TLegend *legc= new TLegend(0.4, 0.75, 0.6, 0.85);
   SetLegendStyle(legc);
   legc->AddEntry(gv2c,Form(" #Upsilon(%iS)",whichUpsilon),"lp");
 
@@ -257,7 +286,7 @@ void draw_v2(int whichUpsilon=2) {
   else if(collId == kPADATA) CMS_lumi(cc, 3 ,33);
   else if(collId == kAADATA && cLow>=60) CMS_lumi(cc, 21 ,33);
 
-  cc->SaveAs(Form("Plots/v2_vs_c_%is.png",whichUpsilon));
-  cc->SaveAs(Form("Plots/v2_vs_c_%is.pdf",whichUpsilon));
-
+  cc->SaveAs(Form("Plots/theorycomp_v2_vs_c_%is.png",whichUpsilon));
+  cc->SaveAs(Form("Plots/theorycomp_v2_vs_c_%is.pdf",whichUpsilon));
+*/
 }

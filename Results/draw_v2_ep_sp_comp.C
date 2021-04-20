@@ -3,16 +3,7 @@
 #include "../HeaderFiles/CMS_lumi.C"
 #include "../HeaderFiles/cutsAndBin.h"
 
-void drawText(const char *text, float xp, float yp, int textColor=kBlack, int textSize=18, float textFont=43){
-   TLatex *tex = new TLatex(xp,yp,text);
-   tex->SetTextFont(textFont);
-   //   if(bold)tex->SetTextFont(43);
-   tex->SetTextSize(textSize);
-   tex->SetTextColor(textColor);
-   tex->SetLineWidth(1);
-   tex->SetNDC();
-   tex->Draw();
-}
+
 
 void draw_v2(int whichUpsilon=2) {
 
@@ -58,7 +49,7 @@ void draw_v2(int whichUpsilon=2) {
   }
 
   //make histograms of systematics
-  TString systFileName = Form("../Systematics/Ups_%i_v2_cent10-90_SystCombined.root",whichUpsilon);
+  TString systFileName = "../Systematics/Ups_1_v2_cent10-90_SystCombined.root";
   TFile* systFile = new TFile(systFileName,"READ");
   TH1D* hsyspt = (TH1D*)systFile->Get("hv2pt");
   TH1D* hsysy = (TH1D*)systFile->Get("hv2y");
@@ -155,27 +146,12 @@ void draw_v2(int whichUpsilon=2) {
   gv2c_sys->SetMinimum(plotmin);
   gv2c_sys->SetMaximum(plotmax);
 
-
-  //Draw plots and write on them
   TCanvas* cpt = new TCanvas("cpt","cpt",40,40,600,600);
 
   gv2pt_sys->Draw("A5");
   gv2pt->Draw("P");
 
-  TString perc = "%";
-  float pos_text_x = 0.25;
-  float pos_text_y = 0.82;
-  float pos_y_diff = 0.05;
-  float text_size = 18;
-  int text_color = 1;
-  float muPtCut = 3.5;
-  float yCut = 2.4;
-  drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y,text_color,text_size);
-  drawText(Form("|#eta^{#mu}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
-  drawText(Form("|y^{#Upsilon}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
-  drawText(Form("Centrality %i-%i%s", 10,90, perc.Data() ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
-
-  TLegend *legpt= new TLegend(0.5, 0.75, 0.6, 0.85);
+  TLegend *legpt= new TLegend(0.4, 0.75, 0.6, 0.85);
   SetLegendStyle(legpt);
   legpt->AddEntry(gv2pt,Form(" #Upsilon(%iS)",whichUpsilon),"lp");
 
@@ -203,12 +179,7 @@ void draw_v2(int whichUpsilon=2) {
   gv2y_sys->Draw("A5");
   gv2y->Draw("P");
 
-  drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y,text_color,text_size);
-  drawText(Form("|#eta^{#mu}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
-  drawText(Form("0 < p_{T}^{#Upsilon} < %i GeV/c", 50 ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
-  drawText(Form("Centrality %i-%i%s", 10,90, perc.Data() ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
-
-  TLegend *legy= new TLegend(0.5, 0.75, 0.6, 0.85);
+  TLegend *legy= new TLegend(0.4, 0.75, 0.6, 0.85);
   SetLegendStyle(legy);
   legy->AddEntry(gv2y,Form(" #Upsilon(%iS)",whichUpsilon),"lp");
 
@@ -234,12 +205,7 @@ void draw_v2(int whichUpsilon=2) {
   gv2c_sys->Draw("A5");
   gv2c->Draw("P");
 
-  drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y,text_color,text_size);
-  drawText(Form("|#eta^{#mu}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
-  drawText(Form("|y| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
-  drawText(Form("0 < p_{T}^{#Upsilon} < %i GeV/c", 50 ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
-
-  TLegend *legc= new TLegend(0.5, 0.75, 0.6, 0.85);
+  TLegend *legc= new TLegend(0.4, 0.75, 0.6, 0.85);
   SetLegendStyle(legc);
   legc->AddEntry(gv2c,Form(" #Upsilon(%iS)",whichUpsilon),"lp");
 

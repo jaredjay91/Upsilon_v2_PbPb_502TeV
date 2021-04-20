@@ -3,18 +3,9 @@
 #include "../HeaderFiles/CMS_lumi.C"
 #include "../HeaderFiles/cutsAndBin.h"
 
-void drawText(const char *text, float xp, float yp, int textColor=kBlack, int textSize=18, float textFont=43){
-   TLatex *tex = new TLatex(xp,yp,text);
-   tex->SetTextFont(textFont);
-   //   if(bold)tex->SetTextFont(43);
-   tex->SetTextSize(textSize);
-   tex->SetTextColor(textColor);
-   tex->SetLineWidth(1);
-   tex->SetNDC();
-   tex->Draw();
-}
 
-void draw_v2(int whichUpsilon=2) {
+
+void draw_v2_ratios() {
 
   float ptbins[5] = {0,3,6,10,50};
   const int numptbins = sizeof(ptbins)/sizeof(float)-1;
@@ -23,56 +14,64 @@ void draw_v2(int whichUpsilon=2) {
   float cbins[4] = {10,30,50,90};
   const int numcbins = sizeof(cbins)/sizeof(float)-1;
 
-  float plotmin = -0.1;
-  float plotmax = 0.2;
-  if (whichUpsilon==2) {
-    plotmin = -0.3;
-    plotmax = 0.6;
-  }
+  float plotmin = -10;
+  float plotmax = 10;
 
   setTDRStyle();
   writeExtraText = true;
 
   //Get v2 histograms
-  TFile* inFile = new TFile(Form("../v2Fitting/Ups_%i_v2_cent10-90_nom.root",whichUpsilon),"READ");
-  TH1D* hv2pt = (TH1D*)inFile->Get("hv2pt");
-  TH1D* hv2y = (TH1D*)inFile->Get("hv2y");
-  TH1D* hv2c = (TH1D*)inFile->Get("hv2c");
+  cout << "getting 1s histos..." << endl;
+  TFile* inFile1s = new TFile(Form("../v2Fitting/Ups_%i_v2_cent10-90_nom.root",1),"READ");
+  TH1D* hv2pt1s = (TH1D*)inFile1s->Get("hv2pt");
+  TH1D* hv2y1s = (TH1D*)inFile1s->Get("hv2y");
+  TH1D* hv2c1s = (TH1D*)inFile1s->Get("hv2c");
+  //inFile1s->Close();
+  //delete inFile1s;
 
-  //Apply event plane resolution correction
-  bool EpResCorrection = kTRUE;
-  TString resCorFileName = "../Skimming/condor/averages/resCorFile_n56114317_BinByBin.root";
-  TFile* EPRFile = new TFile(resCorFileName,"READ");
-  TH1D* hRpt = (TH1D*)EPRFile->Get("hRpt");
-  TH1D* hRy = (TH1D*)EPRFile->Get("hRy");
-  TH1D* hRc = (TH1D*)EPRFile->Get("hRc");
-  hv2pt->Sumw2();
-  hRpt->Sumw2();
-  hRy->Sumw2();
-  hRc->Sumw2();
-  if (EpResCorrection) {
-    cout << " Applying resoulution correction" << endl;
-    hv2pt->Divide(hRpt);
-    hv2y->Divide(hRy);
-    hv2c->Divide(hRc);
-  }
+  cout << "getting 2s histos..." << endl;
+  TFile* inFile2s = new TFile(Form("../v2Fitting/Ups_%i_v2_cent10-90_nom.root",2),"READ");
+  TH1D* hv2pt2s = (TH1D*)inFile2s->Get("hv2pt");
+  TH1D* hv2y2s = (TH1D*)inFile2s->Get("hv2y");
+  TH1D* hv2c2s = (TH1D*)inFile2s->Get("hv2c");
+  //inFile2s->Close();
+  //delete inFile2s;
+
+  //The resolution correction is unnecessary because it cancels out in the ratio.
+
+  //make ratio histos
+  cout << "dividing histos..." << endl;
+  TH1D* hratiopt = (TH1D*)hv2pt2s->Clone("hratiopt");
+  TH1D* hratioy = (TH1D*)hv2y2s->Clone("hratioy");
+  TH1D* hratioc = (TH1D*)hv2c2s->Clone("hratioc");
+  hratiopt->Divide(hv2pt1s);
+  hratioy->Divide(hv2y1s);
+  hratioc->Divide(hv2c1s);
 
   //make histograms of systematics
-  TString systFileName = Form("../Systematics/Ups_%i_v2_cent10-90_SystCombined.root",whichUpsilon);
+  cout << "Getting systematics..." << endl;
+  TString systFileName = "../Systematics/Ups_1_v2_cent10-90_SystCombined.root";
   TFile* systFile = new TFile(systFileName,"READ");
-  TH1D* hsyspt = (TH1D*)systFile->Get("hv2pt");
-  TH1D* hsysy = (TH1D*)systFile->Get("hv2y");
-  TH1D* hsysc = (TH1D*)systFile->Get("hv2c");
+  TH1D* hsyspt1 = (TH1D*)systFile->Get("hv2pt");
+  TH1D* hsysy1 = (TH1D*)systFile->Get("hv2y");
+  TH1D* hsysc1 = (TH1D*)systFile->Get("hv2c");
+  TString systFile2Name = "../Systematics/Ups_2_v2_cent10-90_SystCombined.root";
+  TFile* systFile2 = new TFile(systFile2Name,"READ");
+  TH1D* hsyspt2 = (TH1D*)systFile2->Get("hv2pt");
+  TH1D* hsysy2 = (TH1D*)systFile2->Get("hv2y");
+  TH1D* hsysc2 = (TH1D*)systFile2->Get("hv2c");
 
   //make TGraphs
-  TGraphErrors* gv2pt = new TGraphErrors(hv2pt);
-  TGraphErrors* gv2pt_sys = new TGraphErrors(hv2pt);
+  cout << "making pt TGraphs..." << endl;
+  TGraphErrors* gv2pt = new TGraphErrors(hratiopt);
+  TGraphErrors* gv2pt_sys = new TGraphErrors(hratiopt);
   for (int ipt=0; ipt<numptbins; ipt++) {
     double pxtmp=0; double pytmp=0; double extmp=0; double eytmp=0; double relsys=0;
     gv2pt->GetPoint(ipt, pxtmp, pytmp);
     extmp=gv2pt->GetErrorX(ipt);
     eytmp=gv2pt->GetErrorY(ipt);
-    relsys=hsyspt->GetBinContent(ipt+1);
+    relsys=sqrt(pow(hsyspt1->GetBinContent(ipt+1),2) + pow(hsyspt2->GetBinContent(ipt+1),2)); //Uncertainty is found as the sum of squares of the two sources of uncertainty.
+    //relsys=sqrt(2)*hsyspt->GetBinContent(ipt+1);//Error is multiplied by the square root of 2 because we are taking the ratio of two data points with the same relative error.
     //remove ex
     gv2pt->SetPointError(ipt, 0, eytmp);
     //set ey for systematic error
@@ -95,14 +94,15 @@ void draw_v2(int whichUpsilon=2) {
   gv2pt_sys->SetMinimum(plotmin);
   gv2pt_sys->SetMaximum(plotmax);
 
-  TGraphErrors* gv2y = new TGraphErrors(hv2y);
-  TGraphErrors* gv2y_sys = new TGraphErrors(hv2y);
+  cout << "making y TGraphs..." << endl;
+  TGraphErrors* gv2y = new TGraphErrors(hratioy);
+  TGraphErrors* gv2y_sys = new TGraphErrors(hratioy);
   for (int iy=0; iy<numybins; iy++) {
     double pxtmp=0; double pytmp=0; double extmp=0; double eytmp=0; double relsys=0;
     gv2y->GetPoint(iy, pxtmp, pytmp);
     extmp=gv2y->GetErrorX(iy);
     eytmp=gv2y->GetErrorY(iy);
-    relsys=hsysy->GetBinContent(iy+1);
+    relsys=sqrt(pow(hsysy1->GetBinContent(iy+1),2) + pow(hsysy2->GetBinContent(iy+1),2)); //Uncertainty is found as the sum of squares of the two sources of uncertainty.
     //remove ex
     gv2y->SetPointError(iy, 0, eytmp);
     //set ey for systematic error
@@ -125,14 +125,15 @@ void draw_v2(int whichUpsilon=2) {
   gv2y_sys->SetMinimum(plotmin);
   gv2y_sys->SetMaximum(plotmax);
 
-  TGraphErrors* gv2c = new TGraphErrors(hv2c);
-  TGraphErrors* gv2c_sys = new TGraphErrors(hv2c);
+  cout << "making c TGraphs..." << endl;
+  TGraphErrors* gv2c = new TGraphErrors(hratioc);
+  TGraphErrors* gv2c_sys = new TGraphErrors(hratioc);
   for (int ic=0; ic<numcbins; ic++) {
     double pxtmp=0; double pytmp=0; double extmp=0; double eytmp=0; double relsys=0;
     gv2c->GetPoint(ic, pxtmp, pytmp);
     extmp=gv2c->GetErrorX(ic);
     eytmp=gv2c->GetErrorY(ic);
-    relsys=hsysc->GetBinContent(ic+1);
+    relsys=sqrt(pow(hsysc1->GetBinContent(ic+1),2) + pow(hsysc2->GetBinContent(ic+1),2)); //Uncertainty is found as the sum of squares of the two sources of uncertainty.
     //remove ex
     gv2c->SetPointError(ic, 0, eytmp);
     //set ey for systematic error
@@ -155,29 +156,14 @@ void draw_v2(int whichUpsilon=2) {
   gv2c_sys->SetMinimum(plotmin);
   gv2c_sys->SetMaximum(plotmax);
 
-
-  //Draw plots and write on them
   TCanvas* cpt = new TCanvas("cpt","cpt",40,40,600,600);
 
   gv2pt_sys->Draw("A5");
   gv2pt->Draw("P");
 
-  TString perc = "%";
-  float pos_text_x = 0.25;
-  float pos_text_y = 0.82;
-  float pos_y_diff = 0.05;
-  float text_size = 18;
-  int text_color = 1;
-  float muPtCut = 3.5;
-  float yCut = 2.4;
-  drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y,text_color,text_size);
-  drawText(Form("|#eta^{#mu}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
-  drawText(Form("|y^{#Upsilon}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
-  drawText(Form("Centrality %i-%i%s", 10,90, perc.Data() ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
-
-  TLegend *legpt= new TLegend(0.5, 0.75, 0.6, 0.85);
+  TLegend *legpt= new TLegend(0.4, 0.75, 0.6, 0.85);
   SetLegendStyle(legpt);
-  legpt->AddEntry(gv2pt,Form(" #Upsilon(%iS)",whichUpsilon),"lp");
+  legpt->AddEntry(gv2pt,"v_{2,1S}/v_{2,2S}","lp");
 
   legpt->Draw("same");
   gPad->SetLeftMargin(0.2);
@@ -195,22 +181,17 @@ void draw_v2(int whichUpsilon=2) {
   else if(collId == kPADATA) CMS_lumi(cpt, 3 ,33);
   else if(collId == kAADATA && cLow>=60) CMS_lumi(cpt, 21 ,33);
 
-  cpt->SaveAs(Form("Plots/v2_vs_pt_%is.png",whichUpsilon));
-  cpt->SaveAs(Form("Plots/v2_vs_pt_%is.pdf",whichUpsilon));
+  cpt->SaveAs("Plots/ratio_vs_pt.png");
+  cpt->SaveAs("Plots/ratio_vs_pt.pdf");
 
   TCanvas* cy = new TCanvas("cy","cy",40,40,600,600);
 
   gv2y_sys->Draw("A5");
   gv2y->Draw("P");
 
-  drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y,text_color,text_size);
-  drawText(Form("|#eta^{#mu}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
-  drawText(Form("0 < p_{T}^{#Upsilon} < %i GeV/c", 50 ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
-  drawText(Form("Centrality %i-%i%s", 10,90, perc.Data() ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
-
-  TLegend *legy= new TLegend(0.5, 0.75, 0.6, 0.85);
+  TLegend *legy= new TLegend(0.4, 0.75, 0.6, 0.85);
   SetLegendStyle(legy);
-  legy->AddEntry(gv2y,Form(" #Upsilon(%iS)",whichUpsilon),"lp");
+  legy->AddEntry(gv2y,"v_{2,1S}/v_{2,2S}","lp");
 
   legy->Draw("same");
   gPad->SetLeftMargin(0.2);
@@ -226,22 +207,17 @@ void draw_v2(int whichUpsilon=2) {
   else if(collId == kPADATA) CMS_lumi(cy, 3 ,33);
   else if(collId == kAADATA && cLow>=60) CMS_lumi(cy, 21 ,33);
 
-  cy->SaveAs(Form("Plots/v2_vs_y_%is.png",whichUpsilon));
-  cy->SaveAs(Form("Plots/v2_vs_y_%is.pdf",whichUpsilon));
+  cy->SaveAs("Plots/ratio_vs_y.png");
+  cy->SaveAs("Plots/ratio_vs_y.pdf");
 
   TCanvas* cc = new TCanvas("cc","cc",40,40,600,600);
 
   gv2c_sys->Draw("A5");
   gv2c->Draw("P");
 
-  drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y,text_color,text_size);
-  drawText(Form("|#eta^{#mu}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
-  drawText(Form("|y| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
-  drawText(Form("0 < p_{T}^{#Upsilon} < %i GeV/c", 50 ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
-
-  TLegend *legc= new TLegend(0.5, 0.75, 0.6, 0.85);
+  TLegend *legc= new TLegend(0.4, 0.75, 0.6, 0.85);
   SetLegendStyle(legc);
-  legc->AddEntry(gv2c,Form(" #Upsilon(%iS)",whichUpsilon),"lp");
+  legc->AddEntry(gv2c,"v_{2,1S}/v_{2,2S}","lp");
 
   legc->Draw("same");
   gPad->SetLeftMargin(0.2);
@@ -257,7 +233,7 @@ void draw_v2(int whichUpsilon=2) {
   else if(collId == kPADATA) CMS_lumi(cc, 3 ,33);
   else if(collId == kAADATA && cLow>=60) CMS_lumi(cc, 21 ,33);
 
-  cc->SaveAs(Form("Plots/v2_vs_c_%is.png",whichUpsilon));
-  cc->SaveAs(Form("Plots/v2_vs_c_%is.pdf",whichUpsilon));
+  cc->SaveAs("Plots/ratio_vs_c.png");
+  cc->SaveAs("Plots/ratio_vs_c.pdf");
 
 }

@@ -48,7 +48,8 @@ void FitPseudoDataSimultaneously(
 // 3: AltAcc
 // 4: AltEff
 // 5: AltConst
-       int iTrial=3
+       int iTrial=3,
+       int whichUpsilon=2
 			) 
 {
   if (!(whichSyst==1 || whichSyst==2 || whichSyst==5)) {
@@ -135,7 +136,7 @@ void FitPseudoDataSimultaneously(
   }
 
 
-  TString outFileName = Form("PseudoExpResults/%sPseudoExpResults_%s_%i.root",systStr.Data(), kineLabel.Data(), iTrial);
+  TString outFileName = Form("PseudoExpResults/%sPseudoExpResults_%i_%s_%i.root",systStr.Data(), whichUpsilon, kineLabel.Data(), iTrial);
   TFile outfile (outFileName, "RECREATE");
   TNtuple* ntuple = new TNtuple("ntuple", "Data from fits", "v2Nom:v2Alt:chisqNom:chisqAlt:yield1sNom0:yield1sNom1:yield1sNom2:yield1sNom3:yield1sAlt0:yield1sAlt1:yield1sAlt2:yield1sAlt3",1);
 
@@ -498,29 +499,16 @@ void FitPseudoDataSimultaneously(
 
     float temp1[4];
     float temp1err[4];
-    float temp2[4];
-    float temp2err[4];
-    float temp3[4];
-    float temp3err[4];
 
     TH1F* yieldsVsPhi = new TH1F("yieldsVsPhi","yieldsVsPhi",4,0.0,0.5);
 
     for (int i=0; i<4; i++) {
-      temp1[i] = ws->var(Form("nSig1s[%i]",i))->getVal();  
-      temp1err[i] = ws->var(Form("nSig1s[%i]",i))->getError();  
-      temp2[i] = ws->var(Form("nSig2s[%i]",i))->getVal();  
-      temp2err[i] = ws->var(Form("nSig2s[%i]",i))->getError();  
-      temp3[i] = ws->var(Form("nSig3s[%i]",i))->getVal();  
-      temp3err[i] = ws->var(Form("nSig3s[%i]",i))->getError();  
+      temp1[i] = ws->var(Form("nSig%is[%i]",whichUpsilon,i))->getVal();  
+      temp1err[i] = ws->var(Form("nSig%is[%i]",whichUpsilon,i))->getError();  
   
       cout << "1S signal    =  " << temp1[i] << " +/- " << temp1err[i] << endl;
-      cout << "2S signal    =  " << temp2[i] << " +/- " << temp2err[i] << endl;
-      cout << "3S signal    =  " << temp3[i] << " +/- " << temp3err[i] << endl;
-      cout << "Total signal =  " << temp1[i]+temp2[i]+temp3[i] << endl;
 
       yield1s[imodel][i] = temp1[i];
-      yield2s[imodel][i] = temp2[i];
-      yield3s[imodel][i] = temp3[i];
 
       c[i]->Update();
 

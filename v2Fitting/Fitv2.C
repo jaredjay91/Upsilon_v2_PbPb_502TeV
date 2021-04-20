@@ -84,7 +84,7 @@ void Fitv2(
 
   c1->Update();
 
-  c1->SaveAs(Form("fitPlots/%s_v2_fit_pt%.1f-%.1f_y%.2f-%.2f_cent%i-%i.png", systStr.Data(), ptLow,ptHigh, yLow,yHigh, cLow, cHigh));
+  c1->SaveAs(Form("fitPlots/%s%is_v2_fit_pt%.1f-%.1f_y%.2f-%.2f_cent%i-%i.png", systStr.Data(), whichUpsilon, ptLow,ptHigh, yLow,yHigh, cLow, cHigh));
 
   *v2ValPtr = v2Val;
   *v2ErrPtr = v2Err;

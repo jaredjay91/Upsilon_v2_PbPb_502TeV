@@ -46,9 +46,15 @@ void Fitv2(
   //Plot it
   TCanvas* c1 = new TCanvas("c1","c1",50,50,550,550);
   yieldsVsPhi->Draw();
+  yieldsVsPhi->SetTitle("");
   yieldsVsPhi->GetXaxis()->SetTitle("|#Delta#phi|/#pi");
+  yieldsVsPhi->GetYaxis()->SetTitle(Form("Normalized yield of #Upsilon(%iS)",whichUpsilon));
   double totalintegral = yieldsVsPhi->Integral(1,4);
   yieldsVsPhi->Scale(1.0/totalintegral);
+  yieldsVsPhi->SetMinimum(0);
+  yieldsVsPhi->SetMaximum(0.5);
+  c1->SetLeftMargin(0.15);
+  c1->SetRightMargin(0.05);
 
   //Fit it
   /*TF1* fitfunc = new TF1("fitfunc","[0]*( 1 + 2*[1]*cos(2*x*3.14159265) + 2*[2]*cos(3*x*3.14159265) + 2*[3]*cos(4*x*3.14159265))",0,0.5);
@@ -59,6 +65,12 @@ void Fitv2(
   fitfunc->SetParNames("v2");*/
   yieldsVsPhi->Fit("fitfunc");
 
+  TLegend* leg1 = new TLegend(0.6,0.75,0.89,0.89);
+  leg1->SetBorderSize(0);
+  leg1->AddEntry(yieldsVsPhi,"Normalized yield","pel");
+  leg1->AddEntry(fitfunc,"Fit","l");
+  leg1->Draw("same");
+
   double v2Val = fitfunc->GetParameter(1);
   double v2Err = fitfunc->GetParError(1);
   cout << "v2 = " << v2Val << " +/- " << v2Err << endl;
@@ -68,19 +80,21 @@ void Fitv2(
   latex.DrawLatex(0.25,50,Form("v_{2} = %.3f #pm %.3f",v2Val,v2Err));
 
   TString perc = "%";
-  float pos_text_x = 0.15;
-  float pos_text_y = 0.45;
+  float pos_text_x = 0.2;
+  float pos_text_y = 0.85;
   float pos_y_diff = 0.06;
   float text_size = 16;
   int text_color = 1;
+  drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y,text_color,text_size);
+  drawText(Form("|#eta^{#mu}| < %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
+  pos_text_y = 0.27;
   if(ptLow==0) drawText(Form("p_{T}^{#mu#mu} < %.f GeV/c",ptHigh ),pos_text_x,pos_text_y,text_color,text_size);
   else drawText(Form("%.f < p_{T}^{#mu#mu} < %.f GeV/c",ptLow,ptHigh ),pos_text_x,pos_text_y,text_color,text_size);
   if(yLow==0) drawText(Form("|y^{#mu#mu}| < %.2f",yHigh ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
   else drawText(Form("%.2f < |y^{#mu#mu}| < %.2f",yLow,yHigh ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
-  drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
-  drawText(Form("|#eta^{#mu}| < %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
-  drawText(Form("Centrality %i-%i%s", cLow,cHigh, perc.Data() ), pos_text_x,pos_text_y-pos_y_diff*4,text_color,text_size);
-  drawText(Form("v_{2} = %.3f #pm %.3f", v2Val,v2Err), pos_text_x,pos_text_y-pos_y_diff*5,2,text_size);
+  drawText(Form("Centrality %i-%i%s", cLow,cHigh, perc.Data() ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
+  pos_text_x = 0.7;
+  drawText(Form("v_{2} = %.3f #pm %.3f", v2Val,v2Err), pos_text_x,pos_text_y-pos_y_diff*2,2,text_size);
 
   c1->Update();
 

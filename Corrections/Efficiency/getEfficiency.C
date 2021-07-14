@@ -15,18 +15,30 @@ const Double_t pi = 3.141592653589;
 
 //TF1* fdNdpTWgt = new TF1("fdNdpTWgt","([0]+[1]*x+[2]*x*x)/((x-[3])*(x-[3])*(x-[3]))");
 
-double getSFs(double pt1, double eta1, double pt2, double eta2){
-  double weight = 1.0;     
-  weight = weight*tnp_weight_trg_pbpb(pt1,eta1);
+TString toBinary(int n)
+{
+    TString r;
+    while(n!=0) {r=(n%2==0 ?"0":"1")+r; n/=2;}
+    return r;
+}
+
+double getSFs(double pt1, double eta1, int filterId1, double pt2, double eta2, int filterId2){
+// - Trigger: (tnp_weight_trg_pbpb)
+//   * filterId = 0: Jpsi L2 filter
+//   * filterId = 1: Jpsi L3 filter
+//   * filterId = 2: Upsi L2 filter
+//   * filterId = 3: Upsi L3 filter
+  double weight = 1.0;
+  weight = weight*tnp_weight_trg_pbpb(pt1,eta1,filterId1);
   weight = weight*tnp_weight_muid_pbpb(pt1,eta1);
   weight = weight*tnp_weight_trk_pbpb(eta1);
-  weight = weight*tnp_weight_trg_pbpb(pt2,eta2);
+  weight = weight*tnp_weight_trg_pbpb(pt2,eta2,filterId2);
   weight = weight*tnp_weight_muid_pbpb(pt2,eta2);
   weight = weight*tnp_weight_trk_pbpb(eta2);
   return weight;
 }
 
-void getEfficiency(int nevt=-1, int dateStr=20210123, int weighted=0){
+void getEfficiency(int nevt=-1, int dateStr=20210712, int weighted=0){
 
   gStyle->SetOptStat(0);
 
@@ -37,10 +49,10 @@ void getEfficiency(int nevt=-1, int dateStr=20210123, int weighted=0){
   int numptbins = sizeof(ptbins)/sizeof(Double_t)-1;
 
   // Integrated bin:
-  TH1D* hEffInt = new TH1D("hEffInt",";p_{T} (GeV/c);Efficiency of Dimuons",1,0,50);
+  TH1D* hEffInt = new TH1D("hEffInt",";p_{T} (GeV/c);Dimuon efficiency for #Upsilon(1S)",1,0,50);
   hEffInt->Sumw2(); hEffInt->SetMinimum(0); hEffInt->SetMaximum(1.0);
   hEffInt->SetMarkerStyle(20);hEffInt->SetMarkerColor(kBlue+2);
-  TH1D* hDenInt = new TH1D("hDenInt",";p_{T} (GeV/c);Efficiency of Dimuons",1,0,50);
+  TH1D* hDenInt = new TH1D("hDenInt",";p_{T} (GeV/c);Dimuon efficiency for #Upsilon(1S)",1,0,50);
   hDenInt->Sumw2(); hDenInt->SetMinimum(0); //hDenInt->SetMaximum(1.0);
   hDenInt->SetMarkerStyle(20);hDenInt->SetMarkerColor(kBlue+2);
 
@@ -48,10 +60,10 @@ void getEfficiency(int nevt=-1, int dateStr=20210123, int weighted=0){
   TH1D* hDenIntNoW = (TH1D*)hDenInt->Clone("hDenIntNoW");
 
   // pT dependence:
-  TH1D* hEffPt = new TH1D("hEffPt",";p_{T} (GeV/c);Efficiency of Dimuons",numptbins,ptbins);
+  TH1D* hEffPt = new TH1D("hEffPt",";p_{T} (GeV/c);Dimuon efficiency for #Upsilon(1S)",numptbins,ptbins);
   hEffPt->Sumw2(); hEffPt->SetMinimum(0); hEffPt->SetMaximum(1.0);
   hEffPt->SetMarkerStyle(20);hEffPt->SetMarkerColor(kBlue+2);
-  TH1D* hDenPt = new TH1D("hDenPt",";p_{T} (GeV/c);Efficiency of Dimuons",numptbins,ptbins);
+  TH1D* hDenPt = new TH1D("hDenPt",";p_{T} (GeV/c);Dimuon efficiency for #Upsilon(1S)",numptbins,ptbins);
   hDenPt->Sumw2(); hDenPt->SetMinimum(0); //hDenPt->SetMaximum(1.0);
   hDenPt->SetMarkerStyle(20);hDenPt->SetMarkerColor(kBlue+2);
 
@@ -102,6 +114,7 @@ void getEfficiency(int nevt=-1, int dateStr=20210123, int weighted=0){
   TClonesArray    *Reco_QQ_4mom;
   TClonesArray    *Reco_mu_4mom;
   ULong64_t       Reco_QQ_trig[maxBranchSize];   //[Reco_QQ_size]
+  ULong64_t       Reco_mu_trig[maxBranchSize];   //[Reco_QQ_size]
   Float_t         Reco_QQ_VtxProb[maxBranchSize];   //[Reco_QQ_size]
   Int_t           Gen_QQ_size;
   Int_t           Gen_mu_size;
@@ -119,6 +132,7 @@ void getEfficiency(int nevt=-1, int dateStr=20210123, int weighted=0){
   TBranch        *b_Reco_QQ_4mom;   //!
   TBranch        *b_Reco_mu_4mom;   //!
   TBranch        *b_Reco_QQ_trig;   //!
+  TBranch        *b_Reco_mu_trig;   //!
   TBranch        *b_Reco_QQ_VtxProb;   //!
   TBranch        *b_Gen_QQ_size;   //!
   TBranch        *b_Gen_mu_size;   //!
@@ -146,6 +160,7 @@ void getEfficiency(int nevt=-1, int dateStr=20210123, int weighted=0){
   mytree->SetBranchAddress("Reco_QQ_4mom", &Reco_QQ_4mom, &b_Reco_QQ_4mom);
   mytree->SetBranchAddress("Reco_mu_4mom", &Reco_mu_4mom, &b_Reco_mu_4mom);
   mytree->SetBranchAddress("Reco_QQ_trig", Reco_QQ_trig, &b_Reco_QQ_trig);
+  mytree->SetBranchAddress("Reco_mu_trig", Reco_mu_trig, &b_Reco_mu_trig);
   mytree->SetBranchAddress("Reco_QQ_VtxProb", Reco_QQ_VtxProb, &b_Reco_QQ_VtxProb);
   mytree->SetBranchAddress("Gen_QQ_size", &Gen_QQ_size, &b_Gen_QQ_size);
   mytree->SetBranchAddress("Gen_mu_size", &Gen_mu_size, &b_Gen_mu_size);
@@ -247,6 +262,8 @@ void getEfficiency(int nevt=-1, int dateStr=20210123, int weighted=0){
   TLorentzVector* mupl_Gen = new TLorentzVector;
   TLorentzVector* mumi_Gen = new TLorentzVector;
 
+  int kL2filter = 38;
+  int kL3filter = 39;
   Double_t kTrigSel = 13;
 
   Double_t pt, rap, pt1, pt2, eta1, eta2, weight, ptweight;
@@ -391,8 +408,42 @@ void getEfficiency(int nevt=-1, int dateStr=20210123, int weighted=0){
       weight = findNcoll(Centrality)*Gen_weight;
       ptweight = fitRatio->Eval(pt);
 
+      /*cout << "Getting scale factors." << endl;
+
       //Get scale factors
-      weight = weight*getSFs(pt1,eta1,pt2,eta2);
+      //We have to use an L2 muon and an L3 muon.
+      cout << "Reco_mu_trig[Reco_QQ_mupl_idx[irqq]] = " << toBinary(Reco_mu_trig[Reco_QQ_mupl_idx[irqq]]) << endl;
+      if(!((Reco_mu_trig[Reco_QQ_mupl_idx[irqq]]&((ULong64_t)pow(2, kL2filter))) == ((ULong64_t)pow(2, kL2filter)) && (Reco_mu_trig[Reco_QQ_mumi_idx[irqq]]&((ULong64_t)pow(2, kL2filter))) == ((ULong64_t)pow(2, kL2filter)) ) ){
+        continue;
+      }
+      bool mupl_L2Filter = ( (Reco_mu_trig[Reco_QQ_mupl_idx[irqq]]&((ULong64_t)pow(2, kL2filter))) == ((ULong64_t)pow(2, kL2filter)) ) ? true : false ;
+      bool mupl_L3Filter = ( (Reco_mu_trig[Reco_QQ_mupl_idx[irqq]]&((ULong64_t)pow(2, kL3filter))) == ((ULong64_t)pow(2, kL3filter)) ) ? true : false ;
+      bool mumi_L2Filter = ( (Reco_mu_trig[Reco_QQ_mumi_idx[irqq]]&((ULong64_t)pow(2, kL2filter))) == ((ULong64_t)pow(2, kL2filter)) ) ? true : false ;
+      bool mumi_L3Filter = ( (Reco_mu_trig[Reco_QQ_mumi_idx[irqq]]&((ULong64_t)pow(2, kL3filter))) == ((ULong64_t)pow(2, kL3filter)) ) ? true : false ;
+      if(mupl_L2Filter == false || mumi_L2Filter == false){
+        cout << "TnP ERROR !!!! ::: No matched L2 filter2 " << endl; cout << endl;} 
+
+      int filterId1 = -1;
+      int filterId2 = -1;
+      if (mupl_L2Filter) filterId1 = 2;
+      if (mupl_L3Filter) filterId1 = 3;
+      if (mumi_L2Filter) filterId2 = 2;
+      if (mumi_L3Filter) filterId2 = 3;
+
+      cout << "filterIds: " << filterId1 << ", " << filterId2 << endl;
+
+      //If both muons are L3, randomly choose one to be the L2 muon
+      if ((filterId1==3) && (filterId2==3)) {
+        int i = (rand()%2)+1;
+        if (i==1) filterId1 = 2;
+        else if (i==2) filterId2 = 2;
+      }
+      //If neither muon is L3, skip this dimuon
+      if ((filterId1<3) && (filterId2<3)) continue;
+
+      weight = weight*getSFs(pt1,eta1,filterId1,pt2,eta2,filterId2);
+*/
+      weight = weight*getSFs(pt1,eta1,2,pt2,eta2,2);
 
       //Increment NUMERATOR with scale factors
       hEffInt->Fill(pt,weight*ptweight);
@@ -444,14 +495,33 @@ void getEfficiency(int nevt=-1, int dateStr=20210123, int weighted=0){
   hEffPtHighCNoW->SetMarkerStyle(24);
   hEffPtHighCNoW->Draw("same PE");
 
+  float pos_text_x = 0.15;
+  float pos_text_y = 0.15;
+  float pos_y_diff = 0.06;
+  float text_size = 14;
+  int text_color = 1;
+  c1->cd(1);
+  drawText("Centrality 10-30\%", pos_text_x,pos_text_y,text_color,text_size);
+  c1->cd(2);
+  TLegend* leg = new TLegend(0.5,0.3,0.89,0.4);
+  //leg->SetTextSize(19);
+  //leg->SetTextFont(43);
+  leg->SetBorderSize(0);
+  leg->AddEntry(hEffPtMidCNoW,"unweighted","pe");
+  leg->AddEntry(hEffPtMidC,"weighted","pe");
+  leg->Draw("same");
+  drawText("Centrality 30-50\%", pos_text_x,pos_text_y,text_color,text_size);
+  c1->cd(3);
+  drawText("Centrality 50-90\%", pos_text_x,pos_text_y,text_color,text_size);
+
   TCanvas* c2 = new TCanvas("c2","c2",400,0,500,500);
   hDenPt->SetTitle("Gen: Centrality 50-90%");
   hDenPt->Draw("PE");
 
-  c1->SaveAs(Form("EfficiencyPlot%s_%i.png",dateStr));
-  c1->SaveAs(Form("EfficiencyPlot%s_%i.pdf",dateStr));
+  c1->SaveAs(Form("EfficiencyPlot_%i.png",dateStr));
+  c1->SaveAs(Form("EfficiencyPlot_%i.pdf",dateStr));
 
-  TFile* effFile = new TFile(Form("efficiency%s_%i.root",dateStr),"RECREATE");
+  TFile* effFile = new TFile(Form("efficiency_%i.root",dateStr),"RECREATE");
   hEffInt->Write();
   hEffPt->Write();
   hEffPtLowC->Write();

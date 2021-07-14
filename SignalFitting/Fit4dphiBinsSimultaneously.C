@@ -38,8 +38,8 @@ using namespace std;
 using namespace RooFit;
 void Fit4dphiBinsSimultaneously( 
        int collId = kAADATA,  
-       float ptLow=0, float ptHigh=50, 
-       float yLow=1.6, float yHigh=2.4,//Run 1 has p going in -z direction
+       float ptLow=0, float ptHigh=3, 
+       float yLow=2.1, float yHigh=2.4,//Run 1 has p going in -z direction
        int cLow=10, int cHigh=90,
        float muPtCut=3.5,
        int whichSyst=4,   

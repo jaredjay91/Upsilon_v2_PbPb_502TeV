@@ -14,7 +14,7 @@ const Double_t pi = 3.141592653589;
 TF1* fWgtAA1 = new TF1("fWgtAA1","(([0]-1)*([0]-2)*([2]*[3]*([2]*[3]+([2]-2)*9.460))*TMath::Power((1+(TMath::Sqrt(9.460*9.460+x*x)-9.460)/([0]*[1])),-[0])/(([0]*[1]*([0]*[1]+([0]-2)*9.460))*(([2]-1)*([2]-2))*TMath::Power((1+(TMath::Sqrt(9.460*9.460+x*x)-9.460)/([2]*[3])),-[2])))");
 TF1* fdNdpTWgt = new TF1("fdNdpTWgt","([0]+[1]*x+[2]*x*x)/((x-[3])*(x-[3])*(x-[3]))");
 
-void getAcceptanceFrom19001Skim(int nevt=-1, int dateStr=20210122, int weighted=0) 
+void getAcceptanceFrom19001Skim(int nevt=-1, int dateStr=20210707, int weighted=0) 
 {
 
   gStyle->SetOptStat(0);
@@ -34,30 +34,30 @@ void getAcceptanceFrom19001Skim(int nevt=-1, int dateStr=20210122, int weighted=
   const int numptbinsInt = 1;
 
   // Integrated bin:
-  TH1D* hDenInt = new TH1D("hDenInt",";p_{T} (GeV/c);Acceptance of Dimuons",1,0,50);
-  TH1D* hAccInt = new TH1D("hAccInt",";p_{T} (GeV/c);Acceptance of Dimuons",1,0,50);
+  TH1D* hDenInt = new TH1D("hDenInt",";p_{T}^{#Upsilon} (GeV/c);Acceptance of #Upsilon(1S)",1,0,50);
+  TH1D* hAccInt = new TH1D("hAccInt",";p_{T}^{#Upsilon} (GeV/c);Acceptance of #Upsilon(1S)",1,0,50);
   hDenInt->Sumw2(); hDenInt->SetMinimum(0); hDenInt->SetMaximum(1.0);
   hAccInt->Sumw2(); hAccInt->SetMinimum(0); hAccInt->SetMaximum(1.0);
   hDenInt->SetMarkerStyle(20);hDenInt->SetMarkerColor(kBlue+2);
   hAccInt->SetMarkerStyle(20);hAccInt->SetMarkerColor(kBlue+2);
 
-  TH1D* hDenIntNoW = new TH1D("hDenIntNoW",";p_{T} (GeV/c);Acceptance of Dimuons",1,0,50);
-  TH1D* hAccIntNoW = new TH1D("hAccIntNoW",";p_{T} (GeV/c);Acceptance of Dimuons",1,0,50);
+  TH1D* hDenIntNoW = new TH1D("hDenIntNoW",";p_{T}^{#Upsilon} (GeV/c);Acceptance of #Upsilon(1S)",1,0,50);
+  TH1D* hAccIntNoW = new TH1D("hAccIntNoW",";p_{T}^{#Upsilon} (GeV/c);Acceptance of #Upsilon(1S)",1,0,50);
   hDenIntNoW->Sumw2(); hDenIntNoW->SetMinimum(0); hDenIntNoW->SetMaximum(1.0);
   hAccIntNoW->Sumw2(); hAccIntNoW->SetMinimum(0); hAccIntNoW->SetMaximum(1.0);
   hDenIntNoW->SetMarkerStyle(24);hDenIntNoW->SetMarkerColor(kBlue+2);
   hAccIntNoW->SetMarkerStyle(24);hAccIntNoW->SetMarkerColor(kBlue+2);
 
   // pT dependence:
-  TH1D* hDenPt = new TH1D("hDenPt",";p_{T} (GeV/c);Acceptance of Dimuons",50,0,50);
-  TH1D* hAccPt = new TH1D("hAccPt",";p_{T} (GeV/c);Acceptance of Dimuons",50,0,50);
+  TH1D* hDenPt = new TH1D("hDenPt",";p_{T}^{#Upsilon} (GeV/c);Acceptance of #Upsilon(1S)",50,0,50);
+  TH1D* hAccPt = new TH1D("hAccPt",";p_{T}^{#Upsilon} (GeV/c);Acceptance of #Upsilon(1S)",50,0,50);
   hDenPt->Sumw2(); hDenPt->SetMinimum(0); hDenPt->SetMaximum(1.0);
   hAccPt->Sumw2(); hAccPt->SetMinimum(0); hAccPt->SetMaximum(1.0);
   hDenPt->SetMarkerStyle(20);hDenPt->SetMarkerColor(kBlue+2);
   hAccPt->SetMarkerStyle(20);hAccPt->SetMarkerColor(kBlue+2);
 
-  TH1D* hDenPtNoW = new TH1D("hDenPtNoW",";p_{T} (GeV/c);Acceptance of Dimuons",50,0,50);
-  TH1D* hAccPtNoW = new TH1D("hAccPtNoW",";p_{T} (GeV/c);Acceptance of Dimuons",50,0,50);
+  TH1D* hDenPtNoW = new TH1D("hDenPtNoW",";p_{T}^{#Upsilon} (GeV/c);Acceptance of #Upsilon(1S)",50,0,50);
+  TH1D* hAccPtNoW = new TH1D("hAccPtNoW",";p_{T}^{#Upsilon} (GeV/c);Acceptance of #Upsilon(1S)",50,0,50);
   hDenPtNoW->Sumw2(); hDenPtNoW->SetMinimum(0); hDenPtNoW->SetMaximum(1.0);
   hAccPtNoW->Sumw2(); hAccPtNoW->SetMinimum(0); hAccPtNoW->SetMaximum(1.0);
   hDenPtNoW->SetMarkerStyle(24);hDenPtNoW->SetMarkerColor(kBlue+2);
@@ -115,7 +115,7 @@ void getAcceptanceFrom19001Skim(int nevt=-1, int dateStr=20210122, int weighted=
 
     mm->GetEntry(iev);
 
-    //Count how many dimuons there are.
+    //Count how many Upsilons there are.
     if (pt>=50 || fabs(y)>=2.4) continue;
 
     Double_t aawgt = fWgtAA1->Eval(pt); // apply weighting factor from functions defined above for AA
@@ -154,6 +154,16 @@ void getAcceptanceFrom19001Skim(int nevt=-1, int dateStr=20210122, int weighted=
   leg->AddEntry(hAccPtNoW,"unweighted","pe");
   leg->AddEntry(hAccPt,"weighted","pe");
   leg->Draw("same");
+
+  float pos_text_x = 0.55;
+  float pos_text_y = 0.45;
+  float pos_y_diff = 0.06;
+  float text_size = 18;
+  int text_color = 1;
+  drawText("|#eta^{#Upsilon}|<2.4", pos_text_x-0.05,pos_text_y,text_color,text_size);
+  drawText("Acceptance cut:", pos_text_x-0.05,pos_text_y-pos_y_diff,text_color,text_size);
+  drawText("|#eta^{#mu}| < 2.4", pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
+  drawText("|p_{T}^{#mu}| > 3.5 GeV", pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
 
   c1->SaveAs(Form("AcceptancePlot_%i.png",dateStr));
   c1->SaveAs(Form("AcceptancePlot_%i.pdf",dateStr));

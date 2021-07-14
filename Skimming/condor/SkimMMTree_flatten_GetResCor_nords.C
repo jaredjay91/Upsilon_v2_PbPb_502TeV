@@ -44,7 +44,7 @@ bool isAbout(float num1=0.0, float num2=0.0) {
 static const long MAXTREESIZE = 1000000000000;
 
 void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
-      int dateStr=20210317,
+      int dateStr=20210712,
       bool flattenBinByBin=kTRUE) 
 {
 
@@ -753,10 +753,17 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
   TCanvas* c3 = new TCanvas("c3","c3",0,0,400,400);
   c3->cd();
   hEpHF2old->SetTitle("Event plane HF2");
+  hEpHF2old->GetXaxis()->SetTitle("#psi");
+  hEpHF2old->SetLineWidth(2);
+  hEpHF2old->SetLineStyle(1);
   hEpHF2old->Draw();
   hEpHF2new->SetLineColor(2);
+  hEpHF2new->SetLineWidth(2);
+  hEpHF2new->SetLineStyle(7);
   hEpHF2new->Draw("same");
   hEpHF2->SetLineColor(3);
+  hEpHF2->SetLineWidth(1);
+  hEpHF2->SetLineStyle(1);
   hEpHF2->Draw("same");
   TLegend* legc3 = new TLegend(0.4,0.15,0.6,0.3); legc3->SetTextSize(12);
   legc3->SetTextFont(43);
@@ -767,14 +774,21 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
   legc3->Draw("same");
   c3->SaveAs(Form("plots/EventPlaneHF2Change_n%i.pdf",nevt));
   c3->SaveAs(Form("plots/EventPlaneHF2Change_n%i.png",nevt));
+  c3->SaveAs(Form("plots/EventPlaneHF2Change_n%i.C",nevt));
 
   TCanvas* c4 = new TCanvas("c4","c4",0,0,400,400);
   c4->cd();
   hEpHFm2old->SetTitle("Event plane HFm2");
+  hEpHFm2old->SetLineWidth(2);
+  hEpHFm2old->SetLineStyle(1);
   hEpHFm2old->Draw();
   hEpHFm2new->SetLineColor(2);
+  hEpHFm2new->SetLineWidth(2);
+  hEpHFm2new->SetLineStyle(7);
   hEpHFm2new->Draw("same");
   hEpHFm2->SetLineColor(3);
+  hEpHFm2->SetLineWidth(1);
+  hEpHFm2->SetLineStyle(1);
   hEpHFm2->Draw("same");
   TLegend* legc4 = new TLegend(0.4,0.15,0.6,0.3); legc4->SetTextSize(12);
   legc4->SetTextFont(43);
@@ -789,10 +803,17 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
   TCanvas* c5 = new TCanvas("c5","c5",0,0,400,400);
   c5->cd();
   hEpHFp2old->SetTitle("Event plane HFp2");
+  hEpHFp2old->GetXaxis()->SetTitle("#psi");
+  hEpHFp2old->SetLineWidth(2);
+  hEpHFp2old->SetLineStyle(1);
   hEpHFp2old->Draw();
   hEpHFp2new->SetLineColor(2);
+  hEpHFp2new->SetLineWidth(2);
+  hEpHFp2new->SetLineStyle(7);
   hEpHFp2new->Draw("same");
   hEpHFp2->SetLineColor(3);
+  hEpHFp2->SetLineWidth(1);
+  hEpHFp2->SetLineStyle(1);
   hEpHFp2->Draw("same");
   TLegend* legc5 = new TLegend(0.4,0.15,0.6,0.3); legc5->SetTextSize(12);
   legc5->SetTextFont(43);
@@ -807,10 +828,17 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
   TCanvas* c6 = new TCanvas("c6","c6",0,0,400,400);
   c6->cd();
   hEptrackmid2old->SetTitle("Event plane trackmid2");
+  hEptrackmid2old->GetXaxis()->SetTitle("#psi");
+  hEptrackmid2old->SetLineWidth(2);
+  hEptrackmid2old->SetLineStyle(1);
   hEptrackmid2old->Draw();
   hEptrackmid2new->SetLineColor(2);
+  hEptrackmid2new->SetLineWidth(2);
+  hEptrackmid2new->SetLineStyle(7);
   hEptrackmid2new->Draw("same");
   hEptrackmid2->SetLineColor(3);
+  hEptrackmid2->SetLineWidth(1);
+  hEptrackmid2->SetLineStyle(1);
   hEptrackmid2->Draw("same");
   TLegend* legc6 = new TLegend(0.4,0.15,0.6,0.3); legc6->SetTextSize(12);
   legc6->SetTextFont(43);

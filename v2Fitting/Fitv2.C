@@ -59,10 +59,10 @@ void Fitv2(
   //Fit it
   /*TF1* fitfunc = new TF1("fitfunc","[0]*( 1 + 2*[1]*cos(2*x*3.14159265) + 2*[2]*cos(3*x*3.14159265) + 2*[3]*cos(4*x*3.14159265))",0,0.5);
   fitfunc->SetParNames("Amp","v2","v3","v4");*/
-  TF1* fitfunc = new TF1("fitfunc","[0]*( 1 + 2*[1]*cos(2*x*3.14159265))",0,0.5);
-  fitfunc->SetParNames("Amp","v2");
-  /*TF1* fitfunc = new TF1("fitfunc"," 1 + 2*[1]*cos(2*x*3.14159265)",0,0.5);
-  fitfunc->SetParNames("v2");*/
+  /*TF1* fitfunc = new TF1("fitfunc","[0]*( 1 + 2*[1]*cos(2*x*3.14159265))",0,0.5);
+  fitfunc->SetParNames("Amp","v2");*/
+  TF1* fitfunc = new TF1("fitfunc"," 0.25*(1 + 2*[1]*cos(2*x*3.14159265))",0,0.5);
+  fitfunc->SetParNames("v2");
   yieldsVsPhi->Fit("fitfunc");
 
   TLegend* leg1 = new TLegend(0.6,0.75,0.89,0.89);

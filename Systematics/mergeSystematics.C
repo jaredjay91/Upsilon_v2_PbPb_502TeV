@@ -81,14 +81,23 @@ void mergeSystematics(int whichUpsilon=1){
     hSystcCombined->SetBinContent(i+1,sumsqrs);
   }
 
+  float labelSize = 0.05;
+  float legx1 = 0.35;
+  float legx2 = 0.7;
+  float legy1 = 0.63;
+  float legy2 = 0.89;
   TCanvas* cpt = new TCanvas("cpt","cpt",0,0,500,500);
   cpt->cd();
   hSystptCombined->SetTitle("Systematics vs p_{T}");
   hSystptCombined->GetXaxis()->SetTitle("p_{T}^{#Upsilon}");
+  hSystptCombined->GetXaxis()->SetTitleSize(labelSize);
+  hSystptCombined->GetXaxis()->SetLabelSize(labelSize);
+  hSystptCombined->GetYaxis()->SetLabelSize(labelSize);
   hSystptCombined->SetMinimum(0);
   hSystptCombined->SetLineColor(1);
+  hSystptCombined->SetLineWidth(2);
   hSystptCombined->Draw();
-  TLegend* legpt = new TLegend(0.7,0.6,0.89,0.8);
+  TLegend* legpt = new TLegend(legx1,legy1,legx2,legy2);
   legpt->SetTextSize(19);
   legpt->SetTextFont(43);
   legpt->SetBorderSize(0);
@@ -96,10 +105,12 @@ void mergeSystematics(int whichUpsilon=1){
   for (int i=0; i<5; i++) {
     hSystpt[i]->Draw("hist same");
     hSystpt[i]->SetLineColor(color[i]);
+    hSystpt[i]->SetLineWidth(2);
     legpt->AddEntry(hSystpt[i],systStr[i].Data(),"l");
   }
   legpt->Draw("same");
   hSystptCombined->Draw("same");
+  gPad->SetBottomMargin(0.12);
   gPad->RedrawAxis();
 
 
@@ -107,10 +118,14 @@ void mergeSystematics(int whichUpsilon=1){
   cy->cd();
   hSystyCombined->SetTitle("Systematics vs Rapidity");
   hSystyCombined->GetXaxis()->SetTitle("y^{#Upsilon}");
+  hSystyCombined->GetXaxis()->SetTitleSize(labelSize);
+  hSystyCombined->GetXaxis()->SetLabelSize(labelSize);
+  hSystyCombined->GetYaxis()->SetLabelSize(labelSize);
   hSystyCombined->SetMinimum(0);
   hSystyCombined->SetLineColor(1);
+  hSystyCombined->SetLineWidth(2);
   hSystyCombined->Draw();
-  TLegend* legy = new TLegend(0.7,0.6,0.89,0.8);
+  TLegend* legy = new TLegend(legx1,legy1,legx2,legy2);
   legy->SetTextSize(19);
   legy->SetTextFont(43);
   legy->SetBorderSize(0);
@@ -118,20 +133,26 @@ void mergeSystematics(int whichUpsilon=1){
   for (int i=0; i<5; i++) {
     hSysty[i]->Draw("hist same");
     hSysty[i]->SetLineColor(color[i]);
+    hSysty[i]->SetLineWidth(2);
     legy->AddEntry(hSysty[i],systStr[i].Data(),"l");
   }
   legy->Draw("same");
   hSystyCombined->Draw("same");
+  gPad->SetBottomMargin(0.12);
   gPad->RedrawAxis();
 
   TCanvas* cc = new TCanvas("cc","cc",800,0,500,500);
   cc->cd();
   hSystcCombined->SetTitle("Systematics vs Centrality");
   hSystcCombined->GetXaxis()->SetTitle("Centrality (%)");
+  hSystcCombined->GetXaxis()->SetTitleSize(labelSize);
+  hSystcCombined->GetXaxis()->SetLabelSize(labelSize);
+  hSystcCombined->GetYaxis()->SetLabelSize(labelSize);
   hSystcCombined->SetMinimum(0);
   hSystcCombined->SetLineColor(1);
+  hSystcCombined->SetLineWidth(2);
   hSystcCombined->Draw();
-  TLegend* legc = new TLegend(0.7,0.6,0.89,0.8);
+  TLegend* legc = new TLegend(legx1,legy1,legx2,legy2);
   legc->SetTextSize(19);
   legc->SetTextFont(43);
   legc->SetBorderSize(0);
@@ -139,10 +160,12 @@ void mergeSystematics(int whichUpsilon=1){
   for (int i=0; i<5; i++) {
     hSystc[i]->Draw("hist same");
     hSystc[i]->SetLineColor(color[i]);
+    hSystc[i]->SetLineWidth(2);
     legc->AddEntry(hSystc[i],systStr[i].Data(),"l");
   }
   legc->Draw("same");
   hSystcCombined->Draw("same");
+  gPad->SetBottomMargin(0.12);
   gPad->RedrawAxis();
 
   cpt->SaveAs(Form("Plots/Systpt_%is.pdf", whichUpsilon));

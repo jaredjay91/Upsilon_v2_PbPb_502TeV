@@ -48,14 +48,20 @@ void GetSimultaneousYieldsvsPhi(
   RooWorkspace *ws = (RooWorkspace*)inFile->Get("workspace");
 
   //Read in yields from fit files
+  float avgPercErr = 0;
   for (int iphi=0; iphi<numphibins; iphi++) {
     float yield = ws->var(Form("nSig%is[%i]",whichUpsilon,iphi))->getVal();
     float yielderr = ws->var(Form("nSig%is[%i]",whichUpsilon,iphi))->getError();
     //delete ws;
-    cout << yield << " +/- " << yielderr << endl;
+    cout << yield << " +/- " << yielderr;
+    float percErr = yielderr/yield*100;
+    cout << "; percent error = " << percErr << "%" << endl;
+    avgPercErr += percErr;
     yieldsVsPhi->SetBinContent(iphi+1, yield);
     yieldsVsPhi->SetBinError(iphi+1, yielderr);
   }
+  avgPercErr = avgPercErr/numphibins;
+  cout << "avgPercErr = " << avgPercErr << "%" << endl;
 
   inFile->Close("R");
   delete inFile;

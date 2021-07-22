@@ -54,6 +54,7 @@ void GetYieldsvsPhi(
     //delete ws;
     delete inFile;
     cout << yield << " +/- " << yielderr << endl;
+    //cout << "percent error = " << yielderr/yield*100 << "%" << endl;
     yieldsVsPhi->SetBinContent(iphi+1, yield);
     yieldsVsPhi->SetBinError(iphi+1, yielderr);
   }

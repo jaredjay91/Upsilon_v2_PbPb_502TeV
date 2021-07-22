@@ -41,7 +41,7 @@ void getSystOneBin(TH1D* hSyst, int whichBin=0, float ptLow=0, float ptHigh=50, 
     return;
   }
 
-  TString whichUpsString = "";
+  TString whichUpsString = "1_";
   if (whichUpsilon==2) whichUpsString = "2_";
   int collId = kAADATA;
   float muPtCut = 3.5;
@@ -56,15 +56,32 @@ void getSystOneBin(TH1D* hSyst, int whichBin=0, float ptLow=0, float ptHigh=50, 
   cSyst->Divide(3,1);
 
   int numv2bins = 200;
-  double v2max = 0.1;
-  TH1D* hNom = new TH1D("hNom","nominal v2",numv2bins,-v2max,v2max);
-  TH1D* hAlt = new TH1D("hAlt","alternate v2",numv2bins,-v2max,v2max);
+  double v2max = 0.07;
+  TH1D* hNom = new TH1D("hNom","nominal v_{2}",numv2bins,-v2max,v2max);
+  TH1D* hAlt = new TH1D("hAlt","alternate v_{2}",numv2bins,-v2max,v2max);
   TString perc = "%";
-  TH1D* hDiff = new TH1D("hDiff","difference",numv2bins,-v2max,v2max);
+  TH1D* hDiff = new TH1D("hDiff",Form("%s difference","%"),numv2bins,-v2max,v2max);
   TH2D* hchisq = new TH2D("hchisq","chisq check",numv2bins,0,6000,100,0,20);
+
+  float labelSize = 0.05;
+  hNom->GetXaxis()->SetTitle("v_{2}");
+  hNom->GetXaxis()->SetTitleSize(labelSize);
+  hNom->GetXaxis()->SetLabelSize(labelSize);
+  hNom->GetYaxis()->SetLabelSize(labelSize);
+  //hNom->GetXaxis()->ChangeLabel("-1","","-.6","","-.2","0",".2","",".6","","1");
+  //hNom->GetXaxis()->SetNdivisions(-5,-5);
+  hAlt->GetXaxis()->SetTitle("v_{2}");
+  hAlt->GetXaxis()->SetTitleSize(labelSize);
+  hAlt->GetXaxis()->SetLabelSize(labelSize);
+  hAlt->GetYaxis()->SetLabelSize(labelSize);
+  hDiff->GetXaxis()->SetTitle("%");
+  hDiff->GetXaxis()->SetTitleSize(labelSize);
+  hDiff->GetXaxis()->SetLabelSize(labelSize);
+  hDiff->GetYaxis()->SetLabelSize(labelSize);
 
   cSyst->cd(1);
   ntuple->Draw("v2Nom>>hNom");
+  //gPad->SetTicks(1,1);
 
   cSyst->cd(2);
   ntuple->Draw("v2Alt>>hAlt");
@@ -77,6 +94,7 @@ void getSystOneBin(TH1D* hSyst, int whichBin=0, float ptLow=0, float ptHigh=50, 
   TLeaf *chisqNomLeaf = ntuple->GetLeaf("chisqNom");
   TLeaf *chisqAltLeaf = ntuple->GetLeaf("chisqAlt");
   int numEntries = ntuple->GetEntries();
+  double avgv2 = 0;
   double avgDiff = 0;
   double avgAbsDiff = 0;
   double sumSqrs = 0;
@@ -97,6 +115,7 @@ void getSystOneBin(TH1D* hSyst, int whichBin=0, float ptLow=0, float ptHigh=50, 
       continue;
     }
     numList[j] = fabs(percDiff);
+    avgv2 = avgv2 + v2Nom;
     avgDiff = avgDiff + percDiff;
     avgAbsDiff = avgAbsDiff + fabs(percDiff);
     sumSqrs = sumSqrs + pow(percDiff,2);
@@ -111,6 +130,7 @@ void getSystOneBin(TH1D* hSyst, int whichBin=0, float ptLow=0, float ptHigh=50, 
   if (numEntries%2==0) median = (numList[numEntries/2]+numList[numEntries/2-1])/2;
   else median = numList[(numEntries+1)/2];
   double onesigma = numList[67];
+  avgv2 = avgv2/numEntries;
   avgDiff = avgDiff/numEntries;
   avgAbsDiff = avgAbsDiff/numEntries;
   double stdDev = sqrt((sumSqrs-pow(avgDiff,2))/numEntries);
@@ -123,7 +143,8 @@ void getSystOneBin(TH1D* hSyst, int whichBin=0, float ptLow=0, float ptHigh=50, 
   if (fabs(avgDiff)>systVal) systVal = fabs(avgDiff);
 
   //Convert to relative uncertainty:
-  systVal = systVal/fabs(getNominalV2(whichUpsilon, whichBin, ptLow, ptHigh, yLow, yHigh, cLow, cHigh));
+  double nominalv2 = getNominalV2(whichUpsilon, whichBin, ptLow, ptHigh, yLow, yHigh, cLow, cHigh);
+  systVal = systVal/fabs(nominalv2);
   cout << "systVal = " << systVal << endl;
   hSyst->SetBinContent(whichBin, systVal);
   cout << "hSyst->GetBinContent(whichBin) = " << hSyst->GetBinContent(whichBin) << endl;
@@ -139,6 +160,8 @@ void getSystOneBin(TH1D* hSyst, int whichBin=0, float ptLow=0, float ptHigh=50, 
   drawText(Form("mean(abs) = %.4f", fabs(avgAbsDiff)), pos_text_x,pos_text_y-pos_y_diff*2,2,text_size);
   drawText(Form("median(abs) = %.4f", median), pos_text_x,pos_text_y-pos_y_diff*3,2,text_size);
   drawText(Form("68th(abs) = %.4f", onesigma), pos_text_x,pos_text_y-pos_y_diff*4,2,text_size);
+  cSyst->cd(1);
+  drawText(Form("generated v_{2} = %.3f", avgv2), pos_text_x,pos_text_y,2,text_size);
 
   cSyst->Update();
   cSyst->SaveAs(Form("/home/jared/Documents/Ubuntu_Overflow/Upsilon_v2_502TeV_ThesisNew/Systematics/PseudoExperimentsCode/Plots/%sPseudoExpResults_%s%s.png", systStr.Data(), whichUpsString.Data(), kineLabel.Data()));

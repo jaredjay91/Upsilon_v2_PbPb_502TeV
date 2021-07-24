@@ -2,6 +2,7 @@
 #include "../HeaderFiles/tdrstyle.C"
 #include "../HeaderFiles/CMS_lumi.C"
 #include "../HeaderFiles/cutsAndBin.h"
+//#include "../HeaderFiles/JaebeomStyle.h"
 
 void drawText(const char *text, float xp, float yp, int textColor=kBlack, int textSize=18, float textFont=43){
    TLatex *tex = new TLatex(xp,yp,text);
@@ -15,6 +16,13 @@ void drawText(const char *text, float xp, float yp, int textColor=kBlack, int te
 }
 
 void draw_v2(int whichUpsilon=2) {
+
+  int pointColor = kRed;
+  int pointStyle = 8;
+  if (whichUpsilon == 2) {
+    pointColor = kBlue;
+    pointStyle = 21;
+  }
 
   float ptbins[5] = {0,3,6,10,50};
   const int numptbins = sizeof(ptbins)/sizeof(float)-1;
@@ -31,7 +39,7 @@ void draw_v2(int whichUpsilon=2) {
   }
 
   setTDRStyle();
-  writeExtraText = true;
+  writeExtraText = false;
 
   //Get v2 histograms
   TFile* inFile = new TFile(Form("../v2Fitting/Ups_%i_v2_cent10-90_nom.root",whichUpsilon),"READ");
@@ -79,8 +87,8 @@ void draw_v2(int whichUpsilon=2) {
     gv2pt_sys->SetPointError(ipt, extmp, pytmp*relsys);
   }
 
-  SetGraphStyle(gv2pt, 1, 1); 
-  SetGraphStyleSys(gv2pt_sys, 1);
+  SetGraphStyle(gv2pt, whichUpsilon, whichUpsilon); 
+  SetGraphStyleSys(gv2pt_sys, whichUpsilon);
 
   float ptmin=0; float ptmax=50;
   gv2pt_sys->GetXaxis()->SetTitle("p_{T}^{#varUpsilon} (GeV/c)");
@@ -109,11 +117,11 @@ void draw_v2(int whichUpsilon=2) {
     gv2y_sys->SetPointError(iy, extmp, pytmp*relsys);
   }
 
-  SetGraphStyle(gv2y, 1, 1); 
-  SetGraphStyleSys(gv2y_sys, 1);
+  SetGraphStyle(gv2y, whichUpsilon, whichUpsilon); 
+  SetGraphStyleSys(gv2y_sys, whichUpsilon);
 
   float ymin=0; float ymax=2.4;
-  gv2y_sys->GetXaxis()->SetTitle("y^{#varUpsilon}");
+  gv2y_sys->GetXaxis()->SetTitle("|y^{#varUpsilon}|");
   gv2y_sys->GetXaxis()->CenterTitle();
   gv2y_sys->GetXaxis()->SetTitleOffset(1.);
   gv2y_sys->GetXaxis()->SetLimits(ymin,ymax);
@@ -139,8 +147,8 @@ void draw_v2(int whichUpsilon=2) {
     gv2c_sys->SetPointError(ic, extmp, pytmp*relsys);
   }
 
-  SetGraphStyle(gv2c, 1, 1); 
-  SetGraphStyleSys(gv2c_sys, 1);
+  SetGraphStyle(gv2c, whichUpsilon, whichUpsilon); 
+  SetGraphStyleSys(gv2c_sys, whichUpsilon);
 
   float cmin=10; float cmax=90;
   gv2c_sys->GetXaxis()->SetTitle("Centrality (%)");
@@ -172,12 +180,12 @@ void draw_v2(int whichUpsilon=2) {
   float yCut = 2.4;
   drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y,text_color,text_size);
   drawText(Form("|#eta^{#mu}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
-  drawText(Form("|y^{#Upsilon}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
+  drawText(Form("|y^{#varUpsilon}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
   drawText(Form("Centrality %i-%i%s", 10,90, perc.Data() ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
 
   TLegend *legpt= new TLegend(0.5, 0.75, 0.6, 0.85);
   SetLegendStyle(legpt);
-  legpt->AddEntry(gv2pt,Form(" #Upsilon(%iS)",whichUpsilon),"lp");
+  legpt->AddEntry(gv2pt,Form(" #varUpsilon(%iS)",whichUpsilon),"lp");
 
   legpt->Draw("same");
   gPad->SetLeftMargin(0.2);
@@ -205,12 +213,12 @@ void draw_v2(int whichUpsilon=2) {
 
   drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y,text_color,text_size);
   drawText(Form("|#eta^{#mu}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
-  drawText(Form("0 < p_{T}^{#Upsilon} < %i GeV/c", 50 ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
+  drawText(Form("0 < p_{T}^{#varUpsilon} < %i GeV/c", 50 ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
   drawText(Form("Centrality %i-%i%s", 10,90, perc.Data() ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
 
   TLegend *legy= new TLegend(0.5, 0.75, 0.6, 0.85);
   SetLegendStyle(legy);
-  legy->AddEntry(gv2y,Form(" #Upsilon(%iS)",whichUpsilon),"lp");
+  legy->AddEntry(gv2y,Form(" #varUpsilon(%iS)",whichUpsilon),"lp");
 
   legy->Draw("same");
   gPad->SetLeftMargin(0.2);
@@ -237,11 +245,11 @@ void draw_v2(int whichUpsilon=2) {
   drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y,text_color,text_size);
   drawText(Form("|#eta^{#mu}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
   drawText(Form("|y| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
-  drawText(Form("0 < p_{T}^{#Upsilon} < %i GeV/c", 50 ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
+  drawText(Form("0 < p_{T}^{#varUpsilon} < %i GeV/c", 50 ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
 
   TLegend *legc= new TLegend(0.5, 0.75, 0.6, 0.85);
   SetLegendStyle(legc);
-  legc->AddEntry(gv2c,Form(" #Upsilon(%iS)",whichUpsilon),"lp");
+  legc->AddEntry(gv2c,Form(" #varUpsilon(%iS)",whichUpsilon),"lp");
 
   legc->Draw("same");
   gPad->SetLeftMargin(0.2);

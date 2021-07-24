@@ -31,7 +31,7 @@ void draw_v2_theory_comp(int whichUpsilon=1) {
   }
 
   setTDRStyle();
-  writeExtraText = true;
+  writeExtraText = false;
 
   //Get v2 histograms
   TFile* inFile = new TFile(Form("../v2Fitting/Ups_%i_v2_cent10-90_nom.root",whichUpsilon),"READ");
@@ -113,7 +113,7 @@ void draw_v2_theory_comp(int whichUpsilon=1) {
   SetGraphStyleSys(gv2y_sys, 1);
 
   float ymin=0; float ymax=2.4;
-  gv2y_sys->GetXaxis()->SetTitle("y^{#varUpsilon}");
+  gv2y_sys->GetXaxis()->SetTitle("|y^{#varUpsilon}|");
   gv2y_sys->GetXaxis()->CenterTitle();
   gv2y_sys->GetXaxis()->SetTitleOffset(1.);
   gv2y_sys->GetXaxis()->SetLimits(ymin,ymax);
@@ -162,7 +162,7 @@ void draw_v2_theory_comp(int whichUpsilon=1) {
 
   TLegend *legpt= new TLegend(0.5, 0.75, 0.6, 0.85);
   SetLegendStyle(legpt);
-  legpt->AddEntry(gv2pt,Form(" #Upsilon(%iS)",whichUpsilon),"lp");
+  legpt->AddEntry(gv2pt,Form(" #varUpsilon(%iS)",whichUpsilon),"lp");
 
   legpt->Draw("same");
   gPad->SetLeftMargin(0.2);
@@ -214,7 +214,7 @@ void draw_v2_theory_comp(int whichUpsilon=1) {
   float yCut = 2.4;
   drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y,text_color,text_size);
   drawText(Form("|#eta^{#mu}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
-  drawText(Form("|y^{#Upsilon}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
+  drawText(Form("|y^{#varUpsilon}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
   drawText(Form("Centrality %i-%i%s", 10,90, perc.Data() ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
 
   TLegend *legtheory= new TLegend(0.5, 0.2, 0.85, 0.4);
@@ -244,7 +244,7 @@ void draw_v2_theory_comp(int whichUpsilon=1) {
 
   TLegend *legy= new TLegend(0.4, 0.75, 0.6, 0.85);
   SetLegendStyle(legy);
-  legy->AddEntry(gv2y,Form(" #Upsilon(%iS)",whichUpsilon),"lp");
+  legy->AddEntry(gv2y,Form(" #varUpsilon(%iS)",whichUpsilon),"lp");
 
   legy->Draw("same");
   gPad->SetLeftMargin(0.2);
@@ -270,7 +270,7 @@ void draw_v2_theory_comp(int whichUpsilon=1) {
 
   TLegend *legc= new TLegend(0.4, 0.75, 0.6, 0.85);
   SetLegendStyle(legc);
-  legc->AddEntry(gv2c,Form(" #Upsilon(%iS)",whichUpsilon),"lp");
+  legc->AddEntry(gv2c,Form(" #varUpsilon(%iS)",whichUpsilon),"lp");
 
   legc->Draw("same");
   gPad->SetLeftMargin(0.2);

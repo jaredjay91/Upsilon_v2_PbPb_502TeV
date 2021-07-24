@@ -4,6 +4,16 @@
 #include "../HeaderFiles/cutsAndBin.h"
 
 
+void drawText(const char *text, float xp, float yp, int textColor=kBlack, int textSize=18, float textFont=43){
+   TLatex *tex = new TLatex(xp,yp,text);
+   tex->SetTextFont(textFont);
+   //   if(bold)tex->SetTextFont(43);
+   tex->SetTextSize(textSize);
+   tex->SetTextColor(textColor);
+   tex->SetLineWidth(1);
+   tex->SetNDC();
+   tex->Draw();
+}
 
 void draw_v2_ratios() {
 
@@ -14,11 +24,18 @@ void draw_v2_ratios() {
   float cbins[4] = {10,30,50,90};
   const int numcbins = sizeof(cbins)/sizeof(float)-1;
 
-  float plotmin = -10;
+  float plotmin = -6;
   float plotmax = 10;
 
   setTDRStyle();
-  writeExtraText = true;
+  writeExtraText = false;
+
+  float legx1=0.6;
+  float legy1=0.25;
+  float legx2=0.8;
+  float legy2=0.35;
+
+  int styleParam = 3;
 
   //Get v2 histograms
   cout << "getting 1s histos..." << endl;
@@ -78,8 +95,8 @@ void draw_v2_ratios() {
     gv2pt_sys->SetPointError(ipt, extmp, pytmp*relsys);
   }
 
-  SetGraphStyle(gv2pt, 1, 1); 
-  SetGraphStyleSys(gv2pt_sys, 1);
+  SetGraphStyle(gv2pt, styleParam, styleParam); 
+  SetGraphStyleSys(gv2pt_sys, styleParam);
 
   float ptmin=0; float ptmax=50;
   gv2pt_sys->GetXaxis()->SetTitle("p_{T}^{#varUpsilon} (GeV/c)");
@@ -87,7 +104,7 @@ void draw_v2_ratios() {
   gv2pt_sys->GetXaxis()->SetTitleOffset(1.);
   gv2pt_sys->GetXaxis()->SetLimits(ptmin,ptmax);
   gv2pt_sys->GetXaxis()->SetTitleSize(0.06);
-  gv2pt_sys->GetYaxis()->SetTitle("v_{2}");
+  gv2pt_sys->GetYaxis()->SetTitle("v_{2}^{#varUpsilon(2S)}/v_{2}^{#varUpsilon(1S)}");
   gv2pt_sys->GetYaxis()->CenterTitle();
   gv2pt_sys->GetYaxis()->SetTitleOffset(1.5);
   gv2pt_sys->GetYaxis()->SetTitleSize(0.06);
@@ -109,16 +126,16 @@ void draw_v2_ratios() {
     gv2y_sys->SetPointError(iy, extmp, pytmp*relsys);
   }
 
-  SetGraphStyle(gv2y, 1, 1); 
-  SetGraphStyleSys(gv2y_sys, 1);
+  SetGraphStyle(gv2y, styleParam, styleParam); 
+  SetGraphStyleSys(gv2y_sys, styleParam);
 
   float ymin=0; float ymax=2.4;
-  gv2y_sys->GetXaxis()->SetTitle("y^{#varUpsilon}");
+  gv2y_sys->GetXaxis()->SetTitle("|y^{#varUpsilon}|");
   gv2y_sys->GetXaxis()->CenterTitle();
   gv2y_sys->GetXaxis()->SetTitleOffset(1.);
   gv2y_sys->GetXaxis()->SetLimits(ymin,ymax);
   gv2y_sys->GetXaxis()->SetTitleSize(0.06);
-  gv2y_sys->GetYaxis()->SetTitle("v_{2}");
+  gv2y_sys->GetYaxis()->SetTitle("v_{2}^{#varUpsilon(2S)}/v_{2}^{#varUpsilon(1S)}");
   gv2y_sys->GetYaxis()->CenterTitle();
   gv2y_sys->GetYaxis()->SetTitleOffset(1.5);
   gv2y_sys->GetYaxis()->SetTitleSize(0.06);
@@ -140,8 +157,8 @@ void draw_v2_ratios() {
     gv2c_sys->SetPointError(ic, extmp, pytmp*relsys);
   }
 
-  SetGraphStyle(gv2c, 1, 1); 
-  SetGraphStyleSys(gv2c_sys, 1);
+  SetGraphStyle(gv2c, styleParam, styleParam); 
+  SetGraphStyleSys(gv2c_sys, styleParam);
 
   float cmin=10; float cmax=90;
   gv2c_sys->GetXaxis()->SetTitle("Centrality (%)");
@@ -149,7 +166,7 @@ void draw_v2_ratios() {
   gv2c_sys->GetXaxis()->SetTitleOffset(1.);
   gv2c_sys->GetXaxis()->SetLimits(cmin,cmax);
   gv2c_sys->GetXaxis()->SetTitleSize(0.06);
-  gv2c_sys->GetYaxis()->SetTitle("v_{2}");
+  gv2c_sys->GetYaxis()->SetTitle("v_{2}^{#varUpsilon(2S)}/v_{2}^{#varUpsilon(1S)}");
   gv2c_sys->GetYaxis()->CenterTitle();
   gv2c_sys->GetYaxis()->SetTitleOffset(1.5);
   gv2c_sys->GetYaxis()->SetTitleSize(0.06);
@@ -161,9 +178,22 @@ void draw_v2_ratios() {
   gv2pt_sys->Draw("A5");
   gv2pt->Draw("P");
 
-  TLegend *legpt= new TLegend(0.4, 0.75, 0.6, 0.85);
+  TString perc = "%";
+  float pos_text_x = 0.25;
+  float pos_text_y = 0.82;
+  float pos_y_diff = 0.05;
+  float text_size = 18;
+  int text_color = 1;
+  float muPtCut = 3.5;
+  float yCut = 2.4;
+  drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y,text_color,text_size);
+  drawText(Form("|#eta^{#mu}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
+  drawText(Form("|y^{#varUpsilon}| < %.2f", yCut ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
+  drawText(Form("Centrality %i-%i%s", 10,90, perc.Data() ), pos_text_x,pos_text_y-pos_y_diff*3,text_color,text_size);
+
+  TLegend *legpt= new TLegend(legx1,legy1,legx2,legy2);
   SetLegendStyle(legpt);
-  legpt->AddEntry(gv2pt,"v_{2,1S}/v_{2,2S}","lp");
+  legpt->AddEntry(gv2pt,"v_{2}^{#varUpsilon(2S)}/v_{2}^{#varUpsilon(1S)}","lp");
 
   legpt->Draw("same");
   gPad->SetLeftMargin(0.2);
@@ -189,9 +219,9 @@ void draw_v2_ratios() {
   gv2y_sys->Draw("A5");
   gv2y->Draw("P");
 
-  TLegend *legy= new TLegend(0.4, 0.75, 0.6, 0.85);
+  TLegend *legy= new TLegend(legx1,legy1,legx2,legy2);
   SetLegendStyle(legy);
-  legy->AddEntry(gv2y,"v_{2,1S}/v_{2,2S}","lp");
+  legy->AddEntry(gv2y,"v_{2}^{#varUpsilon(2S)}/v_{2}^{#varUpsilon(1S)}","lp");
 
   legy->Draw("same");
   gPad->SetLeftMargin(0.2);
@@ -215,9 +245,9 @@ void draw_v2_ratios() {
   gv2c_sys->Draw("A5");
   gv2c->Draw("P");
 
-  TLegend *legc= new TLegend(0.4, 0.75, 0.6, 0.85);
+  TLegend *legc= new TLegend(legx1,legy1,legx2,legy2);
   SetLegendStyle(legc);
-  legc->AddEntry(gv2c,"v_{2,1S}/v_{2,2S}","lp");
+  legc->AddEntry(gv2c,"v_{2}^{#varUpsilon(2S)}/v_{2}^{#varUpsilon(1S)}","lp");
 
   legc->Draw("same");
   gPad->SetLeftMargin(0.2);

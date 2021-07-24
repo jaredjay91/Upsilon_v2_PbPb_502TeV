@@ -134,7 +134,7 @@ void SetGraphStyleSys(TGraph* gr, Int_t c) {
   Int_t colorArr[] = { kPink-6, kBlue-3, kGreen+2, kViolet-6, kBlack };
   Int_t colorArrSys[] = { kRed-10, kBlue-10, kGreen-10, kMagenta-10, kGray};
   gr-> SetLineColor(colorArr[c]);
-  gr-> SetFillColorAlpha(colorArrSys[c],0.5);
+  gr-> SetFillColorAlpha(colorArrSys[c],0.2);
   gr-> SetLineWidth(1);
 }
 

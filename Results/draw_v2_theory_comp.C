@@ -177,7 +177,7 @@ void draw_v2_theory_comp(int whichUpsilon=1) {
   gStyle->SetHatchesSpacing(0.5);
   TFile* file_aHydro = TFile::Open("Theory/Theory_v2_aHydro.root");
   TGraphErrors* g_aHydro = (TGraphErrors*)file_aHydro->Get("g_v2_aHydro");
-  g_aHydro->SetLineColor(kOrange);
+  g_aHydro->SetLineColor(kRed);
   g_aHydro->SetLineStyle(7);
   g_aHydro->SetLineWidth(2);
   g_aHydro->Draw("same");
@@ -190,11 +190,18 @@ void draw_v2_theory_comp(int whichUpsilon=1) {
   g_DuRapp->SetLineWidth(2);
   g_DuRapp->Draw("same F");
 
-  TFile* file_pNRQCD = TFile::Open("Theory/Theory_v2_pNRQCD.root");
+  TFile* file_pNRQCD = TFile::Open("Theory/Theory_v2_pNRQCD_cent1090.root");
   TGraphErrors* g_pNRQCD = (TGraphErrors*)file_pNRQCD->Get("g_v2_d8");
   g_pNRQCD->SetLineColor(kViolet);
   g_pNRQCD->SetLineStyle(8);
   g_pNRQCD->SetLineWidth(2);
+  int N = g_pNRQCD->GetN();
+  Double_t scale = 1.0/1000.0;
+  Double_t x; Double_t y;
+  for (int i=0; i<N; i++) {
+    g_pNRQCD->GetPoint(i,x,y);
+    g_pNRQCD->SetPoint(i,x*scale,y);
+  }
   g_pNRQCD->Draw("same");
 
   TFile* file_Xiaojun = TFile::Open("Theory/Theory_v2_Xiaojun.root");
@@ -220,11 +227,11 @@ void draw_v2_theory_comp(int whichUpsilon=1) {
   TLegend *legtheory= new TLegend(0.5, 0.2, 0.85, 0.4);
   SetLegendStyle(legtheory);
   legtheory->SetTextSize(0.03);
-  legtheory->AddEntry(g_pNRQCD,"Hong, Lee (10-50%)","l");
+  legtheory->AddEntry(g_pNRQCD,"Hong, Lee (10-90%)","l");
   legtheory->AddEntry(g_Xiaojun,"Yao (10-60%)","l");
   legtheory->AddEntry(g_DuRapp,"Du, Rapp (20-40%)","l");
-  legtheory->AddEntry(g_aHydro,"Bhaduri, Borghini, (10-30%)","l");
-  legtheory->AddEntry(g_aHydro,"Jaiswal, Strickland","");
+  legtheory->AddEntry(g_aHydro,"Bhaduri, Borghini, Jaiswal,","l");
+  legtheory->AddEntry(g_aHydro,"  Strickland (10-90%)","");
   legtheory->Draw("same");
 
   int collId = kAADATA;

@@ -47,11 +47,34 @@ void GetSimultaneousYieldsvsPhi(
   TFile* inFile = TFile::Open(inFileName,"READ");
   RooWorkspace *ws = (RooWorkspace*)inFile->Get("workspace");
 
+  //Scale the yield parameters to match the true value (no change in relative yields, so no change in v2. This just ensures that the proper yields are printed on the plots.)
+  float simSignal = 0.0;
+  for (int i=0; i<4; i++) {
+    simSignal = simSignal + ws->var(Form("nSig1s[%i]",i))->getVal();
+  }
+  TString NomFileName = Form("../SignalFitting/RoundFits_R4a/nomfitresults_upsilon_%s.root",kineLabel.Data());
+  //cout << NomFileName << endl;
+  if (gSystem->AccessPathName(NomFileName)) {
+    cout << "THE FIT DOES NOT EXIST! :O";
+    return 0;
+  }
+  TFile* NomFile = TFile::Open(NomFileName,"READ");
+  RooWorkspace *Nomws = (RooWorkspace*)NomFile->Get("workspace");
+  float nomSignal = Nomws->var("nSig1s")->getVal();
+  double scaleFactor = nomSignal/simSignal;
+  cout << "Scale factor = " << scaleFactor << endl;
+
   //Read in yields from fit files
   float avgPercErr = 0;
   for (int iphi=0; iphi<numphibins; iphi++) {
-    float yield = ws->var(Form("nSig%is[%i]",whichUpsilon,iphi))->getVal();
-    float yielderr = ws->var(Form("nSig%is[%i]",whichUpsilon,iphi))->getError();
+    //float datasetSize = ws->data(Form("reducedDS[%i]",iphi))->sumEntries();
+    //float modelSize = ws->var(Form("nSig1s[%i]",iphi))->getVal() + ws->var(Form("nSig2s[%i]",iphi))->getVal() + ws->var(Form("nSig3s[%i]",iphi))->getVal() + ws->var(Form("nBkg[%i]",iphi))->getVal();
+    //cout << "dataset entries = " << datasetSize << endl;
+    //cout << "model entries = " << modelSize << endl;
+    //float scaleFactor = datasetSize/modelSize;
+    float yield = ws->var(Form("nSig%is[%i]",whichUpsilon,iphi))->getVal()*scaleFactor;
+    float yielderr = ws->var(Form("nSig%is[%i]",whichUpsilon,iphi))->getError()*scaleFactor;
+    if (yielderr>yield) yielderr = 0.2*yield;
     //delete ws;
     cout << yield << " +/- " << yielderr;
     float percErr = yielderr/yield*100;

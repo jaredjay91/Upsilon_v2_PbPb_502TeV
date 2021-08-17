@@ -2,6 +2,9 @@
 
 void mergeSystematics(int whichUpsilon=1){
 
+  gStyle->SetPadTickX(1);
+  gStyle->SetPadTickY(1);
+
   double etaGapSensitivity = 0.025; //From https://arxiv.org/pdf/1204.1850.pdf
   double evtPlaneRes = 0.01;
   double evtPlaneUnc = evtPlaneRes+etaGapSensitivity;
@@ -9,7 +12,7 @@ void mergeSystematics(int whichUpsilon=1){
   double singleMuTrkUnc = 0.006; //For PbPb (from Jpsi analysis)  
   double doubleMuTrkUnc = 2*singleMuTrkUnc;
 
-  TString systStr[5] = {"altSig","altBkg","altAcc","altEff","altConst"};
+  TString systStr[5] = {"Signal function","Background function","Acceptance weighting","Efficiency weighting","Parameter constraints"};
 
   TString systFileName[5] = {
 	Form("PseudoExperimentsCode/Ups_%i_v2_cent10-90_altSigSyst.root", whichUpsilon),
@@ -83,22 +86,25 @@ void mergeSystematics(int whichUpsilon=1){
 
   float labelSize = 0.05;
   float legx1 = 0.35;
-  float legx2 = 0.7;
-  float legy1 = 0.63;
+  float legx2 = 0.89;
+  float legy1 = 0.55;
   float legy2 = 0.89;
   TCanvas* cpt = new TCanvas("cpt","cpt",0,0,500,500);
   cpt->cd();
-  hSystptCombined->SetTitle("Systematics vs p_{T}");
-  hSystptCombined->GetXaxis()->SetTitle("p_{T}^{#Upsilon}");
+  hSystptCombined->SetTitle("");
+  hSystptCombined->GetXaxis()->SetTitle("p_{T}^{#varUpsilon}");
   hSystptCombined->GetXaxis()->SetTitleSize(labelSize);
   hSystptCombined->GetXaxis()->SetLabelSize(labelSize);
+  hSystptCombined->GetYaxis()->SetTitle("Relative Systematic Uncertainty in v_{2}^{#varUpsilon}");
+  hSystptCombined->GetYaxis()->SetTitleSize(labelSize);
   hSystptCombined->GetYaxis()->SetLabelSize(labelSize);
   hSystptCombined->SetMinimum(0);
+  hSystptCombined->SetMaximum(2.7);
   hSystptCombined->SetLineColor(1);
   hSystptCombined->SetLineWidth(2);
   hSystptCombined->Draw();
   TLegend* legpt = new TLegend(legx1,legy1,legx2,legy2);
-  legpt->SetTextSize(19);
+  legpt->SetTextSize(20);
   legpt->SetTextFont(43);
   legpt->SetBorderSize(0);
   legpt->AddEntry(hSystptCombined,"Total","l");
@@ -111,22 +117,26 @@ void mergeSystematics(int whichUpsilon=1){
   legpt->Draw("same");
   hSystptCombined->Draw("same");
   gPad->SetBottomMargin(0.12);
+  gPad->SetLeftMargin(0.15);
   gPad->RedrawAxis();
 
 
   TCanvas* cy = new TCanvas("cy","cy",400,0,500,500);
   cy->cd();
-  hSystyCombined->SetTitle("Systematics vs Rapidity");
-  hSystyCombined->GetXaxis()->SetTitle("y^{#Upsilon}");
+  hSystyCombined->SetTitle("");
+  hSystyCombined->GetXaxis()->SetTitle("y^{#varUpsilon}");
   hSystyCombined->GetXaxis()->SetTitleSize(labelSize);
   hSystyCombined->GetXaxis()->SetLabelSize(labelSize);
+  hSystyCombined->GetYaxis()->SetTitle("Relative Systematic Uncertainty in v_{2}^{#varUpsilon}");
+  hSystyCombined->GetYaxis()->SetTitleSize(labelSize);
   hSystyCombined->GetYaxis()->SetLabelSize(labelSize);
   hSystyCombined->SetMinimum(0);
+  hSystyCombined->SetMaximum(2.7);
   hSystyCombined->SetLineColor(1);
   hSystyCombined->SetLineWidth(2);
   hSystyCombined->Draw();
   TLegend* legy = new TLegend(legx1,legy1,legx2,legy2);
-  legy->SetTextSize(19);
+  legy->SetTextSize(20);
   legy->SetTextFont(43);
   legy->SetBorderSize(0);
   legy->AddEntry(hSystyCombined,"Total","l");
@@ -139,21 +149,25 @@ void mergeSystematics(int whichUpsilon=1){
   legy->Draw("same");
   hSystyCombined->Draw("same");
   gPad->SetBottomMargin(0.12);
+  gPad->SetLeftMargin(0.15);
   gPad->RedrawAxis();
 
   TCanvas* cc = new TCanvas("cc","cc",800,0,500,500);
   cc->cd();
-  hSystcCombined->SetTitle("Systematics vs Centrality");
+  hSystcCombined->SetTitle("");
   hSystcCombined->GetXaxis()->SetTitle("Centrality (%)");
   hSystcCombined->GetXaxis()->SetTitleSize(labelSize);
   hSystcCombined->GetXaxis()->SetLabelSize(labelSize);
+  hSystcCombined->GetYaxis()->SetTitle("Relative Systematic Uncertainty in v_{2}^{#varUpsilon}");
+  hSystcCombined->GetYaxis()->SetTitleSize(labelSize);
   hSystcCombined->GetYaxis()->SetLabelSize(labelSize);
   hSystcCombined->SetMinimum(0);
+  hSystcCombined->SetMaximum(2.7);
   hSystcCombined->SetLineColor(1);
   hSystcCombined->SetLineWidth(2);
   hSystcCombined->Draw();
   TLegend* legc = new TLegend(legx1,legy1,legx2,legy2);
-  legc->SetTextSize(19);
+  legc->SetTextSize(20);
   legc->SetTextFont(43);
   legc->SetBorderSize(0);
   legc->AddEntry(hSystcCombined,"Total","l");
@@ -165,7 +179,9 @@ void mergeSystematics(int whichUpsilon=1){
   }
   legc->Draw("same");
   hSystcCombined->Draw("same");
+  hSystcCombined->GetYaxis()->SetTitleOffset(1.4);
   gPad->SetBottomMargin(0.12);
+  gPad->SetLeftMargin(0.15);
   gPad->RedrawAxis();
 
   cpt->SaveAs(Form("Plots/Systpt_%is.pdf", whichUpsilon));

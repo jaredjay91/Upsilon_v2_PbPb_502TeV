@@ -44,7 +44,7 @@ bool isAbout(float num1=0.0, float num2=0.0) {
 static const long MAXTREESIZE = 1000000000000;
 
 void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
-      int dateStr=20210712,
+      int dateStr=20210811,
       bool flattenBinByBin=kTRUE) 
 {
 
@@ -69,20 +69,20 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
   TH1D* hy = new TH1D("hy","hist vs y",numybins,ybins);
   TH1D* hcent = new TH1D("hcent","hist vs cent",numcbins,cbins);
 
-  //gStyle->SetOptStat(0);
+  gStyle->SetOptStat(0);
   //TH1D* hCosAC = new TH1D("hCosAC","cos(2*(psiA-psiC))",50,-1.2,1.2);
   TH1D* hRpt = new TH1D("hRpt","EP Resolution factor vs pt",numptbins,ptbins);
   TH1D* hRy = new TH1D("hRy","EP Resolution factor vs y",numybins,ybins);
   TH1D* hRc = new TH1D("hRc","EP Resolution factor vs cent",numcbins,cbins);
 
   //Event planes
-  TH1D* hEpHF2old = new TH1D("hEpHF2old","hEpHF2old",50,-2,2);
+  //TH1D* hEpHF2old = new TH1D("hEpHF2old","hEpHF2old",50,-2,2);
   TH1D* hEpHF2new = new TH1D("hEpHF2new","hEpHF2new",50,-2,2);
-  TH1D* hEpHFm2old = new TH1D("hEpHFm2old","hEpHFm2old",50,-2,2);
+  //TH1D* hEpHFm2old = new TH1D("hEpHFm2old","hEpHFm2old",50,-2,2);
   TH1D* hEpHFm2new = new TH1D("hEpHFm2new","hEpHFm2new",50,-2,2);
-  TH1D* hEpHFp2old = new TH1D("hEpHFp2old","hEpHFp2old",50,-2,2);
+  //TH1D* hEpHFp2old = new TH1D("hEpHFp2old","hEpHFp2old",50,-2,2);
   TH1D* hEpHFp2new = new TH1D("hEpHFp2new","hEpHFp2new",50,-2,2);
-  TH1D* hEptrackmid2old = new TH1D("hEptrackmid2old","hEptrackmid2old",50,-2,2);
+  //TH1D* hEptrackmid2old = new TH1D("hEptrackmid2old","hEptrackmid2old",50,-2,2);
   TH1D* hEptrackmid2new = new TH1D("hEptrackmid2new","hEptrackmid2new",50,-2,2);
 
   TH1D* hEpHF2 = new TH1D("hEpHF2","hEpHF2",50,-2,2);
@@ -148,6 +148,10 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
 
   //get values for flattening
   TFile* avgFile = TFile::Open(Form("averages/avgEpFile%i.root",nevt),"READ");
+  TH1D* hEpHF2old = (TH1D*)avgFile->Get("hepHF2old;1");
+  TH1D* hEpHFm2old = (TH1D*)avgFile->Get("hepHFm2old;1");
+  TH1D* hEpHFp2old = (TH1D*)avgFile->Get("hepHFp2old;1");
+  TH1D* hEptrackmid2old = (TH1D*)avgFile->Get("heptrackmid2old");
   TH1D* havgCosEp = (TH1D*)avgFile->Get("havgCosEp;1");
   TH1D* havgSinEp = (TH1D*)avgFile->Get("havgSinEp;1");
   TH1D* havgCosEpHFm2 = (TH1D*)avgFile->Get("havgCosEpHFm2;1");
@@ -264,8 +268,8 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
     }
   }
 
-  avgFile->Close();
-  delete avgFile;
+  //avgFile->Close();
+  //delete avgFile;
 
   cout << "Done." << endl;
 
@@ -533,13 +537,13 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
       Double_t epHFm2old = atan2(qy[6],qx[6])/2;
       Double_t epHFp2old = atan2(qy[7],qx[7])/2;
       Double_t eptrackmid2old = atan2(qy[9],qx[9])/2;
-      hEpHF2old->Fill(epHF2old);
+      //hEpHF2old->Fill(epHF2old);
       hEpHF2new->Fill(epHF2rec);
-      hEpHFm2old->Fill(epHFm2old);
+      //hEpHFm2old->Fill(epHFm2old);
       hEpHFm2new->Fill(epHFm2rec);
-      hEpHFp2old->Fill(epHFp2old);
+      //hEpHFp2old->Fill(epHFp2old);
       hEpHFp2new->Fill(epHFp2rec);
-      hEptrackmid2old->Fill(eptrackmid2old);
+      //hEptrackmid2old->Fill(eptrackmid2old);
       hEptrackmid2new->Fill(eptrackmid2rec);
 
       //cout << "ALLPASS=" << ALLPASS << " : qxrec = " << qxrec << " : avgqxrec = " << avgqxrec << endl;
@@ -754,23 +758,29 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
   c3->cd();
   hEpHF2old->SetTitle("Event plane HF2");
   hEpHF2old->GetXaxis()->SetTitle("#psi");
+  hEpHF2old->GetXaxis()->SetTitleSize(0.045);
+  hEpHF2old->GetXaxis()->SetLabelSize(0.045);
+  hEpHF2old->GetYaxis()->SetTitleSize(0.045);
+  hEpHF2old->GetYaxis()->SetLabelSize(0.045);
   hEpHF2old->SetLineWidth(2);
-  hEpHF2old->SetLineStyle(1);
+  hEpHF2old->SetLineStyle(2);
+  float minval = (float)nevt*85000.0/56114317.0;
+  hEpHF2old->SetMinimum(minval);
   hEpHF2old->Draw();
   hEpHF2new->SetLineColor(2);
   hEpHF2new->SetLineWidth(2);
   hEpHF2new->SetLineStyle(7);
   hEpHF2new->Draw("same");
-  hEpHF2->SetLineColor(3);
-  hEpHF2->SetLineWidth(1);
+  hEpHF2->SetLineColor(kGreen+3);
+  hEpHF2->SetLineWidth(2);
   hEpHF2->SetLineStyle(1);
   hEpHF2->Draw("same");
-  TLegend* legc3 = new TLegend(0.4,0.15,0.6,0.3); legc3->SetTextSize(12);
+  TLegend* legc3 = new TLegend(0.35,0.15,0.65,0.45); legc3->SetTextSize(16);
   legc3->SetTextFont(43);
   legc3->SetBorderSize(0);
-  legc3->AddEntry(hEpHF2old,"ep raw","l");
-  legc3->AddEntry(hEpHF2new,"ep recentered","l");
-  legc3->AddEntry(hEpHF2,"ep rec+flattened","l");
+  legc3->AddEntry(hEpHF2old,"EP raw","l");
+  legc3->AddEntry(hEpHF2new,"EP recentered","l");
+  legc3->AddEntry(hEpHF2,"EP rec+flattened","l");
   legc3->Draw("same");
   c3->SaveAs(Form("plots/EventPlaneHF2Change_n%i.pdf",nevt));
   c3->SaveAs(Form("plots/EventPlaneHF2Change_n%i.png",nevt));
@@ -779,23 +789,29 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
   TCanvas* c4 = new TCanvas("c4","c4",0,0,400,400);
   c4->cd();
   hEpHFm2old->SetTitle("Event plane HFm2");
+  hEpHFm2old->GetXaxis()->SetTitle("#psi");
+  hEpHFm2old->GetXaxis()->SetTitleSize(0.045);
+  hEpHFm2old->GetXaxis()->SetLabelSize(0.045);
+  hEpHFm2old->GetYaxis()->SetTitleSize(0.045);
+  hEpHFm2old->GetYaxis()->SetLabelSize(0.045);
   hEpHFm2old->SetLineWidth(2);
-  hEpHFm2old->SetLineStyle(1);
+  hEpHFm2old->SetLineStyle(2);
+  hEpHFm2old->SetMinimum(minval);
   hEpHFm2old->Draw();
   hEpHFm2new->SetLineColor(2);
   hEpHFm2new->SetLineWidth(2);
   hEpHFm2new->SetLineStyle(7);
   hEpHFm2new->Draw("same");
-  hEpHFm2->SetLineColor(3);
-  hEpHFm2->SetLineWidth(1);
+  hEpHFm2->SetLineColor(kGreen+3);
+  hEpHFm2->SetLineWidth(2);
   hEpHFm2->SetLineStyle(1);
   hEpHFm2->Draw("same");
-  TLegend* legc4 = new TLegend(0.4,0.15,0.6,0.3); legc4->SetTextSize(12);
+  TLegend* legc4 = new TLegend(0.35,0.15,0.65,0.45); legc4->SetTextSize(16);
   legc4->SetTextFont(43);
   legc4->SetBorderSize(0);
-  legc4->AddEntry(hEpHFm2old,"ep raw","l");
-  legc4->AddEntry(hEpHFm2new,"ep recentered","l");
-  legc4->AddEntry(hEpHFm2,"ep rec+flattened","l");
+  legc4->AddEntry(hEpHFm2old,"EP raw","l");
+  legc4->AddEntry(hEpHFm2new,"EP recentered","l");
+  legc4->AddEntry(hEpHFm2,"EP rec+flattened","l");
   legc4->Draw("same");
   c4->SaveAs(Form("plots/EventPlaneHFm2Change_n%i.pdf",nevt));
   c4->SaveAs(Form("plots/EventPlaneHFm2Change_n%i.png",nevt));
@@ -804,23 +820,28 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
   c5->cd();
   hEpHFp2old->SetTitle("Event plane HFp2");
   hEpHFp2old->GetXaxis()->SetTitle("#psi");
+  hEpHFp2old->GetXaxis()->SetTitleSize(0.045);
+  hEpHFp2old->GetXaxis()->SetLabelSize(0.045);
+  hEpHFp2old->GetYaxis()->SetTitleSize(0.045);
+  hEpHFp2old->GetYaxis()->SetLabelSize(0.045);
   hEpHFp2old->SetLineWidth(2);
-  hEpHFp2old->SetLineStyle(1);
+  hEpHFp2old->SetLineStyle(2);
+  hEpHFp2old->SetMinimum(minval);
   hEpHFp2old->Draw();
   hEpHFp2new->SetLineColor(2);
   hEpHFp2new->SetLineWidth(2);
   hEpHFp2new->SetLineStyle(7);
   hEpHFp2new->Draw("same");
-  hEpHFp2->SetLineColor(3);
-  hEpHFp2->SetLineWidth(1);
+  hEpHFp2->SetLineColor(kGreen+3);
+  hEpHFp2->SetLineWidth(2);
   hEpHFp2->SetLineStyle(1);
   hEpHFp2->Draw("same");
-  TLegend* legc5 = new TLegend(0.4,0.15,0.6,0.3); legc5->SetTextSize(12);
+  TLegend* legc5 = new TLegend(0.35,0.15,0.65,0.45); legc5->SetTextSize(16);
   legc5->SetTextFont(43);
   legc5->SetBorderSize(0);
-  legc5->AddEntry(hEpHFp2old,"ep raw","l");
-  legc5->AddEntry(hEpHFp2new,"ep recentered","l");
-  legc5->AddEntry(hEpHFp2,"ep rec+flattened","l");
+  legc5->AddEntry(hEpHFp2old,"EP raw","l");
+  legc5->AddEntry(hEpHFp2new,"EP recentered","l");
+  legc5->AddEntry(hEpHFp2,"EP rec+flattened","l");
   legc5->Draw("same");
   c5->SaveAs(Form("plots/EventPlaneHFp2Change_n%i.pdf",nevt));
   c5->SaveAs(Form("plots/EventPlaneHFp2Change_n%i.png",nevt));
@@ -829,23 +850,28 @@ void SkimMMTree_flatten_GetResCor_nords(int nevt=-1,
   c6->cd();
   hEptrackmid2old->SetTitle("Event plane trackmid2");
   hEptrackmid2old->GetXaxis()->SetTitle("#psi");
+  hEptrackmid2old->GetXaxis()->SetTitleSize(0.045);
+  hEptrackmid2old->GetXaxis()->SetLabelSize(0.045);
+  hEptrackmid2old->GetYaxis()->SetTitleSize(0.045);
+  hEptrackmid2old->GetYaxis()->SetLabelSize(0.045);
   hEptrackmid2old->SetLineWidth(2);
-  hEptrackmid2old->SetLineStyle(1);
+  hEptrackmid2old->SetLineStyle(2);
+  hEptrackmid2old->SetMinimum(minval);
   hEptrackmid2old->Draw();
   hEptrackmid2new->SetLineColor(2);
   hEptrackmid2new->SetLineWidth(2);
   hEptrackmid2new->SetLineStyle(7);
   hEptrackmid2new->Draw("same");
-  hEptrackmid2->SetLineColor(3);
-  hEptrackmid2->SetLineWidth(1);
+  hEptrackmid2->SetLineColor(kGreen+3);
+  hEptrackmid2->SetLineWidth(2);
   hEptrackmid2->SetLineStyle(1);
   hEptrackmid2->Draw("same");
-  TLegend* legc6 = new TLegend(0.4,0.15,0.6,0.3); legc6->SetTextSize(12);
+  TLegend* legc6 = new TLegend(0.35,0.15,0.65,0.45); legc6->SetTextSize(16);
   legc6->SetTextFont(43);
   legc6->SetBorderSize(0);
-  legc6->AddEntry(hEptrackmid2old,"ep raw","l");
-  legc6->AddEntry(hEptrackmid2new,"ep recentered","l");
-  legc6->AddEntry(hEptrackmid2,"ep rec+flattened","l");
+  legc6->AddEntry(hEptrackmid2old,"EP raw","l");
+  legc6->AddEntry(hEptrackmid2new,"EP recentered","l");
+  legc6->AddEntry(hEptrackmid2,"EP rec+flattened","l");
   legc6->Draw("same");
   c6->SaveAs(Form("plots/EventPlanetrackmid2Change_n%i.pdf",nevt));
   c6->SaveAs(Form("plots/EventPlanetrackmid2Change_n%i.png",nevt));

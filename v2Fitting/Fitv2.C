@@ -36,6 +36,8 @@ void Fitv2(
   else if (whichSyst==5) systStr = "altConst";
 
   gStyle->SetOptStat(0);
+  gStyle->SetPadTickX(1);
+  gStyle->SetPadTickY(1);
 
   TString fileLabel = getKineLabel (collId, ptLow, ptHigh, yLow, yHigh, muPtCut, cLow, cHigh, 0.0, 0.5);
 
@@ -43,12 +45,32 @@ void Fitv2(
   TFile* yieldsFile = TFile::Open(Form("ExtractedYields/%syieldsVsPhi_%iS_%s.root", systStr.Data(), whichUpsilon, fileLabel.Data()), "READ");
   TH1D* yieldsVsPhi = (TH1D*)yieldsFile->Get("yieldsVsPhi;1");
 
+  //Print some information about the yields
+  float tot_yield = 0.0;
+  float tot_yielderr = 0.0;
+  for (int i=1; i<5; i++) {
+    float yield = yieldsVsPhi->GetBinContent(i);
+    float yielderr = yieldsVsPhi->GetBinError(i);
+    cout << "Yield = " << yield << " +/- " << yielderr << endl;
+    tot_yield += yield;
+    tot_yielderr += pow(yielderr,2);
+  }
+  cout << "Total yield = " << tot_yield << " $\\pm$ " << sqrt(tot_yielderr) << endl;
+
   //Plot it
   TCanvas* c1 = new TCanvas("c1","c1",50,50,550,550);
   yieldsVsPhi->Draw();
   yieldsVsPhi->SetTitle("");
   yieldsVsPhi->GetXaxis()->SetTitle("|#Delta#phi|/#pi");
+  yieldsVsPhi->GetXaxis()->SetTitleSize(0.045);
+  yieldsVsPhi->GetXaxis()->SetLabelSize(0.045);
   yieldsVsPhi->GetYaxis()->SetTitle(Form("Normalized yield of #Upsilon(%iS)",whichUpsilon));
+  yieldsVsPhi->GetYaxis()->SetTitleOffset(1.5);
+  yieldsVsPhi->GetYaxis()->SetTitleSize(0.045);
+  yieldsVsPhi->GetYaxis()->SetLabelSize(0.045);
+  yieldsVsPhi->SetMarkerStyle(8);
+  yieldsVsPhi->SetMarkerColor(1);
+  yieldsVsPhi->SetLineColor(1);
   double totalintegral = yieldsVsPhi->Integral(1,4);
   yieldsVsPhi->Scale(1.0/totalintegral);
   yieldsVsPhi->SetMinimum(0);
@@ -61,18 +83,19 @@ void Fitv2(
   fitfunc->SetParNames("Amp","v2","v3","v4");*/
   /*TF1* fitfunc = new TF1("fitfunc","[0]*( 1 + 2*[1]*cos(2*x*3.14159265))",0,0.5);
   fitfunc->SetParNames("Amp","v2");*/
-  TF1* fitfunc = new TF1("fitfunc"," 0.25*(1 + 2*[1]*cos(2*x*3.14159265))",0,0.5);
+  TF1* fitfunc = new TF1("fitfunc"," 0.25*(1 + 2*[0]*cos(2*x*3.14159265))",0,0.5);
   fitfunc->SetParNames("v2");
   yieldsVsPhi->Fit("fitfunc");
 
-  TLegend* leg1 = new TLegend(0.6,0.75,0.89,0.89);
+  TLegend* leg1 = new TLegend(0.55,0.7,0.87,0.85);
   leg1->SetBorderSize(0);
+  leg1->SetTextSize(0.045);
   leg1->AddEntry(yieldsVsPhi,"Normalized yield","pel");
   leg1->AddEntry(fitfunc,"Fit","l");
   leg1->Draw("same");
 
-  double v2Val = fitfunc->GetParameter(1);
-  double v2Err = fitfunc->GetParError(1);
+  double v2Val = fitfunc->GetParameter(0);
+  double v2Err = fitfunc->GetParError(0);
   cout << "v2 = " << v2Val << " +/- " << v2Err << endl;
   TLatex latex;
   latex.SetTextSize(0.05);
@@ -81,9 +104,9 @@ void Fitv2(
 
   TString perc = "%";
   float pos_text_x = 0.2;
-  float pos_text_y = 0.85;
+  float pos_text_y = 0.8;
   float pos_y_diff = 0.06;
-  float text_size = 16;
+  float text_size = 20;
   int text_color = 1;
   drawText(Form("p_{T}^{#mu} > %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y,text_color,text_size);
   drawText(Form("|#eta^{#mu}| < %.1f GeV/c", muPtCut ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
@@ -93,7 +116,7 @@ void Fitv2(
   if(yLow==0) drawText(Form("|y^{#mu#mu}| < %.2f",yHigh ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
   else drawText(Form("%.2f < |y^{#mu#mu}| < %.2f",yLow,yHigh ), pos_text_x,pos_text_y-pos_y_diff,text_color,text_size);
   drawText(Form("Centrality %i-%i%s", cLow,cHigh, perc.Data() ), pos_text_x,pos_text_y-pos_y_diff*2,text_color,text_size);
-  pos_text_x = 0.7;
+  pos_text_x = 0.6;
   drawText(Form("v_{2} = %.3f #pm %.3f", v2Val,v2Err), pos_text_x,pos_text_y-pos_y_diff*2,2,text_size);
 
   c1->Update();

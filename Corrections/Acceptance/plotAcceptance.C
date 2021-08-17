@@ -9,9 +9,11 @@
 
 const Double_t pi = 3.141592653589;
 
-void plotAcceptance(int nevt=-1, int dateStr=20210702, int weighted=0){
+void plotAcceptance(int nevt=-1, int dateStr=20211021, int weighted=0){
 
   gStyle->SetOptStat(0);
+  gStyle->SetPadTickX(1);
+  gStyle->SetPadTickY(1);
 
   using namespace std;
   using namespace hi;
@@ -272,10 +274,12 @@ void plotAcceptance(int nevt=-1, int dateStr=20210702, int weighted=0){
   hReco->Draw("colz");
   gPad->SetRightMargin(0.12);
 
+
+
   //Acceptance cut line
   TLine* l1 = new TLine(0.0,3.5,2.4,3.5);
   l1->SetLineColor(kRed);
-  l1->SetLineWidth(2);
+  l1->SetLineWidth(4);
   l1->Draw("same");
 
   cData->SaveAs("PbPbAcceptance.png");

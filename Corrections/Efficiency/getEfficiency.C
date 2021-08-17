@@ -38,7 +38,7 @@ double getSFs(double pt1, double eta1, int filterId1, double pt2, double eta2, i
   return weight;
 }
 
-void getEfficiency(int nevt=-1, int dateStr=20210712, int weighted=0){
+void getEfficiency(int nevt=10000, int dateStr=20210811, int weighted=0){
 
   gStyle->SetOptStat(0);
 
@@ -408,7 +408,7 @@ void getEfficiency(int nevt=-1, int dateStr=20210712, int weighted=0){
       weight = findNcoll(Centrality)*Gen_weight;
       ptweight = fitRatio->Eval(pt);
 
-      /*cout << "Getting scale factors." << endl;
+      cout << "Getting scale factors." << endl;
 
       //Get scale factors
       //We have to use an L2 muon and an L3 muon.
@@ -442,8 +442,8 @@ void getEfficiency(int nevt=-1, int dateStr=20210712, int weighted=0){
       if ((filterId1<3) && (filterId2<3)) continue;
 
       weight = weight*getSFs(pt1,eta1,filterId1,pt2,eta2,filterId2);
-*/
-      weight = weight*getSFs(pt1,eta1,2,pt2,eta2,2);
+
+      //weight = weight*getSFs(pt1,eta1,2,pt2,eta2,2);
 
       //Increment NUMERATOR with scale factors
       hEffInt->Fill(pt,weight*ptweight);

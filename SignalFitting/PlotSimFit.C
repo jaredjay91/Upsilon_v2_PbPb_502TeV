@@ -78,14 +78,14 @@ void PlotSimFit(
   //import the model
   cout << "Importing workspace" << endl;
   TString kineLabel = getKineLabel (collId, ptLow, ptHigh, yLow, yHigh, muPtCut, cLow, cHigh, 0.0, 0.5);
-  TString NomFileName = Form("%ssim_dphi%sfitresults_upsilon_%s.root", directory.Data(), systStr.Data(), kineLabel.Data());
-  cout << NomFileName << endl;
-  if (gSystem->AccessPathName(NomFileName)) {
+  TString SimFileName = Form("%ssim_dphi%sfitresults_upsilon_%s.root", directory.Data(), systStr.Data(), kineLabel.Data());
+  cout << SimFileName << endl;
+  if (gSystem->AccessPathName(SimFileName)) {
     cout << "THE FIT DOES NOT EXIST! :O";
     return 0;
   }
-  TFile* NomFile = TFile::Open(NomFileName,"READ");
-  RooWorkspace *ws = (RooWorkspace*)NomFile->Get("workspace");
+  TFile* SimFile = TFile::Open(SimFileName,"READ");
+  RooWorkspace *ws = (RooWorkspace*)SimFile->Get("workspace");
   RooAbsData* reducedDS = ws->data("reducedDS[0]");
   RooFitResult* fitRes2 = (RooFitResult*)ws->obj("fitresult_model_dsABCD");
   fitRes2->Print("v");
@@ -102,6 +102,22 @@ void PlotSimFit(
   int nBins = nMassBin;
   double *ypull[4];
   TLine l1[4];
+
+  //Scale the yield parameters to match the true value (no change in relative yields, so no change in v2. This just ensures that the proper yields are printed on the plots.)
+  float simSignal = 0.0;
+  for (int i=0; i<4; i++) {
+    simSignal = simSignal + ws->var(Form("nSig1s[%i]",i))->getVal();
+  }
+  TString NomFileName = Form("RoundFits_R4a/nomfitresults_upsilon_%s.root",kineLabel.Data());
+  //cout << NomFileName << endl;
+  if (gSystem->AccessPathName(NomFileName)) {
+    cout << "THE FIT DOES NOT EXIST! :O";
+    return 0;
+  }
+  TFile* NomFile = TFile::Open(NomFileName,"READ");
+  RooWorkspace *Nomws = (RooWorkspace*)NomFile->Get("workspace");
+  float nomSignal = Nomws->var("nSig1s")->getVal();
+  double scaleFactor = nomSignal/simSignal;
 
   RooAbsPdf* cb1s = ws->pdf("cb1s");
   RooAbsPdf* cb2s = ws->pdf("cb2s");
@@ -141,8 +157,13 @@ void PlotSimFit(
     myPlot[i]->GetXaxis()->SetTitleSize(0);
     myPlot[i]->Draw();
 
-    cout << "dataset entries = " << ws->data(Form("reducedDS[%i]",i))->sumEntries() << endl;
+    //float datasetSize = ws->data(Form("reducedDS[%i]",i))->sumEntries();
+    //float modelSize = ws->var(Form("nSig1s[%i]",i))->getVal() + ws->var(Form("nSig2s[%i]",i))->getVal() + ws->var(Form("nSig3s[%i]",i))->getVal() + ws->var(Form("nBkg[%i]",i))->getVal();
+    //cout << "dataset entries = " << datasetSize << endl;
     //cout << "model entries = " << ws->pdf(Form("model[%i]",i))->normRange() << endl;
+    //cout << "Normalization = " << modelSize << endl;
+    //scaleFactor[i] = datasetSize/modelSize;
+    //cout << "Scale factor = " << scaleFactor[i] << endl;
 
     float dphiEp2Low = dphiEp2bins[i];
     float dphiEp2High = dphiEp2bins[i+1];
@@ -190,7 +211,7 @@ void PlotSimFit(
       }
       drawText(paramText, pos_text_x_params,pos_text_y_params-pos_y_diff_params*iparam,text_color_params,text_size_params);
     }
-    paramText = Form("#Upsilon_{1S} signal = %.0f #pm %.0f", ws->var(Form("nSig1s[%i]",i))->getVal(), ws->var(Form("nSig1s[%i]",i))->getError());
+    paramText = Form("#Upsilon_{1S} signal = %.0f #pm %.0f", ws->var(Form("nSig1s[%i]",i))->getVal()*scaleFactor, ws->var(Form("nSig1s[%i]",i))->getError()*scaleFactor);
     drawText(paramText, pos_text_x_params, pos_text_y_params-pos_y_diff_params*9, text_color_params, text_size_params);
 
     // PULL
@@ -272,12 +293,12 @@ void PlotSimFit(
   float temp3err[4];
 
   for (int i=0; i<4; i++) {
-    temp1[i] = ws->var(Form("nSig1s[%i]",i))->getVal();  
-    temp1err[i] = ws->var(Form("nSig1s[%i]",i))->getError();  
-    temp2[i] = ws->var(Form("nSig2s[%i]",i))->getVal();  
-    temp2err[i] = ws->var(Form("nSig2s[%i]",i))->getError();  
-    temp3[i] = ws->var(Form("nSig3s[%i]",i))->getVal();  
-    temp3err[i] = ws->var(Form("nSig3s[%i]",i))->getError();  
+    temp1[i] = ws->var(Form("nSig1s[%i]",i))->getVal()*scaleFactor;  
+    temp1err[i] = ws->var(Form("nSig1s[%i]",i))->getError()*scaleFactor;  
+    temp2[i] = ws->var(Form("nSig2s[%i]",i))->getVal()*scaleFactor;  
+    temp2err[i] = ws->var(Form("nSig2s[%i]",i))->getError()*scaleFactor;  
+    temp3[i] = ws->var(Form("nSig3s[%i]",i))->getVal()*scaleFactor;  
+    temp3err[i] = ws->var(Form("nSig3s[%i]",i))->getError()*scaleFactor;  
 
     cout << "1S signal    =  " << temp1[i] << " +/- " << temp1err[i] << endl;
     cout << "2S signal    =  " << temp2[i] << " +/- " << temp2err[i] << endl;

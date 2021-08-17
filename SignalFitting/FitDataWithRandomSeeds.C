@@ -38,8 +38,8 @@ using namespace std;
 using namespace RooFit;
 double FitDataWithRandomSeeds( 
        int collId = kAADATA,
-       float ptLow=0, float ptHigh=3,
-       float yLow=2.1, float yHigh=2.4,//Run 1 has p going in -z direction
+       float ptLow=0, float ptHigh=50,
+       float yLow=0.0, float yHigh=2.4,//Run 1 has p going in -z direction
        int cLow=10, int cHigh=90,//%centrality
        float muPtCut=3.5,
        float dphiEp2Low = 0.0,//units of PI
@@ -50,7 +50,7 @@ double FitDataWithRandomSeeds(
 // 2: AltBkg
 // 3: AltAcc
 // 4: AltEff
-       bool randomSeeds=kTRUE,
+       bool randomSeeds=kFALSE,
        int whichRound=R4a
 			) 
 {
@@ -349,8 +349,8 @@ else {
     //import ICs
     cout << "Importing workspace" << endl;
     TString kineLabelICs = getKineLabel(collId, ptLow, ptHigh, yLow, yHigh, muPtCut, cLow, cHigh, 0.0, 0.5);
-    //TString NomFileName = Form("AllParamFree/%sfitresults_upsilon_%s.root", systStr.Data(), kineLabelICs.Data());
-    TString NomFileName = Form("RoundFits_%s/nomfitresults_upsilon_%s.root", roundLabel[whichRound-2].Data(), kineLabelICs.Data());
+    TString NomFileName = Form("AllParamFree/%sfitresults_upsilon_%s.root", systStr.Data(), kineLabelICs.Data());
+    //TString NomFileName = Form("RoundFits_%s/nomfitresults_upsilon_%s.root", roundLabel[whichRound-2].Data(), kineLabelICs.Data());
     if (whichRound<R2a) NomFileName = Form("AllParamFree/nomfitresults_upsilon_%s.root", kineLabelICs.Data());
     cout << NomFileName << endl;
     TFile* NomFile = TFile::Open(NomFileName,"READ");

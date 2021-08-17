@@ -14,10 +14,14 @@ const Double_t pi = 3.141592653589;
 TF1* fWgtAA1 = new TF1("fWgtAA1","(([0]-1)*([0]-2)*([2]*[3]*([2]*[3]+([2]-2)*9.460))*TMath::Power((1+(TMath::Sqrt(9.460*9.460+x*x)-9.460)/([0]*[1])),-[0])/(([0]*[1]*([0]*[1]+([0]-2)*9.460))*(([2]-1)*([2]-2))*TMath::Power((1+(TMath::Sqrt(9.460*9.460+x*x)-9.460)/([2]*[3])),-[2])))");
 TF1* fdNdpTWgt = new TF1("fdNdpTWgt","([0]+[1]*x+[2]*x*x)/((x-[3])*(x-[3])*(x-[3]))");
 
-void getAcceptanceFrom19001Skim(int nevt=-1, int dateStr=20210707, int weighted=0) 
+void getAcceptanceFrom19001Skim(int nevt=-1, int dateStr=20210812, int weighted=0) 
 {
 
   gStyle->SetOptStat(0);
+  gStyle->SetPadTickX(1);
+  gStyle->SetPadTickY(1);
+
+  float textSize = 0.045;
 
   using namespace std;
   using namespace hi;
@@ -144,11 +148,18 @@ void getAcceptanceFrom19001Skim(int nevt=-1, int dateStr=20210707, int weighted=
   hAccPtNoW->Divide(hDenPtNoW);
 
   TCanvas* c1 = new TCanvas("c1","c1",0,0,500,500);
+  hAccPtNoW->GetXaxis()->SetTitleSize(textSize);
+  hAccPtNoW->GetXaxis()->SetLabelSize(textSize);
+  hAccPtNoW->GetXaxis()->SetTitleOffset(1.2);
+  hAccPtNoW->GetYaxis()->SetTitleSize(textSize);
+  hAccPtNoW->GetYaxis()->SetLabelSize(textSize);
   hAccPtNoW->Draw("PE");
   hAccPt->Draw("same PE");
+  c1->SetBottomMargin(0.15);
+  c1->SetLeftMargin(0.15);
 
   TLegend* leg = new TLegend(0.2,0.7,0.5,0.8);
-  //leg->SetTextSize(19);
+  leg->SetTextSize(textSize);
   //leg->SetTextFont(43);
   leg->SetBorderSize(0);
   leg->AddEntry(hAccPtNoW,"unweighted","pe");

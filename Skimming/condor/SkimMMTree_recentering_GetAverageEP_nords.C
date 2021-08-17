@@ -27,7 +27,7 @@ Double_t getDPHI_Jared( Double_t phi1, Double_t phi2) {
 
 static const long MAXTREESIZE = 1000000000000;
 
-void SkimMMTree_recentering_GetAverageEP_nords(int nevt=10000, int dateStr=20210317) 
+void SkimMMTree_recentering_GetAverageEP_nords(int nevt=-1, int dateStr=20210711) 
 {
 
   using namespace std;
@@ -756,6 +756,7 @@ void SkimMMTree_recentering_GetAverageEP_nords(int nevt=10000, int dateStr=20210
 
   c2->SaveAs(Form("plots/recenteringHistos_n%i.pdf",nevt));
   c2->SaveAs(Form("plots/recenteringHistos_n%i.png",nevt));
+  c2->SaveAs(Form("plots/recenteringHistos_n%i.C",nevt));
 
   hepHF2old->Write();
   hepHF2new->Write();
@@ -777,6 +778,7 @@ void SkimMMTree_recentering_GetAverageEP_nords(int nevt=10000, int dateStr=20210
 
   c3->SaveAs(Form("plots/recenteringEventPlane_n%i.pdf",nevt));
   c3->SaveAs(Form("plots/recenteringEventPlane_n%i.png",nevt));
+  c3->SaveAs(Form("plots/recenteringEventPlane_n%i.C",nevt));
 
   TCanvas* c3HFm2 = new TCanvas("c3HFm2","c3HFm2",0,0,800,400);
   c3HFm2->Divide(2);
@@ -789,6 +791,7 @@ void SkimMMTree_recentering_GetAverageEP_nords(int nevt=10000, int dateStr=20210
 
   c3HFm2->SaveAs(Form("plots/recenteringEventPlaneHFm2_n%i.pdf",nevt));
   c3HFm2->SaveAs(Form("plots/recenteringEventPlaneHFm2_n%i.png",nevt));
+  c3HFm2->SaveAs(Form("plots/recenteringEventPlaneHFm2_n%i.C",nevt));
 
   TCanvas* c3HFp2 = new TCanvas("c3HFp2","c3HFp2",0,0,800,400);
   c3HFp2->Divide(2);
@@ -801,6 +804,7 @@ void SkimMMTree_recentering_GetAverageEP_nords(int nevt=10000, int dateStr=20210
 
   c3HFp2->SaveAs(Form("plots/recenteringEventPlaneHFp2_n%i.pdf",nevt));
   c3HFp2->SaveAs(Form("plots/recenteringEventPlaneHFp2_n%i.png",nevt));
+  c3HFp2->SaveAs(Form("plots/recenteringEventPlaneHFp2_n%i.C",nevt));
 
   TCanvas* c3trackmid2 = new TCanvas("c3trackmid2","c3trackmid2",0,0,800,400);
   c3trackmid2->Divide(2);
@@ -813,6 +817,7 @@ void SkimMMTree_recentering_GetAverageEP_nords(int nevt=10000, int dateStr=20210
 
   c3trackmid2->SaveAs(Form("plots/recenteringEventPlanetrackmid2_n%i.pdf",nevt));
   c3trackmid2->SaveAs(Form("plots/recenteringEventPlanetrackmid2_n%i.png",nevt));
+  c3trackmid2->SaveAs(Form("plots/recenteringEventPlanetrackmid2_n%i.C",nevt));
 
   avgFile->Close();
 
